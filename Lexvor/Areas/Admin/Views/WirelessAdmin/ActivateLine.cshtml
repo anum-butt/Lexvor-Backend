@@ -1,0 +1,46 @@
+﻿@using Lexvor.API.Objects
+@using Lexvor.API.Objects.User
+@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers.API
+@model Lexvor.API.Objects.UserPlan
+@{
+	ViewData["Title"] = "Activate Line";
+	Layout = "_AdminLayout";
+	ViewData["PageTitle"] = $"Activate Line for {Model.Profile.FullName}";
+}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">
+				<h4>@Model.Profile.FullName</h4>
+			</div>
+			<div class="card-body">
+				<h3>Clicking continue will activate this line. This will immediately:</h3>
+				<ul>
+					<li>
+						Incur the line activation charge to Lexvor
+					</li>
+					<li>
+						Start the number port
+					</li>
+					<li>
+						Set the customers Bill date for their plan to today
+					</li>
+				</ul>
+				<p>Make sure that the user has a device and SIM, in hand, that they can use with our service before Activating the line.</p>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<form role="form" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
+					<input type="hidden" asp-for="Id" />
+					<button type="submit" class="btn btn-danger">Confirm and Activate</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+@section scripts {
+	<script>
+	</script>
+}

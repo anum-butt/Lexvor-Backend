@@ -1,0 +1,203 @@
+﻿@using Lexvor.Controllers
+@using Newtonsoft.Json
+@model Lexvor.Models.AccessoryPurchaseViewModel
+
+@{
+	ViewData["Title"] = "Accessories";
+	Layout = "_Layout";
+	ViewData["PageName"] = "Accessories";
+	ViewData["PageSubtitle"] = "Pick some accessories for your new phone.";
+}
+
+<div class="row page-min-height" id="vue-app">
+	<div class="col-xl-12 col-md-12">
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-body">
+						<h4>Please select which accessories you want for each of your lines.</h4>
+						<p class="text-muted">Some accessories have optional lifetime warranties.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div v-for="(plan, index) in PlanModels" class="@(Model.PlanModels.Count == 1 ? "col-md-12" : Model.PlanModels.Count == 2 ? "col-md-6" : Model.PlanModels.Count == 3 ? "col-md-4" : Model.PlanModels.Count == 4 ? "col-md-3" : "col-md-2")">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="text-center">{{plan.UserPlan.Name}}</h2>
+						<h4 class="text-center">Line {{index + 1}} - {{plan.UserPlan.Device.Name}}</h4>
+						<hr />
+						<div v-for="group in plan.AccessoryGroups">
+							<div class="card">
+								<div class="card-header">
+									<h4>{{group.GroupName}}</h4>
+								</div>
+								<div class="card-body">
+									<table class="table">
+										<tr v-for="acc in group.Accessories">
+											@if (Model.PlanModels.Count <= 2) {
+												<td v-if="acc.ImageUrl" class="clickable" v-on:click="show(acc.Id)">
+													<img v-bind:src="'https://lexvorassets.blob.core.windows.net/website-assets/' + acc.ImageUrl" style="max-height: 55px;" />
+												</td>
+											}
+											<td>
+												<div class="radio-selection-heading clickable" v-on:click="show(acc.Id)">{{acc.Name}} <span>(${{acc.Price / 100}})</span></div>
+												<div v-if="acc.LifetimeWarranty">Optional Lifetime Warranty <span class="span-help-text">(${{acc.LifetimeWarrantyPrice / 100}})</span></div>
+											</td>
+											<td>
+												<input type="checkbox" class="mt-2" v-on:change="updateTotals" v-model="acc.Selected"/><br/>
+												<input type="checkbox" class="mt-2" v-on:change="updateTotals" v-model="acc.SelectedWarranty" v-if="acc.LifetimeWarranty"/>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-footer">
+						Total: ${{plan.Total}}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="alert alert-danger" v-show="hasError">
+					{{error}}
+				</div>
+				<div class="card">
+					<div class="card-footer text-center">
+						<button class="btn btn-primary" v-on:click="orderAccessories()">I'm done selecting accessories</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div>
+		<div v-for="group in PlanModels[0].AccessoryGroups">
+			<div v-for="acc in group.Accessories">
+				<div class="modal fade" v-bind:id="acc.Id" tabindex="-1" role="dialog" aria-labelledby="accessoryDetails" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="noStockModal">{{acc.Name}}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<img v-bind:src="'https://lexvorassets.blob.core.windows.net/website-assets/' + acc.ImageUrl" class="full-width" style="width: 100%;" />
+								<p>{{acc.Description}}</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+
+	<environment include="Development">
+		<script src="~/js/vue.js" asp-append-version="true"></script>
+		<script src="~/js/vue-addons.js" asp-append-version="true"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="~/js/vue.min.js" asp-append-version="true"></script>
+		<script src="~/js/vue-addons.min.js" asp-append-version="true"></script>
+	</environment>
+
+	<script>
+		function unpinSidenav($this) {
+			$('.sidenav-toggler').removeClass('active');
+			$('.sidenav-toggler').data('action', 'sidenav-pin');
+			$('body').removeClass('sidenav-pinned');
+			$('body').addClass('ready')
+			$('body').find('.sidenav-mask').remove();
+			var $sidenav = $($this.data('target'));
+			$sidenav.removeClass('show');
+			// Store the sidenav state in a cookie session
+			localStorage.setItem('sidenav-state', 'unpinned');
+		}
+
+		$(document).ready(function() {
+			unpinSidenav($('.sidenav-toggler'));
+		});
+
+		var app = new Vue({
+			el: '#vue-app',
+			data: Object.assign(@Html.Raw(JsonConvert.SerializeObject(Model)),
+				{
+					hasError: false,
+					error: ""
+				}),
+			created: function() {
+			},
+			mounted: function() {
+			},
+			methods: {
+				show: function(id) {
+					$('#' + id).modal();
+				},
+				updateTotals: function() {
+					for (var i = 0; i < this.PlanModels.length; i++) {
+						var model = this.PlanModels[i];
+						var total = 0;
+						for (var j = 0; j < model.AccessoryGroups.length; j++) {
+							var group = model.AccessoryGroups[j];
+							var selected = group.Accessories.filter(g => { return g.Selected; });
+							for (var k = 0; k < selected.length; k++) {
+								total += selected[k].Price * 1;
+								if (selected[k].SelectedWarranty) {
+									total += selected[k].LifetimeWarrantyPrice * 1;
+								}
+							}
+						}
+						model.Total = total / 100;
+					}
+				},
+				orderAccessories: function() {
+						// Check if user has selected more than one of each grouping
+						for (var i = 0; i < this.PlanModels.length; i++) {
+							var model = this.PlanModels[i];
+							for (var j = 0; j < model.AccessoryGroups.length; j++) {
+								var group = model.AccessoryGroups[j];
+								var selected = group.Accessories.filter(g => { return g.Selected; });
+								if (selected.length > 1) {
+									this.hasError = true;
+									this.error = "Line " + (i + 1) + " has more than one of the same type of accessory selected. Please only choose one " + group.GroupName + " per line.";
+									return;
+								}
+							}
+						}
+
+						var url = buildUrl('/Plan/SetAccessoryPurchase/');
+						axios.post(url, this.PlanModels).then(response => {
+							if (response.data.success) {
+								window.location.href = '@Url.Action(nameof(PurchaseController.ActionNavigator), PurchaseController.Name, new {returnUrl = ViewData["returnUrl"]})';
+							} else {
+								this.hasError = true;
+								this.error = response.data.error;
+							}
+						}).catch(error => {
+							this.hasError = true;
+							this.error = error;
+						});
+				},
+			}
+		});
+
+		function debounce(func, timeout = 300) {
+			var timer;
+			return (...args) => {
+				clearTimeout(timer);
+				timer = setTimeout(() => { func.apply(this, args); }, timeout);
+			};
+		}
+	</script>
+}

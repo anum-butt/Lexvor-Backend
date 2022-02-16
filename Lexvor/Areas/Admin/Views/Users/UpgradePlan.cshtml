@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Lexvor.Models.AdminViewModels.UserUpgradePlanDetailsViewModel>
+
+@{
+	ViewData["Title"] = "User Plans";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<div>
+				<h5>User Plans</h5>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								User Name
+							</th>
+							<th>
+								Plan Name
+							</th>
+							<th>
+								Telispire Plan Name
+							</th>
+							<th>
+								Usage
+							</th>
+							<th>
+								Change Plan
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.Any())
+						{
+							foreach (var item in Model)
+							{
+								<tr>
+									<td>
+										@item.UserName
+									</td>
+									<td>
+										@item.UserPlan.PlanType.Name
+									</td>
+									<td>
+										@item.TelispirePlan
+									</td>
+									<td>
+										Minutes: @item.TelispireUsage.Minutes, KB: @item.TelispireUsage.KBData, SMS: @item.TelispireUsage.SMS
+									</td>
+									<td>
+										<a href="@Url.Action(nameof(Lexvor.Areas.Admin.Controllers.UsersController.ChangePlan), "Users", new {id = item.UserPlan.Profile.Id, planid= item.UserPlan.Id})">Change Plan</a>
+									</td>
+								</tr>
+							}
+						}
+						else
+						{
+							<tr><td colspan="4">No Plans</td></tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</li>
+</ul>

@@ -1,0 +1,41 @@
+﻿@model Lexvor.API.Objects.User.AccountCredit
+@{
+    ViewData["Title"] = "Create";
+}
+<h2>Create</h2>
+<h4>Account Credit</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ProfileId" class="form-control" />
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Reason" class=" control-label"></label>
+                <input asp-for="Reason" class="form-control" />
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+            <hr />
+            <div class="form-group">
+                <label asp-for="ApplicableToInitiation" class="control-label"></label>
+                <input asp-for="ApplicableToInitiation" class="form-control" />
+                <span asp-validation-for="ApplicableToInitiation" class="text-danger"></span>
+            </div>
+            <hr />
+            <div class="form-group">
+                <label asp-for="ApplicableToMonthlyFee" class=" control-label"></label>
+                <input asp-for="ApplicableToMonthlyFee" class="form-control" />
+                <span asp-validation-for="ApplicableToMonthlyFee" class="text-danger"></span>
+            </div>
+            <hr/>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>

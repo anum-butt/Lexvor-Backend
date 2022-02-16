@@ -1,0 +1,315 @@
+﻿@using Lexvor.API.Objects.Enums
+@using Lexvor.API.Objects.User
+@using Lexvor.Controllers
+@using System.Web;
+@using Lexvor.API
+@using Lexvor.Extensions
+@model Lexvor.Models.HomeViewModels.HomeIndexViewModel
+@{
+	ViewData["Title"] = "Lexvor";
+	ViewData["PageName"] = "Dashboard";
+	ViewData["PageSubtitle"] = "Active Plans";
+}
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		@if (Model.Plans.Count == 0)
+		{
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body text-center">
+							<h4>You don't have any plans, you must be new. Welcome! The next step is to sign up for a plan using the button below.</h4>
+							<a href="@Url.Action(nameof(PlanController.Index), PlanController.Name)" class="btn btn-lg btn-info mt-6 mb-6">Subscribe to a Plan!</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="row">
+				@foreach (var item in Model.Plans)
+				{
+					<div class="col-lg-4 col-sm-6">
+						<div class="card">
+							<div class="card-header">
+								<div class="row align-items-center">
+									<div class="col-12">
+										<h5 class="card-title mb-0">
+											@if (!item.MDN.IsNull())
+											{
+											<span class="num-font">@StaticUtils.FormatPhone(item.MDN)</span>
+											}
+											else
+											{
+												@:Number Not Yet Assigned
+											}
+											@if (!item.AgreementSigned && !item.IsWirelessOnly())
+											{
+												<a href="@Url.Action(nameof(ProfileController.Agreement), ProfileController.Name, new { planId = item.Id })" data-toggle="tooltip" title="Missing lease agreement"><i class="fas fa-exclamation-triangle text-danger"></i></a>
+											}
+										</h5>
+										<span class="text-muted text-sm">
+											@if (!item.IsWirelessOnly())
+											{
+												@:Wireless & Device
+											}
+											else
+											{
+												@:Wireless
+											} - @(item.UserDevice!= null && item.UserDevice.BYOD ? "BYOD" : $"{item.Device?.Name}")
+										</span>
+										@if (item.Status != PlanStatus.Active)
+										{
+											<br />
+											<span class="badge badge-warning badge-pill">
+												@item.Status.ToString()
+											</span>
+										}
+									</div>
+								</div>
+							</div>
+							<div class="card-body">
+								<figure class="figure">
+									@if (!item.IsWirelessOnly())
+									{
+										if (item?.Device != null)
+										{
+											<img alt="@item.Device.ImageUrl" src="https://lexvorassets.blob.core.windows.net/website-assets/@item.Device.ImageUrl" class="img-center img-fluid max-h-10">
+										}
+										else
+										{
+											<img class="img-center img-fluid max-h-10" src="~/old/images/phone-placeholder.png" alt="" />
+										}
+									}
+									else
+									{
+										<img class="img-center img-fluid max-h-10" src="~/old/images/phone-placeholder.png" alt="" />
+									}
+								</figure>
+							</div>
+							<div class="card-footer">
+								<div class="row align-items-center">
+									@if (item.Status == PlanStatus.Pending)
+									{
+										<div class="col-12">
+											<a href="@Url.Action(nameof(PurchaseController.ActionNavigator), PurchaseController.Name,
+												         new { returnUrl = Url.Action(nameof(PlanController.ActivatePlans), PlanController.Name)})" class="btn btn-sm btn-primary">Complete Purchase</a>
+											<div class="text-right">
+												<a href="@Url.Action(nameof(PlanController.CancelPendingPlan), PlanController.Name, new {returnUrl = Url.Action(nameof(HomeController.Index))})" class="btn btn-sm btn-warning">Cancel</a>
+											</div>
+										</div>
+									}
+									else
+									{
+										@if (item.IsWirelessOnly())
+										{
+											if (item.IsPorting && item.PortRequest == null || (item.IsPorting && item.PortRequest.AccountNumber.IsNull() && item.PortRequest.Password.IsNull()))
+											{
+												<div class="col-12">
+													<a href="@Url.Action(nameof(DeviceController.Administer), DeviceController.Name, new {id = item.Id})" class="btn btn-danger">Submit Port Info</a>
+												</div>
+											}
+											else
+											{
+												<div class="col-12">
+													<a href="@Url.Action(nameof(DeviceController.Administer), DeviceController.Name, new {id = item.Id})" class="btn btn-sm btn-primary">Manage</a>
+												</div>
+											}
+										}
+										else
+										{
+											<div class="col-12">
+												@if (item.UserDevice != null)
+												{
+													if (!item.UserDevice.ReturnRequested.HasValue)
+													{
+														if (item.DeviceId.HasValue)
+														{
+															<a href="@Url.Action(nameof(DeviceController.Administer), DeviceController.Name, new {id = item.Id})" class="btn btn-sm btn-primary">Manage</a>
+														}
+														else
+														{
+															<a href="@Url.Action(nameof(DeviceController.AvailableDevices), DeviceController.Name, new {id = item.Id})" class="btn btn-sm btn-info">Request Device</a>
+														}
+													}
+													else
+													{
+														<button disabled class="btn btn-sm btn-info">Return Requested</button>
+													}
+												}
+											</div>
+											<div class="col-12 text-right">
+												@if (item.UserDevice == null)
+												{
+													<a href="@Url.Action(nameof(DeviceController.AvailableDevices), DeviceController.Name, new {id = item.Id})" class="btn btn-sm btn-success">Pick a Device</a>
+												}
+											</div>
+										}
+									}
+								</div>
+							</div>
+						</div>
+
+						<div class="modal fade" id="@item.Id-edit" tabindex="-1" role="dialog">
+							<div class="modal-dialog" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										Edit your plan name
+									</div>
+									<div class="modal-body">
+										<div class="form-group mb-3">
+											<div class="row">
+												<div class="input-group col-sm-10 ma-centered">
+													<input type="text" class="form-control plan-name" placeholder="New Name">
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-info rename clickable" data-id="@item.Id">Save</button>
+										<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		}
+
+		<div class="form-popup" id="myForm">
+			<form class="form-container">
+				<h4>Phone Verification</h4>
+				<button type="button" onclick="resend()" class="btn">Resend Code</button>
+
+				<label for="code"><b>Code</b></label>
+				<input id="txtCode" type="text" placeholder="Enter Code" name="code" required>
+				<p id="errorCode" style="display:none;color:red;">Please enter the code you received from your phone</p>
+				<button type="button" onclick="verifyPhone()" class="btn">Verify</button>
+				<button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+
+	<script>
+		function verifyPhone() {
+			if (document.getElementById("txtCode").value == '') {
+				document.getElementById("errorCode").style.display = "block";
+			}
+			else {
+				document.getElementById("errorCode").style.display = "none";
+				$.ajax({
+					url: '@(Url.Action(nameof(HomeController.VerifyPhone), "Home"))' + '/?profileid=' +
+						'@Model.Profile.Id' + '&code=' + document.getElementById("txtCode").value,
+					success: function (data) {
+						if (data.result == "verified") {
+							try {
+								document.getElementById("phone-alerts").style.display = "none";
+							} catch (e) {
+								// Do Nothing
+							}
+							document.getElementById("myForm").style.display = "none";
+							alert('Your phone is verified.');
+						}
+						else {
+							alert('Your code is not valid');
+						}
+					}
+				 });
+			}
+		}
+
+		function resend() {
+			$.ajax({
+				url: '@(Url.Action(nameof(HomeController.ResendVerificationCode), "Home"))',
+				success: function (data) {
+					alert('Your verification code has been resent.');
+				}
+			});
+		}
+
+		function openForm() {
+			document.getElementById("myForm").style.display = "block";
+		}
+
+		function closeForm() {
+			document.getElementById("myForm").style.display = "none";
+		}
+
+        $(function() {
+			$('[data-toggle="tooltip"]').tooltip();
+
+			if ("@(!(Model.Profile.PhoneVerified ?? false))" == "True") {
+				openForm();
+			}
+        });
+
+        $(".rename").on('click',
+            function() {
+                var name = $(this).parent().prev('div').find('input').val();
+                var plan = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action(nameof(PlanController.RenamePlan), PlanController.Name)?planId=' +
+                        plan +
+                        '&name=' +
+                        name,
+                    success: function(data) {
+                        location.reload();
+                    }
+                });
+            });
+
+        $.ajax({
+            url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home")',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+        });
+
+
+        var ad938 = {
+            id: "ad938",
+            steps: [
+                {
+                    title: "Add a Device",
+                    content: "You can add a new Device to your account using this button.",
+                    target: "tour-ad938-1",
+                    placement: "top"
+                },
+                {
+                    title: "Your New Device",
+                    content: "Your new Device will show up here after your purchase.",
+                    target: "tour-ad938-2",
+                    placement: "top"
+                }
+            ]
+        };
+        var re743 = {
+            id: "re743",
+            steps: [
+                {
+                    title: "Returning a Device",
+                    content:
+                        "You can return a device on the Manage Device page. Choose a device now and we'll show you.",
+                    target: $('.manage-device')[0],
+                    placement: "top"
+                }
+            ]
+        };
+
+        if (getParameterByName('t') == 'ad938') {
+            hopscotch.startTour(ad938);
+        }
+        if (getParameterByName('t') == 're743') {
+            $('.manage-device').attr('href', `${$('.manage-device').attr('href')}?t=re743`);
+            hopscotch.startTour(re743);
+		}
+
+	</script>
+}

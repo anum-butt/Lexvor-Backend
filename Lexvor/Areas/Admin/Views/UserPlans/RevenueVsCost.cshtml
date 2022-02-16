@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Lexvor.API.Objects.UserPlan>
+
+@{
+	ViewData["Title"] = "Active plans Revenue Vs Cost";
+	ViewData["PageTitle"] = "List Active plans details and their Revenue vs Cost";
+}
+
+<div class="card">
+	<div class="card-header">
+		<h4>Active Plans and their Revenue Vs Cost</h4>
+	</div>
+	<div class="card-body">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>@Html.DisplayNameFor(model => model.Profile.FullName)</th>
+					<th>@Html.DisplayNameFor(model => model.Profile.Account.Email)</th>
+					<th>@Html.DisplayNameFor(model => model.PlanType.Name)</th>
+					<th>@Html.DisplayNameFor(model => model.ThrottleLevel)</th>
+					<th>Revenue</th>
+					<th>@Html.DisplayNameFor(model => model.MDNCostToDate)</th>
+					<th>@Html.DisplayNameFor(model => model.RevenueCostDelta)</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model) {
+				<tr>
+					<td>@Html.DisplayFor(modelItem => item.Profile.FullName)</td>
+					<td>@Html.DisplayFor(modelItem => item.Profile.Account.Email)</td>
+					<td>@Html.DisplayFor(modelItem => item.PlanType.Name)</td>
+					<td>@Html.DisplayFor(modelItem => item.ThrottleLevel)</td>
+					<td>$@Math.Round((double)(item.Monthly / 100), 2)</td>
+					<td>$@Math.Round(item.MDNCostToDate, 2)</td>
+					<td><div class=@(item.RevenueCostDelta < 0 ? "text-danger" : "")>$@item.RevenueCostDelta</div></td>
+				</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

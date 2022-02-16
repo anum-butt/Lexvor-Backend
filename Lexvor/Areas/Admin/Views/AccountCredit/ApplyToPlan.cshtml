@@ -1,0 +1,24 @@
+﻿@model Lexvor.Models.AdminViewModels.AccountCreditApplyModel
+@{
+    ViewData["Title"] = "Apply To Plan";
+}
+<h2>Apply to a User Plan</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ApplyToPlan">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <hidden asp-for="Credit.Id" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="PlanId" class="control-label">What Plan will you apply this credit to?</label>
+                <select asp-for="PlanId" class="form-control"
+                        asp-items="@(new SelectList(Model.Plans, "Id", "PlanType.Name"))"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Apply" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+﻿@model Lexvor.Models.AdminViewModels.UpgradePlanDetailsViewModel
+@{
+	ViewData["Title"] = "Change Plan";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<h2>Change Plan</h2>
+		<div class="row">
+			<div class="col-md-12">
+				<form asp-action="ChangePlan" enctype="multipart/form-data">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<div class="row">
+						<div class="col-md-8">
+							<div class="form-group">
+								<label asp-for="@Model.Profile.Account.UserName" class="control-label"></label>
+								<input asp-for="@Model.Profile.Account.UserName" class="form-control" disabled />
+							</div>
+							<div class="form-group">
+								<label asp-for="@Model.TelispirePlan" class="control-label"></label>
+								<input asp-for="@Model.TelispirePlan" class="form-control" disabled />
+							</div>
+							<div class="form-group">
+								<label asp-for="@Model.NewPlan" class=" control-label"></label>
+								<input asp-for="@Model.NewPlan" class="form-control" />
+							</div>
+
+
+							<div class="form-group">
+								<input type="submit" value="Change Plan" class="btn btn-primary btn-sm" />
+							</div>
+						</div>
+						
+					</div>
+				</form>
+			</div>
+		</div>
+	</li>
+</ul>

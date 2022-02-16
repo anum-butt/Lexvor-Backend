@@ -1,0 +1,20 @@
+﻿@model Lexvor.API.Objects.User.UserDocuments
+@using Lexvor.Areas.Admin.Controllers
+@section scripts {
+	<script>
+    debugger;
+    $(document).ready(function (e) {
+        var blob = '@Model.URL';
+        var url = '@Url.Action(nameof(DashboardController.RetreiveSensitiveBlobAsset), DashboardController.Name)?blobName=' + encodeURIComponent(blob);
+        $.ajax({
+            url,
+            method: 'GET',
+            success: function (data) {
+                window.open(data.imageUrl);
+            }
+        });
+
+    });
+
+	</script>
+    }

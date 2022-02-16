@@ -1,0 +1,48 @@
+﻿@*@model IEnumerable<Lexvor.API.Objects.WaitListUser>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_AdminLayout";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>Wait List</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Paid Deposit</th>
+                        <th>Stripe Transaction</th>
+                        <th>Phone Details</th>
+                        <th>Trade In</th>
+                        <th>Date</th>
+                        <th>Mark Processed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>@item.FullName</td>
+                        <td>@item.Email</td>
+                        <td>@item.Deposited</td>
+                        <td>
+                            @if (item.Deposited) {
+                                <a href="https://dashboard.stripe.com/payments/@item.TransactionId">Go to Stripe</a>
+                            }
+                        </td>
+                        <td>@item.RequestedPlan: @item.RequestedPhone</td>
+                        <td>@item.TradeIn</td>
+                        <td>@item.LastModified.ToString("d")</td>
+                        <td>
+                            @if (!item.Processed) {
+                                <a href="@Url.Action(nameof(WaitListController.MarkUserProcessed), "Waitlist", new { id = item.Id })"><i class="fas fa-check"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>*@

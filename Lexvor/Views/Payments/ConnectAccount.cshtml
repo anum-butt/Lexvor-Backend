@@ -1,0 +1,122 @@
+﻿@using Lexvor.API.Objects
+@using Lexvor.Controllers
+@model ConnectAccountViewModel
+
+@{
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-offset-2 col-sm-8 half-width">
+    <div class="row">
+        <div class="col-md-9 ma-centered">
+            <p>Please connect your bank account continue. This is only used for processing payments. </p>
+            <p>We will NOT have access to your transaction data, or other personal information.</p>
+
+            <form role="form" asp-route-returnurl="@ViewData["ReturnUrl"]" class="form-horizontal" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group mb-5" align="center">
+                    <button type="button" id='linkButton' class='btn btn-primary clickable'>Link an Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8 ma-centered">
+            <div class="row">
+                <div class="col-sm-12 col-xl-9 ma-centered">
+                    <div class="card">
+                        <div class="card-block">
+                            <h4 class="text-warning">
+                                @Model.UserPlan.PlanType.Name
+                            </h4>
+                            @if (Model.UserPlan.Status == PlanStatus.PaymentHold) {
+                            <h5>ACH Conversion</h5>
+                            <h6>
+                                Initiation: $<span id="initiation">@(Model.UserPlan.PlanType.InitiationFee / 100)</span>
+                            </h6>
+                            <h6>
+                                Monthly: $<span id="monthly">@(Model.UserPlan.PlanType.MonthlyCost / 100)</span>
+                            </h6>
+                            }
+                            else {
+                            <h6>
+                                Initiation: $<span id="initiation">@(Model.UserPlan.PlanType.InitiationFee / 100)</span>
+                            </h6>
+                            <h6>
+                                Monthly: $<span id="monthly">@(Model.UserPlan.PlanType.MonthlyCost / 100)</span>
+                            </h6>
+
+                            <p>
+                                Total Cost Today: $<span id="total">@(Model.UserPlan.PlanType.InitiationFee / 100)</span>
+                            </p>
+
+                            <p><a href="@Url.Action(nameof(PlanController.CancelPendingPlan), PlanController.Name)">Cancel Purchase (Choose new plan)</a></p>
+                            }
+
+                            <div id="stripeError" class="alert alert-warning hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.ravenjs.com/3.26.4/raven.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <script>
+        Raven.config('https://cd01092bf68d4b3fbacd31954a976ea3@sentry.io/231489').install();
+        var linkHandler = Plaid.create({
+            env: '@Model.PlaidEnv.ToLower()',
+            clientName: 'Lexvor',
+            key: '@Model.PlaidPublicKey',
+            product: ['auth'],
+            selectAccount: true,
+            onSuccess: function(public_token, metadata) {
+                $.ajax({
+                    method: 'POST',
+                    url: '@Url.Action("AccountConnection", "Payments")',
+                    data: { public_token, metadata },
+                    success: function (data) {
+                        if (data.error) {
+                            // DO SOMETHING
+                            $('#linkButton').removeAttr('disabled');
+                            $('#linkButton').val('Linking an Account');
+                        } else {
+                            window.location.href = data.redirect;
+                        }
+                    },
+                    failure: function(error) {
+                        Raven.captureException(error);
+                        $('#linkButton').removeAttr('disabled');
+                        $('#linkButton').val('Linking an Account');
+                    }
+                });
+            },
+            onExit: function (err, metadata) {
+                // The user exited the Link flow.
+                if (err != null) {
+                    // The user encountered a Plaid API error prior to exiting.
+                    Raven.captureException(err);
+                } else {
+                    $('#stripeError').removeClass('hidden');
+                    $('#linkButton').removeAttr('disabled');
+                    $('#linkButton').html('Linking an Account');
+                    $('#stripeError').html('You must connect an account in order to purchase a plan');
+                }
+            },
+        });
+
+        // Trigger the Link UI
+        document.getElementById('linkButton').onclick = function() {
+            $('#stripeError').addClass('hidden');
+            $('#linkButton').attr('disabled', 'disabled');
+            $('#linkButton').val('Linking Account...');
+            linkHandler.open();
+        };
+    </script>
+
+}

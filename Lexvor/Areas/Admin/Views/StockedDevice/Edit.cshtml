@@ -1,0 +1,36 @@
+﻿@model Lexvor.Models.AdminViewModels.StockDeviceEditViewModels
+@{
+	ViewData["Title"] = "Edit";
+	Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<h2>Edit Stock</h2>
+		<div class="row">
+			<div class="col-md-8">
+				<form asp-action="Edit">
+					<input type="hidden" asp-for="Id" />
+					<div class="form-group">
+						<label asp-for="StockedDevice.DeviceId" class="control-label"></label>
+						<select asp-for="StockedDevice.DeviceId" class="form-control"
+								asp-items="@(new SelectList(Model.Device, "Id", "Name",Model.StockedDevice.DeviceId))">
+							<option>--Select Device--</option>
+						</select>
+						<span asp-validation-for="StockedDevice.DeviceId" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="StockedDevice.IMEI" class="control-label"></label>
+						<input asp-for="StockedDevice.IMEI" class="form-control" />
+						<span asp-validation-for="StockedDevice.IMEI" class="text-danger"></span>
+						@Html.ValidationMessage("IMEIError", new { @class = "text-danger" })
+					</div>
+					<div class="form-group">
+						<input type="submit" value="Update" class="btn btn-primary btn-sm" />
+						<a asp-action="Index">Back to List</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</li>
+</ul>

@@ -1,0 +1,65 @@
+﻿@using Lexvor.Controllers
+@using Lexvor.API
+@model UsageViewModel
+@{
+	ViewData["Title"] = "Lexvor";
+	ViewData["PageName"] = "Usage";
+	ViewData["PageSubtitle"] = "Usage data for the current billing cycle";
+}
+
+<div class="container pt-4">
+	<div class="row">
+		<div class="col-md-12">
+			<div id="header-alerts"></div>
+
+			<div class="list-group media-list media-list-stream mb-4 pagination">
+				<div class="media list-group-item p-4">
+					<div class="row full-width">
+						<div class="col-md-12">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>
+											Date
+										</th>
+										<th>
+											Minutes (Total: @if (Model.Usage.Any()) { Model.Usage.Sum(x => x.Minutes); } else { @("0"); })
+										</th>
+										<th>
+											SMS (Total: @if (Model.Usage.Any()) { Model.Usage.Sum(x => x.SMS); } else { @("0"); })
+										</th>
+										<th>
+											Data (GB) (Total: @if (Model.Usage.Any()) { Model.Usage.Sum(x => StaticUtils.ConvertKBToGB(x.KBData)); } else { @("0"); })
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@if (Model.Usage.Any()) {
+										foreach (var item in Model.Usage) {
+											<tr>
+												<td>
+													@(item.Date.ToString("d"))
+												</td>
+												<td>
+													@Html.DisplayFor(modelItem => item.Minutes)
+												</td>
+												<td>
+													@Html.DisplayFor(modelItem => item.SMS)
+												</td>
+												<td>
+													@(Math.Round((double)item.KBData / (1000 * 1000), 4))
+												</td>
+											</tr>
+										}
+									} else {
+										<tr><td colspan="4">No Usage Data Yet</td></tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

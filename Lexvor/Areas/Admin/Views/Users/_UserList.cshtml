@@ -1,0 +1,45 @@
+﻿@model List<Lexvor.Models.AdminViewModels.ProfileAccount>
+<table class="table" id="user-table">
+<thead>
+<tr>
+    <th></th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Date Joined</th>
+    <th>Identity Verified</th>
+    <th></th>
+    <th></th>
+    <th>Locked Out</th>
+</tr>
+</thead>
+<tbody>
+@foreach (var item in Model) {
+    <tr>
+        <td class="toggle">Expand</td>
+        @if (!string.IsNullOrEmpty(item.Profile.FirstName) && !string.IsNullOrEmpty(item.Profile.LastName)) {
+            <td>@item.Profile.FirstName</td>
+            <td>@item.Profile.LastName</td>
+        } else {
+            <td colspan="2">@item.User.Email</td>
+        }
+        <td>@item.Profile.DateJoined.ToString("d")</td>
+        <td>@item.Profile.IDVerifyStatus.ToString()</td>
+        <td>
+            @Html.ActionLink("Details", "UserDetails", new { id = item.Profile.Id })
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id = item.Profile.Id })
+        </td>
+        <td>
+            @if (item.User.Email != User.Identity.Name) {
+                if (item.User.LockoutEnd != null && item.User.LockoutEnd > DateTime.UtcNow) {
+                    @Html.ActionLink("Unlock", "Unlock", new { email = item.User.Email })
+                } else {
+                    @Html.ActionLink("Lock", "Lock", new { email = item.User.Email })
+                }
+            }
+        </td>
+    </tr>
+}
+</tbody>
+</table>

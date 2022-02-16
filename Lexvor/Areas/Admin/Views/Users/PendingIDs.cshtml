@@ -1,0 +1,42 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers
+@model List<Lexvor.API.Objects.Profile>
+@{
+    ViewData["Title"] = "Pending IDs";
+    Layout = "_AdminLayout";
+}
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">
+				Pending Identities
+			</div>
+			<div class="card-body">
+				<table class="table">
+					<thead>
+					<tr>
+						<th>Name</th>
+						<th>Date Joined</th>
+						<th></th>
+					</tr>
+					</thead>
+					<tbody>
+					@foreach (var item in Model) {
+						<tr>
+							<td>@(!string.IsNullOrEmpty(item.FirstName) ? $"{item.FirstName} {item.LastName}" : item.Account.Email)</td>
+							<td>@item.DateJoined.ToString("d")</td>
+							<td>
+								<a href="@Url.Action(nameof(UsersController.VerifyID), "Users", new { id = item.Id })">Verify ID</a>
+							</td>
+						</tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section scripts {
+}

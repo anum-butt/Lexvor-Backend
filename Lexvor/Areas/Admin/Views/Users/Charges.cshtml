@@ -1,0 +1,50 @@
+﻿@model IEnumerable<Lexvor.API.Objects.User.Charge>
+
+@{
+    ViewData["Title"] = "User Charges";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <div>
+                <h5>User Charges</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Date)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Description)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Amount)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Any()) {
+                        foreach (var item in Model) {
+                        <tr>
+                            <td>
+                                @item.Date.ToString("d")
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Description)
+                            </td>
+                            <td>
+                                $@(item.Amount / 100)
+                            </td>
+                        </tr>
+                        }
+                    }
+                    else {
+                        <tr><td colspan="4">No Charges</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </li>
+</ul>

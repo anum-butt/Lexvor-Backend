@@ -1,0 +1,175 @@
+﻿@using Lexvor.API.Services
+@model AgreementViewModel
+@{
+    ViewData["Title"] = "End User License Agreement";
+    Layout = "_LayoutFull";
+}
+
+<div class="row">
+    <div class="col-xl-12 col-md-12">
+        <div id="header-alerts"></div>
+        <div class="row">
+            <div class="col-xl-12 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h1>Lexvor Lease Agreement</h1>
+                    </div>
+                    <div class="card-body">
+                        <p>Please read the agreement and click continue at the bottom of this page to continue.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-12 col-md-12">
+                <div class="card">
+                    <div class="card-body">
+						<div style="height: 350px; overflow-x: hidden; overflow-y: scroll; background-color: white;">
+
+							<h4>Lexvor Lease Agreement</h4>
+
+							<p>Thank you for choosing Lexvor! You are now enrolled in the <strong>@Model.Plan.PlanType.Name</strong> Plan.</p>
+							@if (!Model.Plan.UserDevice.BYOD) {
+								<p>Your next upgrade for this line is scheduled for <strong>@((await DeviceService.GetUpgradeDateForDevice(Model.Plan.UserDevice, Model.Plan.PlanType)).ToString("d"))</strong>.</p>
+							}
+							<p>Your monthly payment for this line is <strong>$@(Model.Plan.Monthly / 100)</strong>.</p>
+
+							<p>After the @Model.Plan.PlanType.TermLength months are up, you can choose to do the following:</p>
+							<ol>
+								<li>Upgrade to your new desired device.</li>
+								<li>Continue using the same device.</li>
+							</ol>
+
+							<p>
+								On this site, the terms "rent", "lease", "lease agreement", "subscription", and "agreement" are used interchangeably. This payment option provides subscribers the flexibility to select a phone for a lower monthly cost versus, and compared to, leading phone and insurance corporations. Lexvor will own the device completely for the duration of subscription unless otherwise expressed by Lexvor and its board of directors. If you have questions or concerns about these policies feel free to email us at customerservice@lexvor.com. We recommend that you save this document for future reference.
+							</p>
+
+							<h4>Federal Consumer Leasing Disclosure</h4>
+							<p>Amount Due at Lease Signing: <strong>$@(Model.Plan.Initiation / 100)</strong></p>
+							<p>First Monthly Payment: <strong>$@(Model.Plan.Monthly / 100) due on @DateTime.Now.GetNextFirst().ToString("d")</strong></p>
+							<p>Additional Monthly Payments:</p>
+							<p><strong>@(Model.Plan.PlanType.TermLength - 1) payments due on the 1st of each month.</strong></p>
+							<p>Final Monthly Payment of <strong>$@(Model.Plan.Monthly / 100)</strong> due on <strong>@(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(Model.Plan.PlanType.TermLength - 1).ToString("d"))</strong></p>
+							<p>Grand Total for Monthly Payments: <strong>$@((Model.Plan.Monthly * (Model.Plan.PlanType.TermLength - 1)) / 100)</strong></p>
+							@if (Model.Plan.Profile.BillingAddress != null) { <p>Device shipped to: @Model.Plan.Profile.BillingAddress.GetAddressBlock()</p> }
+
+							<h4>Size(s) of Device Space (GB or TB)</h4>
+							<p>Subscribers will be provided with manufacturer entry level size(s) for all subscription level(s). If a subscriber is to prefer a bigger size, they can simply select the provided option in addition to their subscription. Prices for upgrades are subjected to change at any time without prior notice.</p>
+
+							<h4>Returning, Replacing or Upgrading a Device During a Lease</h4>
+							<p>In the perspective of early device renewal, depending on the chosen plan, after a minimum of one, two, or three years – 12, 24, or 36 months – of an individual's arrival of a new phone (also includes any replacement or upgrade), they will be eligible and have the option to upgrade or replace their device. To check or view your upgrade eligibility, visit www.lexvor.com and sign in.</p>
+
+							<p>If the customer is upgrading, and/or returning, a device online or over the phone:</p>
+							<ul>
+								<li>We'll automatically ship a return kit to the user if their current device will be traded in.</li>
+								<li>The device must be provided, regardless of condition, and put it into the envelope or box provided.</li>
+								<li>Use UPS.com to find the nearest UPS location or call 1-800-PICK-UPS to arrange a pickup.</li>
+							</ul>
+
+							<h4>Losing Return Kit or Return Label</h4>
+							<p>If you lost your return kit or return label we already sent to you, request a replacement at https://www.lexvor.com. Lexvor will provide instructions to answer the questions or confusion behind the customer’s particular situation. Ensure your phone is securely packaged to avoid a possible Damaged Device Fee being assessed to your account.</p>
+
+							<h4>Quarterly/End of Agreement Options for Leased Devices</h4>
+							<p>In the event a customer approaches the end of their lease term, the individual will be presented with three options:</p>
+							<ul>
+								<li>Upgrade Device: Upgrading to a disparate phone will be allowed immediately after the third quarter – or six months – of attainment of the previous device. If the customer chooses to upgrade their particular phone, they will be provided with the aforementioned Return Kit and Label.</li>
+								<li>Use Credits To Redeem A Similar Device: The option of redeeming a device will only be presented to the customer if, and only if, they have made their subscription payments on time and have saved enough points to redeem said device.</li>
+								<li>Return Device: The customer will have the option of returning their chosen device at the end of their lease term.</li>
+							</ul>
+
+							<h4>Cancelling Leasing Subscription</h4>
+
+							<p>The lease operates and applies on a month-to-month basis. If the customer cancels their leasing subscription, they are required to pay for their subscription for the remaining month and must return the phone.</p>
+
+							<h4>Phone Issues (Damaged, Lost, Stolen, etc.)</h4>
+							<p>In the event that the customer’s device has been damaged, lost, or stolen, please contact us at www.lexvorwireless.com and/or customerservice@lexvor.com for the necessary procedures. Each subscription plan, along with each phone, is included with a device protection plan to protect, replace, and repair the customer’s device. Additionally, under Lexvor’s particular plan, if the phone is damaged, we offer replacements on physical, mechanical, and electrical failures with no hidden costs. Further, if the device is lost or stolen, the customer may follow up by filing a claim online. If the customer has an issue with their device, they may visit www.lexvorwireless.com for troubleshooting assistance or, if they have leased their current phone for over 6 months, request an upgrade.</p>
+
+							<h4>Billing/Payments</h4>
+							<p>Even after a lease subscription term of month-to-months has ended, Lexvor still owns the device; moreover, the customer will continue to make month-to-month payments based on their selected plan — Bring Your Own Phone, Modern Family Plan, Business Family Plan, or Tech Family Plan. Lexvor does not accept pre-paid credit cards as this payment method will generally be declined; additionally, if the user places an order with a pre-paid credit card, the order will be immediately refunded and will also be canceled. In the event the customer cancels their subscription and continues to be charged, Lexvor will credit this charge back to their account after attainment of the leased device. The lease agreement cannot be changed. Please view www.lexvor.com to view your subscription agreement.</p>
+
+							<h4>Fees & Rights To Charge Fees</h4>
+							<p>Lexvor may at anytime these events occur charge the fees as follows:</p>
+
+							<p>
+								<b>Lost or Stolen Devices:</b> In the event, you have lost a device you must report it to Lexvor within 48 hours. If you fail to do so you will be subjected to billing fees as listed below. In the event you lose a device and choose not to pay for a replacement device Lexvor will terminate your subscription immediately and you will not be charged for any month un-used. Lexvor will then put your account on suspension until the said device can be (1) repaired (2) recovered (3) returned (4) properly investigated. Lexvor has the right to investigate each incident in the manner which Lexvor chooses. Your account will remain suspended indefinitely until Lexvor has completed its own investigation. If and when Lexvor has completed its investigatation and has valid proof that the device was lost in a manner which that may not be categorized as intentional, malicious or heinous act, Lexvor will lift your suspension and you may choose to create a new subscription.
+							</p>
+							<p>
+								<b>Cost To Replace Lost or Stolen Devices:</b> For any occurrence, within the first 3 months of your account activation, a $399 deductible must be paid before a replacement device is to be shipped out to your home. For any occurrence, within the first 6 months of your account activation but no more than 7 months, a $299 deductible must be paid before a replacement device is to be shipped out to your home. For any occurrence, within the first year of your account activation but no more than 13 months (1 year 1 month), a $199 deductible must be paid before a replacement device is to be shipped out to your home. For any occurrence, after the 2nd year of your account activation, a $99 deductible must be paid before a replacement device is to be shipped out to your home. If at any time you have an occurrence, the time frame for fees accessed by occurrences rest. If per se; you had been a membership for One (1) year one (1) month and your device was lost or stolen. You would be expected to pay $99 for your replacement device. If you were to lose a device one (1) month after the first (1st) occurrence you would be expected to pay $299 for that replacement device. The time frame of delivery to replace lost or stolen devices are subject to Lexvor’s device availability as well as supply and demand for that product.
+							</p>
+							<p>
+								<b>Damaged Devices:</b> A $50 deductible for the first (1) occurrences, a $99 deductible after the first occurrence and occurrence(s) thereafter for the remainder of that 12, 24, or 36 month period; subscriber is limited to two occurrences per year before subscription may be subjected to review for termination. However, if the device is damaged within the first 30 days of the issue date, there will be a 50% repair deposit required during this warming period. If for any reason the returned device is received with damages that may be categorized as intentional, malicious or heinous act, Lexvor has a right to suspend and or terminate your subscription indefinitely and refuse to mail a replacement device. At this time, Lexvor will have the right to charge you the full retail price of the said damaged device immediately.
+							</p>
+							<p>
+								<b>Devices Not Restored Back To Factory Settings at the time of return:</b> At any given time you return a device to Lexvor without first properly restoring the device back to its original delivery state "Factory Settings”, we will access a $50 restoration fee. We will email you instructions on how to restore your device to factory setting when you (1) request a swap device (2) return a damaged device (3) request to end subscription (4) begin your new subscription.
+							</p>
+							<p>
+								<b>Payments Fees:</b> If for any reason you have missed more than 30 days from payments due date, Lexvor will charge you for the final day ending a 30-day cycle and proceed to deactivate (terminate) your account. At this time you will be charged for the remainder of the subscription balance owed; including the balance of the device which must be returned. If the device is not returned the above statement applies.
+							</p>
+
+							<p>Lexvor allows qualified customers to lease a device(s) from the platform; further, all monthly and/or initial payments follow the same flat rate.</p>
+
+							<p>This document is governed by the law of your state of residence when you entered into this lease agreement. It represents the whole agreement between you and Lexvor.  Any previous or current oral agreement between you and Lexvor cannot be countered by this lease agreement. The failure by you or us to apply any right under this agreement does not waive your or our right to apply that right or any other right in the future. Any unenforceable provision in this lease agreement will not make any other provision unenforceable. It is intended to benefit and be binding on you and Lexvor. This is a single transaction, meaning no other other contract will be modified due to this agreement.</p>
+
+							<p>This lease agreement or any provision in it cannot be assigned or subleased without Lexvor’s prior written consent. Without notice, we may transfer, assign, or sell this agreement, any amounts you owe us and any of our rights or obligations.  Unde this lease agreement, any sale and assignment by us will not be deemed a material change to your risks, burderns, or duties. CT: Unless we come to the conclusion that the assignment or sublease would risk our rights or increase our risk, we will provide consent.</p>
+
+							<p>To provide any necessary notices to us, you may call or write us as indicated on your bills or our website. Notices to you will be provided in the following ways: your bills, your mailing or email address provided in our records, your provided phone number(s) through call or text (if applicable), a message to your online account, or in person.</p>
+
+							<h3>Binding Arbitration Clause</h3>
+							<p>Mandatory Arbitration and Class Action Waiver: By entering this lease agreement, consumers must agree that, in the case that a dispute is not resolved through the Dispute Resolution or Customer Service, all disputes must be resolved through an individual arbitration or small claims court instead of suing in court, waving the right to a trial by jury and bringing only claims in an individual capacity. Details of the terms, effect, and process of the dispute resolution, arbitration, and waiver of class action provisions set forth in the Consumer Terms are incorporated into this lease agreement, and you are subject to them. However, if you are a business lessee, dispute resolution and arbitration obligations related to this lease agreement will be governed by the Business Terms. This agreement to arbitrate is meant to be broadly interpreted.</p>
+
+							<h4>Certifications</h4>
+							<p>
+								Consumer Lessee: I certify that I am the Account Holder or have been designated by the account holder as an authorized user.
+							</p>
+							<p>
+								Business Lessee: On behalf of the lessee, the person signing below represents that he or she has the authority to sign this Lease Agreement and any other documents required in connection with the lease of the Goods.
+							</p>
+
+							<p><strong>NOTICE: This contract is for leasing only; you are not able to buy or sell the Good(s). Do not sign this lease before you read it and/or if it contains any blank spaces. You are entitled to a completed copy of this lease after you sign it. </strong></p>
+
+							<p>© @DateTime.UtcNow.ToString("yyyy") Lexvor Inc. All rights reserved. Last Updated: 6/19/2020.</p>
+						</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form role="form" asp-action="Agreement" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <input type="hidden" asp-for="AgreementName" class="form-control" />
+                            <input type="hidden" asp-for="Plan.Id" class="form-control" />
+                            <div class="form-group">
+                                <label asp-for="ProvidedName" class="control-label"></label>
+                                <input asp-for="ProvidedName" class="form-control" />
+                            </div>
+                            
+                            <p>By clicking the "I Agree to Use an Electronic Signature" button, you agree to electronically sign the following Lease Agreement. You agree your electronic signature is the legal equivalent of your manual signature. You further agree that your use of a key pad, mouse or other device to select an item, button, icon or similar act/action, constitutes your signature as if actually signed by you in writing. You also agree that no certification authority or other third party verification is necessary to validate your electronic signature and that the lack of such certification or third party verification will not in any way affect the enforceability of your electronic signature.</p>
+
+                            <div class="form-group">
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-primary">
+                                        <input type="checkbox" asp-for="Accepted" autocomplete="off"> I Agree to Use an Electronic Signature
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <div class="row">
+                                    <div class="input-group col-sm-12 ma-centered">
+                                        <span class="input-group-btn full-width">
+                                            <button class="btn btn-default btn-lg btn-success clickable" type="submit">Sign</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

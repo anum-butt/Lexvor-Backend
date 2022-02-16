@@ -1,0 +1,85 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@model IEnumerable<Lexvor.API.Objects.PlanType>
+
+@{
+	ViewData["Title"] = "Plan Type";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<div>
+				<div class="row">
+					<div class="col-md-10"><h5>Plan Type</h5></div>
+					<div class="col-md-2">
+						<p>
+							<a href="@Url.Action("Create")" class="btn btn-primary btn-sm">Create New</a>
+						</p>
+					</div>
+				</div>
+
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								@Html.DisplayNameFor(model => model.Name)
+							</th>
+							<th>
+								Sort Order
+							</th>
+							<th>
+								@Html.DisplayNameFor(model => model.MonthlyCost)
+							</th>
+							<th>
+								@Html.DisplayNameFor(model => model.InitiationFee)
+							</th>
+							<th>
+								@Html.DisplayNameFor(model => model.Archived)
+							</th>
+							<th>
+								Display
+							</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.Any())
+						{
+							foreach (var item in Model)
+							{
+								<tr>
+									<td>
+										@Html.DisplayFor(modelItem => item.Name)
+									</td>
+									<th>
+										@Html.DisplayFor(modelItem => item.SortOrder)
+									</th>
+									<th>
+										@Html.DisplayFor(modelItem => item.MonthlyCost)
+									</th>
+									<th>
+										@Html.DisplayFor(modelItem => item.InitiationFee)
+									</th>
+									<th>
+										@Html.DisplayFor(modelItem => item.Archived)
+									</th>
+									<th>
+										@Html.DisplayFor(modelItem => item.DisplayOnPublicPages)
+									</th>
+									<td>
+										<a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+									</td>
+								</tr>
+							}
+						}
+						else
+						{
+							<tr><td colspan="4">No Plan Types</td></tr>
+						}
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+	</li>
+</ul>

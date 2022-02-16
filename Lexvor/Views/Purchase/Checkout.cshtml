@@ -1,0 +1,232 @@
+﻿@using Lexvor.Controllers
+@using Newtonsoft.Json
+@using Lexvor.API
+@model Lexvor.Models.HomeViewModels.AffirmCheckoutViewModel
+@{
+	Layout = "_LayoutFull";
+	ViewData["PageName"] = "Device Checkout";
+	ViewData["PageSubtitle"] = "Please complete checkout for your devices.";
+	var orderTotal = Model.Plans.Sum(x => x.Device.Price);
+	orderTotal += Model.Plans.Sum(x => x.UserDevice.Options?.Sum(y => y.Surcharge) ?? 0);
+}
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		<div class="row">
+			<div class="col-xl-12 col-md-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="progress-wrapper">
+							<div class="progress mb-2" style="height: 30px;">
+								<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"></div>
+								<div class="progress-bar bg-dark" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+								<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+								<div class="progress-bar bg-dark" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 20%">Step 4 of 5</div>
+								<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2 text-center">Pick your Plan</div>
+							<div class="col-md-3 text-center">Choose device</div>
+							<div class="col-md-2 text-center">Complete Billing Info</div>
+							<div class="col-md-3 text-center">Confirm Affirm Payment</div>
+							<div class="col-md-2 text-center">Connect Bank</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xl-12 col-md-12">
+				<div class="card">
+					<div class="card-body">
+						@foreach (var plan in Model.Plans) {
+							<div class="row">
+								<div class="col-md-12">
+									<div class="card">
+										<div class="card-body">
+											<div class="row">
+												<div class="col-md-3">
+													<img alt="@plan.Device.Name" src="https://lexvorassets.blob.core.windows.net/website-assets/@plan.Device.ImageUrl" class="max-h-10 d-block ma-centered">
+												</div>
+												<div class="col-md-3">
+													<h6 class="card-title mb-3 text-center">@plan.Device.Name</h6>
+												</div>
+												<div class="col-md-3">
+													@if (plan.UserDevice.Options != null) {
+														<h6>Options: </h6>
+														@foreach (var option in plan.UserDevice.Options) {
+															<span>
+																@option.OptionValue @(option.Surcharge > 0 ? $"(${option.Surcharge / 100})" : "")
+															</span>
+														}
+													}
+												</div>
+												<div class="col-md-3">
+													<h6>Device Total: </h6>
+													<p>$@((plan.Device.Price + (plan.UserDevice.Options?.Sum(x => x.Surcharge) ?? 0)) / 100)</p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						}
+						<div class="row">
+							<div class="col-md-12">
+								<div class="card">
+									<div class="card-body">
+										<div class="row">
+											<div class="col-md-7">
+												<h3>Order Total:</h3>
+												<p class="affirm-as-low-as" data-page-type="checkout" data-amount="@orderTotal"></p>
+											</div>
+											<div class="col-md-5">
+												<h3>$@(orderTotal / 100)</h3>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xl-12 col-md-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-6">
+								<form role="form" class="" asp-route-returnurl="@ViewData["ReturnUrl"]">
+									<input type="hidden" asp-for="Token" />
+									<input type="hidden" asp-for="OrderId" />
+									<a href="#" class="pull-left purchase"><img src="https://cdn-assets.affirm.com/images/buttons/checkout/42x205-blue.png" /></a>
+								</form>
+							</div>
+							<div class="col-6">
+								<a class="pull-right" href="@Url.Action(nameof(PaymentsController.CancelPendingPlan), PaymentsController.Name, new {returnUrl = ViewData["ReturnUrl"]})">Cancel Pending Purchases</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section Scripts {
+	<script>
+		$.ajax({
+			url: '@(Url.Action(nameof(HomeController.HeaderAlert), "Home"))',
+			success: function(data) {
+				$('#header-alerts').html(data);
+			}
+		});
+
+		_affirm_config = {
+			public_api_key: "@Model.AffirmPublicKey",
+			script: "@Model.AffirmJsUrl"
+		};
+		(function(l, g, m, e, a, f, b) {
+			var d, c = l[m] || {}, h = document.createElement(f), n = document.getElementsByTagName(f)[0], k = function(a, b, c) { return function() { a[b]._.push([c, arguments]) } };
+			c[e] = k(c, e, "set");
+			d = c[e];
+			c[a] = {};
+			c[a]._ = [];
+			d._ = [];
+			c[a][b] = k(c, a, b);
+			a = 0;
+			for (b = "set add save post open empty reset on off trigger ready setProduct".split(" "); a < b.length; a++) d[b[a]] = k(c, e, b[a]);
+			a = 0;
+			for (b = ["get", "token", "url", "items"]; a < b.length; a++) d[b[a]] = function() {};
+			h.async = !0;
+			h.src = g[f];
+			n.parentNode.insertBefore(h, n);
+			delete g[f];
+			d(g);
+			l[m] = c
+		})(window, _affirm_config, "affirm", "checkout", "ui", "script", "ready");
+
+		var person = {
+			"name": {
+				"first": "@Model.Profile.FirstName",
+				"last": "@Model.Profile.LastName"
+			},
+			"address": {
+				"line1": "@Model.Profile.BillingAddress.Line1",
+				"line2": "@Model.Profile.BillingAddress.Line2",
+				"city": "@Model.Profile.BillingAddress.City",
+				"state": "@Model.Profile.BillingAddress.Provence",
+				"zipcode": "@Model.Profile.BillingAddress.PostalCode",
+				"country": "USA"
+			},
+			"phone_number": "@Model.Profile.Phone",
+			"email": "@Model.User.Email"
+		};
+
+		var model = @Html.Raw(JsonConvert.SerializeObject(Model.Plans.Select(x => new { name = x.Device.Name, sku = x.Device.Id, price = (x.Device.Price + (x.UserDevice.Options?.Sum(x => x.Surcharge) ?? 0)), image = x.Device.ImageUrl, planId = x.Id })));
+
+		var items = model.map(plan => {
+			return {
+				"display_name": plan.name,
+				"sku": plan.sku,
+				"unit_price": plan.price,
+				"qty": 1,
+				"item_image_url": "https://lexvorassets.blob.core.windows.net/website-assets/" + plan.image,
+				"item_url": "https://lexvorwireless.com/Home/OurDevices/" + plan.planId
+			};
+		});
+		var orderId = '@Model.Profile.Id' + ':@RandomString.Get(5)';
+
+		$('.purchase').click(function(e) {
+			e.preventDefault();
+			affirm.checkout({
+				"merchant": {
+					"user_confirmation_url": "https://merchantsite.com/confirm",
+					"user_cancel_url": "https://merchantsite.com/cancel",
+					"user_confirmation_url_action": "POST",
+					"name": "Lexvor Wireless"
+				},
+				"shipping": person,
+				"billing": person,
+				"items": items,
+				"metadata": {
+					"mode": "modal"
+				},
+				"order_id": orderId,
+				"currency": "USD",
+				"shipping_amount": 0,
+				"tax_amount": 0,
+				"total": @orderTotal
+			});
+
+			affirm.checkout.open({
+				onFail: function () {
+					var url = '@Url.Action(nameof(PurchaseController.SwitchFinanceToPurchase), PurchaseController.Name, new { returnUrl = ViewData["ReturnUrl"] })';
+					console.log("User cancelled the Affirm checkout flow");
+					$('#header-alerts').html('<div class="alert alert-danger">You either cancelled the Affirm checkout or were denied by Affirm. ' +
+						'Do you want to switch to a purchase instead of financing? ' +
+						'If not, please cancel this purchase and start over with another plan. ' +
+						'<a href="'+url+'">Switch to Purchase</a></div>');
+				},
+				onSuccess: function (a) {
+					console.log(a);
+					$("#Token").val(a.checkout_token);
+					$("#OrderId").val(orderId);
+					document.forms[0].submit();
+				}
+			});
+		});
+
+		function debounce(func, timeout = 300) {
+			var timer;
+			return (...args) => {
+				clearTimeout(timer);
+				timer = setTimeout(() => { func.apply(this, args); }, timeout);
+			};
+		}
+	</script>
+}

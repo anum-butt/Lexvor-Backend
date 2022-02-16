@@ -1,0 +1,60 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@model IEnumerable<Lexvor.API.Objects.UserPlan>
+
+@{
+    ViewData["Title"] = "User MDN's waiting for retrieval";
+	ViewData["PageTitle"] = "Retrieve new Mobile Numbers from Wireless Provider";
+}
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<p>If a user purchased a new plan without a number port then we have to periodically check our Wireless Provider for that number once it is assigned. Use this page to check that the numbers been assigned and update the user account.</p>
+				<table class="table">
+					<thead>
+					<tr>
+						<th>
+							Name
+						</th>
+						<th>
+							Plan Type
+						</th>
+						<th>
+							Status
+						</th>
+						<th>
+							Wireless
+						</th>
+						<th></th>
+					</tr>
+					</thead>
+					<tbody>
+					@if (Model.Any()) {
+						foreach (var item in Model) {
+							<tr>
+								<td>
+									@item.Profile.FullName
+								</td>
+								<th>
+									@item.PlanType.Name
+								</th>
+								<th>
+									@item.Status.ToString()
+								</th>
+								<th>
+									@item.WirelessStatus.ToString()
+								</th>
+								<td>
+									<a asp-action="GetMDN" asp-route-id="@item.Id">Check for number</a>
+								</td>
+							</tr>
+						}
+					}
+					else {
+						<tr><td colspan="4">No MDNs Waiting</td></tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>

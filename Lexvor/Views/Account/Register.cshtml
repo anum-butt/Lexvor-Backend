@@ -1,0 +1,155 @@
+﻿@using Lexvor.Controllers
+@model RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-8 col-lg-4">
+    <div class="card shadow zindex-100 mb-0">
+        <div class="card-body px-md-5 py-5">
+            <div class="mb-5">
+                <div class="card">
+                    <a href="@Url.Action(nameof(HomeController.Index), "Home")">
+                        <img src="@Url.Content("/img/logo-black.png")" class="card-img-top" alt="Lexvor">
+                    </a>
+                </div>
+                <p class="text-muted mb-0">Wireless + The Latest Devices for One Price.</p>
+            </div>
+            <span class="clearfix"></span>
+            <form role="form" asp-route="Register" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
+                <div asp-validation-summary="All" class="text-danger"></div>
+	            <input type="hidden" asp-for="ReferralCode" value="@ViewData["r"]">
+
+
+                <div class="form-group">
+                    <label asp-for="Email" class="form-control-label"></label>
+                    <div class="input-group input-group-merge">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="email" asp-for="Email" class="form-control" id="input-email" placeholder="name@example.com" tabindex="1">
+                    </div>
+                </div>
+                <div class="form-group mb-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <label asp-for="Password" class="form-control-label"></label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-merge">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" asp-for="Password" class="form-control" id="input-password" placeholder="Password" tabindex="2">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <a href="#" data-toggle="password-text" data-target="#input-password">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Phone" class="form-control-label"></label>
+                    <div class="input-group input-group-merge">
+                        <input type="text" asp-for="Phone" class="form-control" id="input-phone" placeholder="(999) 999-9999" tabindex="3">
+                    </div>
+                </div>
+                @if (bool.Parse((ViewData["InviteOn"] ?? "false").ToString())) {
+                <div class="form-group">
+                    <label asp-for="InviteCode" class="form-control-label"></label>
+                    <div class="input-group input-group-merge">
+                        <input type="text" asp-for="InviteCode" class="form-control" id="input-invite" tabindex="4">
+                    </div>
+                </div>
+                }
+
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="agreement">
+                    <label class="custom-control-label" for="agreement">I Accept the <a href="https://lexvor.com/agreement" target="_blank">User Agreement</a></label>
+                </div>
+
+
+
+                <div class="mt-4">
+                    <button type="button" class="btn btn-sm btn-primary btn-icon rounded-pill">
+                        <span class="btn-inner--text">Register</span>
+                        <span class="btn-inner--icon"><i class="fas fa-long-arrow-alt-right"></i></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer px-md-5">
+            <a href="@Url.Action(nameof(AccountController.Login), "Account")" class="small font-weight-bold">Back to Log in</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+	@await Html.PartialAsync("_ValidationScriptsPartial")
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.1.62/jquery.inputmask.bundle.js"></script>
+	<script>
+		var phones = [{ "mask": "(###) ###-####" }];
+		$('#input-phone').inputmask({
+			mask: phones,
+			greedy: false,
+			definitions: { '#': { validator: "[0-9]", cardinality: 1 } }
+		});
+
+		$('button').on('click',
+			function(e) {
+				e.preventDefault();
+				var checked = $('#agreement').prop('checked');
+				if (checked) {
+					document.forms[0].submit();
+				} else {
+					alert("You must accept the User Agreement before continuing.");
+				}
+			});
+
+		//parts = window.location.pathname.split('/');
+		//if (parts[parts.length - 1].length == 3) {
+		//	document.cookie = "lexvor-refer= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+		//	document.cookie = "lexvor-refer=" + parts[parts.length - 1] + "; expires= " + (new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000)).toUTCString();
+		//}
+
+		//cookies = document.cookie;
+		//cookie = cookies.split(';').filter((x) => { return x.indexOf('lexvor-refer') != -1 });
+		//if (cookie.length > 0) {
+		//	var value = cookie[0].split('=')[1];
+		//	$('#ReferralCode').val(value);
+		//}
+
+
+		@*$('#Email').on('blur',
+            function() {
+                var val = $(this).val();
+                if (val) {
+                    $.ajax({
+                        url: '@Url.Action(nameof(AccountController.ValidateEmail), "Account")?email=' + val,
+                        method: 'GET',
+                        failure: function(err) {
+                            console.log(err);
+                        },
+                        success: function (data) {
+                            var result = JSON.parse(data);
+                            var vs = $('[data-valmsg-summary]');
+                            if (result.is_disposable_address || result.result != 'deliverable') {
+                                vs.addClass('validation-summary-errors').removeClass('validation-summary-valid');
+                                vs.children('ul').append($('<li></li>')
+                                    .text(
+                                        "Please check your email address, it looks invalid or it is a disposable address."));
+                            } else {
+                                vs.addClass('validation-summary-valid').removeClass('validation-summary-valid');
+                                vs.children('ul').empty();
+                            }
+                        }
+                    });
+                }
+            });*@
+	</script>
+
+}

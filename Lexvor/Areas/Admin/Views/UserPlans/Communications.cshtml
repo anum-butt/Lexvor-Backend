@@ -1,0 +1,66 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@model IEnumerable<Lexvor.API.Objects.User.UserComm>
+
+@{
+	ViewData["Title"] = "User Communications";
+	ViewData["PageTitle"] = "Emails and SMS's sent to the user";
+}
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							MessageId
+						</th>
+						<th>
+							Type
+						</th>
+						<th>
+							Sent
+						</th>
+						<th>
+							Subject
+						</th>
+						<th>
+							Content
+						</th>
+						<th>
+							Status
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.Any()) {
+						foreach (var item in Model) {
+					<tr>
+						<td>
+							@item.ExternalId
+						</td>
+						<th>
+							@item.MessageType.ToString()
+						</th>
+						<th>
+							@item.Sent
+						</th>
+						<th>
+							@item.Subject
+						</th>
+						<th>
+							@item.Content
+						</th>
+						<th>
+							@item.Status
+						</th>
+					</tr>
+						}
+					} else {
+						<tr><td colspan="4">No communications sent yet</td></tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

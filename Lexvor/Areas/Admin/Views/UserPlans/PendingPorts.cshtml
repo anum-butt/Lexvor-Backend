@@ -1,0 +1,74 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@model IEnumerable<Lexvor.API.Objects.UserPlan>
+
+@{
+    ViewData["Title"] = "User Ports Waiting";
+	ViewData["PageTitle"] = "User Ports Waiting for Confirmation";
+}
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								Name
+							</th>
+							<th>
+								Plan Type
+							</th>
+							<th>
+								ID Verified
+							</th>
+							<th>
+								Status
+							</th>
+							<th>
+								Wireless
+							</th>
+							<th>
+								Device
+							</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+					@if (Model.Any())
+					{
+						foreach (var item in Model)
+						{
+						<tr>
+							<td>
+								@item.Profile.FullName
+							</td>
+							<th>
+								@item.PlanType.Name
+							</th>
+							<th>
+								@item.Profile.IDVerifyStatus.ToString()
+							</th>
+							<th>
+								@item.Status.ToString()
+							</th>
+							<th>
+								@item.WirelessStatus.ToString()
+							</th>
+							<th>
+								@item.Device?.Name
+							</th>
+							<td>
+								<a asp-action="Index" asp-route-userPlanId="@item.Id">Details</a>
+							</td>
+						</tr>
+						}
+					}
+					else
+					{
+						<tr><td colspan="4">No Ports Waiting</td></tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>

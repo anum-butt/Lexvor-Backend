@@ -1,0 +1,198 @@
+﻿@model IEnumerable<Lexvor.Models.AdminViewModels.ACHRejectsResolution>
+@using Lexvor.Controllers
+@using Lexvor.Areas.Admin.Controllers
+
+@{
+	ViewData["Title"] = "Rejected ACH";
+}
+<style type="text/css">
+	.dataTables_scroll {
+		overflow-x: scroll;
+		width: 85%
+	}
+
+	.form-control.input-sm {
+		width: auto;
+		padding: 0 5px;
+		margin: 0 10px;
+		height: 40px;
+	}
+
+	.device-table_wrapper {
+		table-layout: fixed;
+	}
+
+	.dataTables_length, .dataTables_filter {
+		width: 25%;
+	}
+
+		.dataTables_length label {
+			float: left;
+		}
+
+
+	ul.pagination li {
+		padding: 2px 10px;
+		border: 1px solid #e0e6ed;
+		border-radius: 5px;
+		margin: 0 3px;
+	}
+</style>
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+
+		<div class="media-body">
+			<div class="row">
+				<div id="header-alerts"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<h2>@ViewData["Title"]</h2>
+				</div>
+				<div class="col-md-6">
+					<button type="button" id="refreshACh" class="btn btn-sm btn-primary" onclick="refreshACH()">Refresh ACH</button>
+				</div>
+              </div>
+			<div class="row">
+				<table class="table" id="AchRejected-table" style="table-layout:fixed">
+					<thead>
+						<tr>
+							<th>Email</th>
+							<th>Account Number</th>
+							<th>Type</th>
+							<th>Amount</th>
+							<th>Balance</th>
+							<th>Las	t Balance Check</th>
+							<th>ChargeDate</th>
+							<th>Clear</th>
+							<th>Charge</th>
+							<th>Update Balance</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.Any())
+						{
+							foreach (var item in Model)
+							{
+						<tr>
+							<td>@Html.ActionLink(item.UserEmail, "UserDetails", "Users", new { id = item.ProfileId })  </td>
+							<td>@Html.DisplayFor(modelItem => item.MaskedAccount)</td>
+							<td>@Html.DisplayFor(modelItem => item.ChargeType)</td>
+							<td>@Html.DisplayFor(modelItem => item.Amount)</td>
+							<td>@Html.DisplayFor(modelItem => item.Balance)</td>
+							<td>@Html.DisplayFor(modelItem => item.LastBalanceCheck)</td>
+							<td>@Html.DisplayFor(modelItem => item.ChargeDate)</td>
+							
+							<td>
+								@if (item.Charge.NeedsAttention == true)
+								{
+									<button type="button" class="btn btn-primary btn-sm" id="setNeedsAttention" onclick="setNeedAttention('@item.Charge.Id');">Clear</button>
+
+								}
+							</td>
+							<td>
+								<button type="button" class="btn btn-primary btn-sm" id="chargeRejectedACH" onclick="chargeRejectedACH('@item.ProfileId', '@item.PayAccountId', '@item.Amount', '@item.Charge.Id');">Charge</button>
+							</td>
+							<td>
+								<button type="button" class="btn btn-primary btn-sm" id="updateBalance" onclick="updateBalance('@item.PayAccountId');">Update Balance</button>
+
+							</td>
+						</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</li>
+</ul>
+
+@section scripts {
+	<script src="~/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="~/libs/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+	<script>
+		var mainTable;
+
+
+		mainTable = $('#AchRejected-table').DataTable({
+			"dom": 'Blfrtp',
+			"info": false,
+			"searching": false,
+			"ordering": false,
+			"scrollX": true,
+			"order": [[0, "asc"]],
+			'orderCellsTop': true,
+			'fixedHeader': true
+		});
+
+		$.ajax({
+            url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home")',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+		});
+
+		function setNeedAttention(id) {
+			$.ajax({
+				type:"POST",
+				url: '@Url.Action(nameof(UsersController.SetNeedsAttention), "Users")',
+				data: { chargeId: id},
+				success: function (data) {
+					if (data == true) {
+						window.location.reload();
+					}
+             
+			}
+			
+        });
+		}
+
+		function chargeRejectedACH(ProfileId, PayAccountId, ChargeAmount,chargeId) {
+			var model = {
+				"ProfileId":ProfileId,
+				"PayAccountId":PayAccountId,
+				"ChargeAmount":ChargeAmount,
+				"ChargeDescription":"Charging Rejected ACH"
+
+			}
+			var payload={model,chargeId }
+			$.ajax({
+				type:"Post",
+				url: "/Admin/Users/ChargeRejectedACH/",
+				data: payload,
+				dataType: "json",
+				success: function (data) {
+					if (data == true) {
+						window.location.reload();
+					}
+				}
+		});
+		}
+
+		function updateBalance(paymentId) {
+			$.ajax({
+
+				type: "POST",
+				data: { paymentId },
+				url: '@Url.Action(nameof(UsersController.UpdateBalance),"Users")',
+				success: function (data) {
+					if (data == true) {
+						Window.location.reload
+					}
+				}
+			})
+		}
+
+		function refreshACH() {
+			$.ajax({
+				url: '@Url.Action(nameof(Lexvor.Controllers.API.PaymentController.GetRejectedACH), "Payment")',
+				success: function (data) {
+					
+				}
+
+			});
+		}
+	</script>
+}

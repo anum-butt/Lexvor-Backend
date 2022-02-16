@@ -1,0 +1,31 @@
+﻿@using Lexvor.Controllers
+@model Lexvor.Models.HomeViewModels.LoggedInPageViewModel
+@{
+    ViewData["Title"] = "Wireless Service";
+    Layout = "_Layout";
+    ViewData["PageName"] = "Add a Line";
+    ViewData["PageSubtitle"] = "The Best Wireless Service and The Latest Devices for One Price.";
+}
+<div class="row">
+    <div class="col-md-9">
+        <div id="header-alerts"></div>
+
+        <div class="list-group media-list media-list-stream mb-4 pagination">
+            <div class="media list-group-item p-4">
+                <div class="row full-width">
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <h3>For only $99/month get brand new device and wireless service on the nation's most reliable network.</h3>
+                            <hr />
+                            <p>Get unlimited Talk, Text, and Data and a brand new iPhone for only $99 per month.</p>
+                            <a href="@Url.Action(nameof(WirelessController.Validate))" class="btn btn-primary">Device and Service</a>
+                            <hr />
+                            <p>Only want the service? Great!, unlimited Talk, Text, and Web is only $70 per month.</p>
+                            <a href="@Url.Action(nameof(WirelessController.Validate), new { validateImei = true })" class="btn btn-primary">Just Service</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

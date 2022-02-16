@@ -1,0 +1,33 @@
+﻿@using Lexvor.Controllers
+@model IEnumerable<Lexvor.Areas.Admin.Controllers.UserRole>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_AdminLayout";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>User Permissions</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Permissions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>@item.Email</td>
+                        <td>@item.RoleName</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>
+@section scripts {
+    <script>
+    </script>
+}

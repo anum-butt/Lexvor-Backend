@@ -1,0 +1,193 @@
+﻿@model Lexvor.Models.ProfileViewModels.LossClaimViewModel
+
+@{
+	ViewData["Title"] = "Submit a Loss Claim";
+	Layout = "_Layout";
+	ViewData["PageName"] = "Damaged or Lost your Device?";
+}
+
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		<div class="row">
+			@if (Model.LossClaim != null)
+			{
+				<div class="col-xl-12 col-md-12">
+					<div class="card">
+						<div class="card-header">
+							Loss Claim Form
+						</div>
+						<div class="card-body">
+							@if (!Model.LossClaim.ProcessedOn.HasValue)
+							{
+								<p>This device already has a pending loss claim. Thank you for your patience.</p>
+							}
+							else
+							{
+								<p>This device was processed on @Model.LossClaim.ProcessedOn.Value.ToString("dddd, dd MMMM yyyy") </p>
+							}
+
+							@if (Model.LossClaim.ApprovedOn.HasValue)
+							{
+								<p>This device was approved on @Model.LossClaim.ApprovedOn.Value.ToString("dddd, dd MMMM yyyy") </p>
+							}
+						</div>
+					</div>
+				</div>
+			}
+			else
+			{
+				<div class="col-xl-12 col-md-12">
+					<div class="card">
+						<div class="card-header">
+							Loss Claim Form
+						</div>
+						<div class="card-body">
+							<p>
+								Did something happen to this device? Submit a claim and we will send out a new phone as soon as possible.
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="card col-12">
+					<form role="form" asp-route-returnurl="@ViewData["ReturnUrl"]" class="form-horizontal" enctype="multipart/form-data" method="post">
+						@Html.HiddenFor(x => x.Id)
+						<p>Please select the type of your claim</p>
+						<div class="form-group">
+							<div class="row">
+								@foreach (var val in Enum.GetValues(typeof(Lexvor.API.Objects.Enums.LossType)))
+								{
+									<div class="col-4">
+										<input type="radio" name="LossType" value="@val" />
+										@Html.Label(val.ToString())
+									</div>
+								}
+							</div>
+							<hr />
+
+							<div asp-validation-summary="All" class="text-danger"></div>
+
+							<div id="damaged-pictures" class="form-group">
+								<p>Please supply these pictures:</p>
+								<div class="row">
+									<dl class="col-4">
+										<dt>
+											<label asp-for="@Model.ImageWholeFront"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.ImageWholeFront" type="file">
+											<span asp-validation-for="@Model.ImageWholeFront"></span>
+										</dd>
+									</dl>
+									<dl class="col-4">
+										<dt>
+											<label asp-for="@Model.ImageWholeBack"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.ImageWholeBack" type="file">
+											<span asp-validation-for="@Model.ImageWholeBack"></span>
+										</dd>
+									</dl>
+									<dl class="col-4">
+										<dt>
+											<label asp-for="@Model.ImagePhoneScreenOn"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.ImagePhoneScreenOff" type="file">
+											<span asp-validation-for="@Model.ImagePhoneScreenOn"></span>
+										</dd>
+									</dl>
+									<dl class="col-4">
+										<dt>
+											<label asp-for="@Model.ImagePhoneScreenOff"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.ImagePhoneScreenOff" type="file">
+											<span asp-validation-for="@Model.ImagePhoneScreenOff"></span>
+										</dd>
+									</dl>
+									<dl class="col-4">
+										<dt>
+											<label asp-for="@Model.DamageCloseUpAngle1"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.DamageCloseUpAngle1" type="file">
+											<span asp-validation-for="@Model.DamageCloseUpAngle1"></span>
+										</dd>
+									</dl>
+									<dl class="col-4">
+										<dt>
+											<label asp-for="@Model.DamageCloseUpAngle2"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.DamageCloseUpAngle2" type="file">
+											<span asp-validation-for="@Model.DamageCloseUpAngle2"></span>
+										</dd>
+									</dl>
+									<dl class="col-4">
+										<dt>
+											<label asp-for="@Model.DamageCloseUpAngle3"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.DamageCloseUpAngle3" type="file">
+											<span asp-validation-for="@Model.DamageCloseUpAngle3"></span>
+										</dd>
+									</dl>
+								</div>
+							</div>
+							<div id="police-report-picture" class="form-group">
+								<p>Please supply this picture:</p>
+								<div class="row">
+									<dl class="col-6">
+										<dt>
+											<label asp-for="@Model.PoliceReport"></label>
+										</dt>
+										<dd>
+											<input asp-for="@Model.PoliceReport" type="file">
+											<span asp-validation-for="@Model.PoliceReport"></span>
+										</dd>
+									</dl>
+								</div>
+							</div>
+
+							<div>
+								<label asp-for="@Model.Message">Leave us a message:</label><br>
+								<input class="form-control" type="text" asp-for="@Model.Message"><br>
+							</div>
+							<div class="form-group mb-5" align="center">
+								<button type="submit" class="btn btn-primary">Submit loss claim</button>
+							</div>
+					</form>
+				</div>
+			}
+		</div>
+		<br />
+		<br />
+
+	</div>
+</div>
+@section Scripts {
+	<script>
+		$('input[type=radio][name=LossType]').change(function () {
+			if (this.value == "Stolen") {
+				$("#damaged-pictures").hide();
+				$("#police-report-picture").show();
+
+			}
+			else if (this.value == "Damaged") {
+				$("#damaged-pictures").show();
+				$("#police-report-picture").hide();
+			}
+			else {
+				$("#police-report-picture").hide();
+				$("#damaged-pictures").hide();
+			}
+		});
+
+		$(document).ready(function () {
+			$("#police-report-picture").hide();
+			$("#damaged-pictures").hide();
+		});
+	</script>
+}

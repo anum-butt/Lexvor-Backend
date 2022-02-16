@@ -1,0 +1,66 @@
+﻿@model Lexvor.Models.AdminViewModels.NoDevicesVM
+@{
+	ViewData["Title"] = "NoDevices";
+	Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<h5>User Without Devices</h5>
+			<div class="col-sm-offset-2 col-sm-8">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								Sl.No
+							</th>
+							<th>
+								Plan Type
+							</th>
+							<th>
+								Name
+							</th>
+							<th>
+								Email
+							</th>
+							<th>
+								Initiation Amount
+							</th>
+							<th>
+								Monthly
+							</th>
+							<th>
+								Date
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.UserPlan.Any())
+						{
+							int index = 1;
+							foreach (var plan in Model.UserPlan)
+							{
+								<tr>
+									<td>
+										<span> @index </span>
+									</td>
+									<td>
+										<span>@plan.PlanType.Name</span>
+									</td>
+									<td>   <span>@plan.Profile.FirstName</span></td>
+									<td><span>@plan.Profile.Account.Email</span></td>
+									<td><span>@plan.Initiation</span></td>
+									<td> <span>@plan.Monthly</span></td>
+									<td><span>@plan.LastModified</span></td>
+								</tr>
+								index++;
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</li>
+</ul>

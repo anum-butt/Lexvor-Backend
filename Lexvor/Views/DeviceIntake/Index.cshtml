@@ -1,0 +1,158 @@
+﻿@using Lexvor.Controllers
+@model DeviceIntakeIndexViewModel
+
+@{
+    ViewData["Title"] = "Trade Ins";
+    Layout = "_Layout";
+    ViewData["PageName"] = "Trade Ins";
+    ViewData["PageSubtitle"] = "If you are trading in a device, please complete a trade in request.";
+}
+
+<div class="row">
+    <div class="col-xl-12 col-md-12">
+        <div id="header-alerts"></div>
+        <form role="form" class="form-horizontal full-width" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-xl-8 col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">New Request</h6>
+                        </div>
+                        <div class="card-body">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+
+                            <div class="form-group">
+                                <label asp-for="Intake.Make" class="form-control-label"></label>
+                                <input asp-for="Intake.Make" type="text" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Intake.Model" class="form-control-label"></label>
+                                <input asp-for="Intake.Model" type="text" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Intake.IMEI" class="form-control-label"></label>
+                                <input asp-for="Intake.IMEI" type="text" class="form-control input-mask" data-mask="00 000000 000000 0" placeholder="12 123456 123456 1">
+                            </div>
+
+                            <div class="custom-control custom-checkbox">
+                                <input asp-for="Intake.Repaired" type="checkbox" class="custom-control-input">
+                                <label asp-for="Intake.Repaired" class="custom-control-label"></label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input asp-for="Intake.Balance" type="checkbox" class="custom-control-input">
+                                <label asp-for="Intake.Balance" class="custom-control-label"></label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input asp-for="Intake.Charges" type="checkbox" class="custom-control-input">
+                                <label asp-for="Intake.Charges" class="custom-control-label"></label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input asp-for="Intake.OriginalOwner" type="checkbox" class="custom-control-input">
+                                <label asp-for="Intake.OriginalOwner" class="custom-control-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Photos of Device</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label asp-for="Intake.FrontImageUpload"></label>
+                                <input type="file" id="Intake.FrontImageUpload" name="Intake.FrontImageUpload" class="custom-input-file" data-multiple-caption="{count} files selected" />
+                                <label for="Intake.FrontImageUpload">
+                                    <i class="fa fa-upload"></i>
+                                    <span>Choose a file…</span>
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Intake.BackImageUpload"></label>
+                                <input type="file" id="Intake.BackImageUpload" name="Intake.BackImageUpload" class="custom-input-file" data-multiple-caption="{count} files selected" />
+                                <label for="Intake.BackImageUpload">
+                                    <i class="fa fa-upload"></i>
+                                    <span>Choose a file…</span>
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Intake.OnImageUpload"></label>
+                                <input type="file" id="Intake.OnImageUpload" name="Intake.OnImageUpload" class="custom-input-file" data-multiple-caption="{count} files selected" />
+                                <label for="Intake.OnImageUpload">
+                                    <i class="fa fa-upload"></i>
+                                    <span>Choose a file…</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                                <button type="submit" class="btn btn-block btn-primary">Request Trade In</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Past and Pending Requests</h6>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Requested</th>
+                            <th>Make</th>
+                            <th>Model</th>
+                            <th>IMEI</th>
+                            <th>Approved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.IntakeRequests) {
+                        <tr>
+                            <td>@item.Requested.ToString("d")</td>
+                            <td>@item.Make</td>
+                            <td>@item.Model</td>
+                            <td>@item.IMEI</td>
+                            <td>@(item.Approved.HasValue ? "Approved" : "Pending")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+
+    <script>
+        $.ajax({
+            url: '@(Url.Action(nameof(HomeController.HeaderAlert), "Home"))',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+        });
+
+        var tr912 = {
+            id: "tr912",
+            steps: [
+                {
+                    title: "Starting the Trade In process",
+                    content:
+                        "Fill out the form below to start your trade in request. Trade ins are evaluated on a case-by-case basis.",
+                    target: 'tour-tr912-1',
+                    placement: "bottom"
+                }
+            ]
+        };
+
+        if (getParameterByName('t') == 'tr912') {
+            hopscotch.startTour(tr912);
+        }
+    </script>
+}

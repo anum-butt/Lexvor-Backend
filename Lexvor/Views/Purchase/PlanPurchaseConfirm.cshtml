@@ -1,0 +1,83 @@
+﻿@using Lexvor.Controllers
+@model UserPaymentContextViewModel
+@{
+    ViewData["Title"] = "Purchase a Plan";
+    Layout = "_LayoutFull";
+}
+
+<form role="form" method="post" class="form-horizontal">
+    <input type="hidden" asp-for="PlanTypeId">
+    <div class="col-xl-offset-2 col-xl-8 col-sm-12 half-width">
+        <p>Confirm your plan choice below.</p>
+
+        <div class="row">
+            <div class="col-sm-8 ma-centered">
+                <div class="row">
+                    <div class="col-sm-12 col-xl-9 ma-centered">
+                        <div class="card">
+                            <div class="card-block">
+                                <h4 class="text-warning">
+                                    @Model.PlanType.Name
+                                </h4>
+                                <h6>
+                                    Initiation: $<span id="initiation">
+                                        @(Model.AppliedPromo != null ? Html.Raw($"<del>{Model.PlanType.InitiationFee}</del>  <b>{Model.AppliedPromo.NewInitiationFee}</b>") : Html.Raw($"{Model.PlanType.InitiationFee}"))
+                                    </span>
+                                </h6>
+                                <h6>
+                                    Monthly: $<span id="monthly">
+                                        @(Model.AppliedPromo != null ? Html.Raw($"<del>{Model.PlanType.MonthlyCost}</del>  <b>{Model.AppliedPromo.NewMonthlyCost}</b>") : Html.Raw($"{Model.PlanType.MonthlyCost}"))
+                                    </span>
+                                </h6>
+
+                                @if (Model.AppliedPromo != null) {
+                                    <p>Promotion Applied: @Model.PromoCode</p>
+                                } else if (Model.AppliedPromo == null && !string.IsNullOrWhiteSpace(Model.PromoCode)) {
+                                    <p class="text-danger">The promo code you provided is invalid or expired.</p>
+                                }
+                                <hr />
+                                <p>
+                                    Total Cost Today: $<span id="total">@(Model.AppliedPromo?.NewInitiationFee ?? Model.PlanType.InitiationFee)</span>
+                                </p>
+
+                                <hr />
+
+                                <div class="form-group mb-3">
+                                    <div class="row">
+                                        <div class="input-group col-sm-10 ma-centered">
+                                            <input type="text" class="form-control" id="promo" asp-for="PromoCode" placeholder="Promo Code:" value="@Model.PromoCode">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default clickable" id="promo-apply">Apply</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="stripeError" class="alert alert-warning hidden"></div>
+                                <a class="btn btn-default" href="javascript:window.history.back();">Go Back</a>
+                                <button type="submit" class="btn btn-info clickable" id="purchase">Continue to Payment Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4" style="margin: 0 auto;">
+                <div>By purchasing a plan you are re-affirming your agreement to our <a href="https://lexvor.com/agreement" target="_blank">User</a> and <a href="https://lexvor.com/lease" target="_blank">Lease Agreements</a> that you agreed to when signing up.</div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $('#promo-apply').on('click',
+            function () {
+                var promo = $('#promo').val();
+                window.location.href =
+                    [window.location.protocol, '//', window.location.host, window.location.pathname].join('') + '?planTypeId=@Model.PlanTypeId&promo=' + promo;
+            });
+    </script>
+}

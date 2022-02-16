@@ -1,0 +1,40 @@
+﻿@using Lexvor.API.Objects.Enums
+@using Lexvor.API.Objects.User
+@using Lexvor.Controllers
+@model Lexvor.Models.ProfileViewModels.AvailableDevicesViewModel
+
+@{
+    ViewData["Title"] = "Available Devices";
+    Layout = "_Layout";
+    ViewData["PageName"] = "Available Devices for Your Plan";
+    ViewData["PageSubtitle"] = "Request a device to add to your plan";
+}
+
+<div class="row">
+    <div class="col-xl-12 col-md-12">
+        <div id="header-alerts"></div>
+
+        <div class="row">
+
+            @foreach (var item in Model.Devices) {
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>@item.Name</h4>
+                        </div>
+                        <div class="card-body">
+                            <figure class="figure">
+                                <img src="https://lexvorassets.blob.core.windows.net/website-assets/@item.ImageUrl" alt="@item.Name" class="img-center img-fluid max-h-20" />
+                            </figure>
+                            @*TODO Display device options so the user can pick. Offer warning if option will add surcharge*@
+                        </div>
+                        <div class="card-footer">
+                            @*TODO  Offer confirm modal before selection.*@
+                            <button type="submit" class="btn btn-info">Request Device</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

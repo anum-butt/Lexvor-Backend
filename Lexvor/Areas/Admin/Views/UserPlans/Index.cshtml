@@ -1,0 +1,1026 @@
+﻿@using Lexvor.API.Objects
+@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers.API
+@using Lexvor.Extensions
+@using Sentry.Protocol
+@using Stripe
+@using Device = Lexvor.API.Objects.Device
+@using Address = Lexvor.API.Objects.User.Address
+@using Lexvor.API
+@using System.Composition.Hosting.Core
+@using Lexvor.Data
+@using Lexvor.Helpers
+@model Lexvor.Models.AdminViewModels.UserPlanDetailsViewModel
+@{
+	ViewData["Title"] = "User Plan Details";
+	Layout = "_AdminLayout";
+
+	var isBypass = Context.Request.Query.ContainsKey("bypass") && Convert.ToBoolean(Context.Request.Query["bypass"]);
+	var mdnValid = !string.IsNullOrWhiteSpace(Model.UserPlan.AssignedSIMICC) && ((!string.IsNullOrWhiteSpace(Model.UserPlan.MDN) && Model.UserPlan.MDNPortable.HasValue && Model.UserPlan.MDNPortable.Value) || !Model.UserPlan.IsPorting);
+	var imeiValid = Model.UserPlan.UserDevice != null && !string.IsNullOrWhiteSpace(Model.UserPlan.UserDevice.IMEI) && Model.UserPlan.UserDevice.IMEIValid;
+	var isValidUserPlanToCheckWirelessPlan = !string.IsNullOrEmpty(Model.UserPlan.MDN) && !string.IsNullOrEmpty(Model.UserPlan.Profile.ExternalWirelessCustomerId);
+}
+<style>
+	.ui-autocomplete {
+		overflow: auto;
+		max-height: 100px;
+		z-index: 1100 !important;
+	}
+</style>
+	<div id='wirelessPlanCheckModal' class='modal' aria-hidden="true">  
+		<div class="modal-dialog">  
+			<div class="modal-content" id='wirelessPlanCheckModalContent'>
+				<div class="modal-header">
+					<h4 class="modal-title" id="wirelessPlanCheckModalHeader"></h4>
+				</div>
+				<div class="modal-header">
+					<button class="btn btn-sm btn-secondary"
+							id="closeWirelessPlanCheckModal"
+							title="Close the dialog window">
+						Close
+					</button>
+				</div>
+			</div>
+		</div>     
+	</div>
+	<div id='changeWirelessPlanModal' class='modal' aria-hidden="true">  
+		<div class="modal-dialog">  
+			<div class="modal-content" id='changeWirelessPlanModalContent'>
+				<div class="modal-header">
+						<h4 class="modal-title" id="changeWirelessPlanModalHeader">Change Wireless Plan</h4>
+				</div>
+				<div class="modal-body">
+					<h5 class="modal-title">Choose wireless plan from dropdown list:</h5>
+					<br>
+					<div class="row">
+						<div class="col-md-12">
+							<select id="externalPlanIdSelect" class="form-control"></select>
+						</div>
+					</div>
+					<br>
+					<div class="row">
+						<div class="col-md-1"></div>
+						<div class="col-md-6">
+							<button class="btn btn-sm btn-primary"
+									id="changeWirelessPlanButton"
+									data-id="@Model.UserPlan.Id"
+									title="Change plan">
+								Change plan
+							</button>
+						</div>
+						<div class="col-md-5">
+							<button class="btn btn-sm btn-primary"
+									id="getCurrentWirelessPlanButton"
+									data-id="@Model.UserPlan.Id"
+									title="Get wireless plan">
+								Get current plan
+							</button>
+						</div>
+					</div>
+					<br>
+					<h5 class="modal-title" id="changeWirelessPlanModalCurrentPlan"></h5>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-sm btn-secondary float-right"
+							id="closeChangeWirelessPlanModal"
+							title="Close the dialog window">
+						Close
+					</button>
+				</div>
+			</div>
+		</div>     
+	</div>  
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h4>@Model.UserPlan.Profile.FullName</h4>
+					<a href="@Url.Action(nameof(UsersController.UserDetails), "Users", new { id = Model.UserPlan.Profile.Id })" class="btn btn-primary btn-sm float-right">Back to User</a>
+				</div>
+				<div class="card-body">
+					<table class="table">
+						<tbody>
+							<tr>
+								<td>Plan Name</td>
+								<td>@Model.UserPlan.PlanType?.Name</td>
+							</tr>
+							<tr>
+								<td>Status </td>
+								<td @(Model.UserPlan.Status == PlanStatus.Paid ? Html.Raw(@"data-toggle=""tooltip"" title=""A Paid Status means that an Epic Pay subscription was not created because the user was not ID Verified at the time of purchase.""") : null)>
+									@Model.UserPlan.Status.ToString()
+									@if (Model.UserPlan.ExternalSubscriptionId.IsNull())
+									{
+										<a href="@Url.Action(nameof(UserPlansController.CreatePaySubscription), UserPlansController.Name, new { id = Model.UserPlan.Id })" class="badge badge-danger">Create Sub</a>
+									}
+								</td>
+							</tr>
+							<tr>
+								<td>Lease Signed (if applicable)</td>
+								<td class="@(Model.UserPlan.AgreementSigned ? "text-success" : "text-danger")">@Model.UserPlan.AgreementSigned</td>
+							</tr>
+							<tr>
+								<td>Confirmed Bank Account</td>
+								<td class="@(Model.ConfirmedPayAccount ? "" : "text-danger")">@(Model.ConfirmedPayAccount ? "Yes" : "No")</td>
+							</tr>
+							<tr>
+								<td>Billing Zip Code</td>
+								<td>@Model.UserPlan.Profile.BillingAddress?.PostalCode @if (Model.UserPlan.Profile.BillingAddress == null || string.IsNullOrWhiteSpace(Model.UserPlan.Profile.BillingAddress?.PostalCode))
+								{<span class="badge badge-danger" data-toggle="tooltip" title="A missing Zip means that activation will fail if the user is NOT porting.">Zip missing</span>}</td>
+							</tr>
+							<tr>
+								<td>Assign Device</td>
+								<td><a href="@Url.Action(nameof(UsersController.AssignDevice), "Users", new {id = Model.UserPlan.Id})">Assign Device</a></td>
+							</tr>
+							<tr>
+								<td>Change Plan Type</td>
+								<td><a href="@Url.Action(nameof(UserPlansController.ChangePlanType), "UserPlans", new {userPlanId = Model.UserPlan.Id})">Change Plan Type</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header">
+					<div class="row">
+						<div class="col-md-9">
+							<h4>Wireless</h4>
+						</div>
+						<div class="col-md-3">
+							<button class="btn btn-primary btn-sm"
+									id="changeWirelessPlanModalButton"
+									data-toggle="tooltip">
+								Change plan
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<table class="table">
+						<tbody>
+							<tr>
+								<td>Assigned SIM</td>
+								<td>
+									@Model.UserPlan.AssignedSIMICC
+									@if (string.IsNullOrWhiteSpace(Model.UserPlan.AssignedSIMICC))
+									{
+										<a href="@Url.Action(nameof(SIMController.Assignment), SIMController.Name, new {
+								         planId = Model.UserPlan.Id, returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = @Model.UserPlan.Id })
+							         })" class="btn badge badge-danger">Assign</a>
+									}
+									else if (!string.IsNullOrWhiteSpace(Model.UserPlan.AssignedSIMICC))
+									{
+										<input type="hidden" value="@Model.UserPlan.AssignedSIMICC" id="previousAssignedSIMICC" />
+										<a href='#' data-toggle="modal" class="btn badge badge-danger"  data-target="#ReAssignSimModal">Re-Assign</a>
+									}
+									else if (!Model.UserPlan.SIMShipped.HasValue)
+									{
+										<a href="@Url.Action(nameof(SIMController.MarkShipped), SIMController.Name, new {
+								         id = Model.UserPlan.Id, returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = @Model.UserPlan.Id })
+							         })" class="btn badge badge-danger">Mark Shipped</a>
+									}
+									else if (!string.IsNullOrWhiteSpace(Model.UserPlan.AssignedSIMICC) && Model.UserPlan.SIMShipped.HasValue)
+									{
+										<span class="btn badge badge-success">Shipped</span>
+									}
+								</td>
+							</tr>
+							<tr>
+								<td>Customer has Wireless Profile? </td>
+								<td>
+									@(Model.UserPlan.Profile.ExternalWirelessCustomerId.IsNull() ? "No" : "Yes")
+									@if (!string.IsNullOrEmpty(Model.UserPlan.WirelessPlanName))
+									{
+										<div class="float-right">@Model.UserPlan.WirelessPlanName</div>
+									}
+									@if (Model.UserPlan.Profile.ExternalWirelessCustomerId.IsNull())
+									{
+										<a href="@Url.Action(nameof(WirelessAdminController.CreateCustomer), WirelessAdminController.Name, new {
+								         profileId = Model.UserPlan.ProfileId, returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = @Model.UserPlan.Id })
+							         })" class="btn badge badge-danger">Create Customer</a>
+									}
+								</td>
+							</tr>
+							<tr>
+								<td>Wireless Status </td>
+								<td>
+									@Model.UserPlan.WirelessStatus.ToString()
+									@if (isValidUserPlanToCheckWirelessPlan)
+									{
+										<button class="btn badge badge-danger"
+												id="wirelessPlanCheckButton"
+												data-toggle="tooltip"
+												data-id="@Model.UserPlan.Id">
+											Check plan
+										</button>
+									}
+							</tr>
+							<tr>
+								<td>Porting </td>
+								<td>@(Model.UserPlan.IsPorting ? "Yes" : "No")</td>
+							</tr>
+							<tr>
+								<td>MDN (Mobile Number) </td>
+								<td>
+									@if (Model.UserPlan.MDN.IsNull())
+									{
+										<a href="@Url.Action(nameof(UserPlansController.GetMDN), UserPlansController.Name, new { id = Model.UserPlan.Id, returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = Model.UserPlan.Id } ) })" class="badge badge-secondary">Retrieve Wireless Number (after activate)</a>
+									}
+									else
+									{
+										@StaticUtils.FormatPhone(Model.UserPlan.MDN)
+										@if (Model.UserPlan.MDNPortable.HasValue && Model.UserPlan.MDNPortable.Value)
+										{
+											<span class="badge badge-success">Portable</span>
+										}
+										else if (!Model.UserPlan.MDNPortable.HasValue)
+										{
+											<button class="btn badge badge-danger portCheck" data-id="@Model.UserPlan.Id" data-mdn="@Model.UserPlan.MDN" data-toggle="tooltip" title="Check the status of the port">Check Port</button>
+										}
+										else
+										{
+											<span class="badge badge-warning">Not Portable</span>
+										}
+									}
+								</td>
+							</tr>
+							<tr>
+								<td>Toggle Port Status</td>
+								<td><a href="@Url.Action(nameof(UserPlansController.ChangePortStatus), UserPlansController.Name, new { id = Model.UserPlan.Id, returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = Model.UserPlan.Id } ) })" class="badge badge-secondary" data-toggle="tooltip" title="If the user signed up to port and they want to get a new number, this will toggle the status of their line and vise-versa. CAUTION: If the user has a Port Request and you click this, their Port Request will be deleted.">Change Port Status</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			@if (Model.UserPlan.PortRequest != null)
+			{
+				<div class="card">
+					<div class="card-header">
+						<h4>Port Request</h4>
+						<a href='#' data-toggle="modal" class="btn btn-primary btn-sm float-right" data-target="#portRequestModal">Edit</a>
+					</div>
+					<div class="card-body">
+						<table class="table">
+							<tbody>
+								<tr>
+									<td>Port Status</td>
+									<td>@Model.UserPlan.PortRequest.Status.ToString() - @Model.UserPlan.PortRequest.StatusDescription</td>
+								</tr>
+								<tr>
+									<td>OSP</td>
+									<td>
+										@Model.UserPlan.PortRequest.OSPName
+									</td>
+								</tr>
+								<tr>
+									<td>Account Number</td>
+									<td>@Model.UserPlan.PortRequest.AccountNumber</td>
+								</tr>
+								<tr>
+									<td>Password/PIN </td>
+									<td>@Model.UserPlan.PortRequest.Password</td>
+								</tr>
+								<tr>
+									<td>Address </td>
+									<td>
+										@($"{Model.UserPlan.PortRequest.AddressLine1} {Model.UserPlan.PortRequest.AddressLine2} {Model.UserPlan.PortRequest.City} {Model.UserPlan.PortRequest.State} {Model.UserPlan.PortRequest.Zip}")
+
+										@if (Model.UserPlan.PortRequest.Zip.IsNull())
+										{
+											<span class="badge badge-danger">Port will Fail (Empty Zip)</span>
+										}
+									</td>
+								</tr>
+								<tr>
+									<td>Name </td>
+									<td>@($"{Model.UserPlan.PortRequest.FirstName} {Model.UserPlan.PortRequest.MiddleInitial} {Model.UserPlan.PortRequest.LastName}")</td>
+								</tr>
+								<tr>
+									<td>MDN to Port </td>
+									<td>@StaticUtils.FormatPhone(Model.UserPlan.PortRequest.MDN)</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			}
+
+			@if (Model.Order != null)
+			{
+				<div class="card">
+					<div class="card-header">
+						<h4>Accessory Order</h4>
+					</div>
+					<div class="card-body">
+						<table class="table">
+							<tbody>
+								<tr>
+									<td>Order Id</td>
+									<td>
+										@Model.Order.OrderId
+									</td>
+								</tr>
+								<tr>
+									<td>Order Date</td>
+									<td>
+										@Model.Order.OrderDate
+									</td>
+								</tr>
+								<tr>
+									<td>Order Total</td>
+									<td>
+										$@(Model.Order.Total / 100)
+									</td>
+								</tr>
+								<tr>
+									<td>Accessory 1</td>
+									<td>
+										@(Model.Order.Accessory1?.Accessory ?? "No Selection")
+										@if (Model.Order.Accessory1?.LifetimeWarranty ?? false)
+										{
+											@:(Lifetime Warranty Purchased)
+										}
+									</td>
+								</tr>
+								<tr>
+									<td>Accessory 2</td>
+									<td>
+										@(Model.Order.Accessory2?.Accessory ?? "No Selection")
+										@if (Model.Order.Accessory2?.LifetimeWarranty ?? false)
+										{
+											@:(Lifetime Warranty Purchased)
+										}
+									</td>
+								</tr>
+								<tr>
+									<td>Accessory 3</td>
+									<td>
+										@(Model.Order.Accessory3?.Accessory ?? "No Selection")
+										@if (Model.Order.Accessory3?.LifetimeWarranty ?? false)
+										{
+											@:(Lifetime Warranty Purchased)
+										}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			}
+		</div>
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h4>Device</h4>
+				</div>
+				<div class="card-body">
+					<table class="table">
+						<tbody>
+							@if (Model.UserPlan.UserDevice != null)
+							{
+								<tr>
+									<td>User is BYOD</td>
+									<td>@Model.UserPlan.UserDevice.BYOD</td>
+								</tr>
+								<tr>
+									<td>IMEI </td>
+									<td>
+										@StaticUtils.MaskIMEI(Model.UserPlan.UserDevice.IMEI)
+										@if (Model.UserPlan.UserDevice.IMEIValid)
+										{
+											<span class="badge badge-success">Valid</span>
+										}
+										else
+										{
+											<button class="btn badge badge-danger imeiValid" data-id="@Model.UserPlan.UserDevice.Id" data-imei="@Model.UserPlan.UserDevice.IMEI">Validate</button>
+										}
+										@if (ViewHelpers.IsPermissioned(Context, Roles.Admin))
+										{
+											<a class="btn badge badge-primary" href="@Url.Action(nameof(UserPlansController.UpdateIMEI), UserPlansController.Name, new { userDeviceId = Model.UserPlan.UserDevice.Id})">Update IMEI</a>
+										}
+									</td>
+								</tr>
+								<tr>
+									<td>Requested </td>
+									<td>@Model.UserPlan.UserDevice.Requested?.ToString("d")</td>
+								</tr>
+								<tr>
+									<td>Shipped </td>
+									<td>
+										@Model.UserPlan.UserDevice.Shipped?.ToString("d")
+										@if (!Model.UserPlan.UserDevice.Shipped.HasValue)
+										{
+											<a href="@Url.Action(nameof(UsersController.MarkShipped), UsersController.Name, new { id = Model.UserPlan.UserDeviceId, returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = @Model.UserPlan.Id }) })" class="btn badge badge-danger" data-toggle="tooltip" title="If the user is BYOD you still have to click this, though it will do nothing.">Mark Shipped</a>
+										}
+										else
+										{
+											<span class="btn badge badge-success">Shipped</span>
+										}
+									</td>
+								</tr>
+							}
+							@if (Model.UserPlan.Device != null)
+							{
+
+								<tr>
+									<td>Device </td>
+									<td>
+										@Model.UserPlan.Device.Name
+									</td>
+								</tr>
+							}
+						<tr>
+							<td>
+								Upgrade Available
+							</td>
+							<td>
+								@(Model.UserPlan.UserDevice.UpgradeAvailable ? "Yes" : "No")
+								<a href="@Url.Action(nameof(UserDevicesController.ToggleUpgrade), UserDevicesController.Name, new { userDeviceId = Model.UserPlan.UserDeviceId, returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = @Model.UserPlan.Id }) })" class="btn badge badge-info">Toggle Upgrade</a>
+							</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			@if (Model.UserPlan.WirelessStatus != WirelessStatus.Active)
+			{
+				<div class="card">
+					<div class="card-header">
+						<h4>Activate</h4>
+					</div>
+					<div class="card-body">
+						@if (!string.IsNullOrEmpty(Model.ErrorMessage)) {
+
+
+							<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#errorMessage">View Error</button>
+						} else {
+							@if (string.IsNullOrWhiteSpace(Model.UserPlan.AssignedSIMICC)) {
+								<p>You must assign a SIM ICC before you can activate the plan.</p>
+							} else if (!string.IsNullOrWhiteSpace(Model.UserPlan.MDN) && !Model.UserPlan.MDNPortable.HasValue) {
+								<p>You must check portability on the users Mobile Number before activating the plan.</p>
+								<p>You may bypass the port check with the button below. ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING.</p>
+								<a href="@Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = Model.UserPlan.Id, bypass = true })" class="btn btn-sm btn-secondary">Bypass port check</a>
+							} else if (!string.IsNullOrWhiteSpace(Model.UserPlan.MDN) && Model.UserPlan.MDNPortable.HasValue && !Model.UserPlan.MDNPortable.Value) {
+								<p>The users Mobile Number is not portable. We cannot activate this plan.</p>
+							} else if (Model.UserPlan.UserDevice != null && string.IsNullOrWhiteSpace(Model.UserPlan.UserDevice.IMEI)) {
+								<p>An IMEI must be assigned before a plan can be activated.</p>
+							} else if (!string.IsNullOrWhiteSpace(Model.UserPlan.UserDevice.IMEI) && !Model.UserPlan.UserDevice.IMEIValid) {
+								<p>IMEI provided is not valid.</p>
+								<p>You may bypass the IMEI validation with the button below. ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING.</p>
+								<a href="@Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = Model.UserPlan.Id, bypass = true })" class="btn btn-sm btn-secondary">Bypass IMEI validation</a>
+							}else if (isBypass || (imeiValid && mdnValid && Model.UserPlan.WirelessStatus == WirelessStatus.NoPlan)) {
+								<a href="@Url.Action(nameof(WirelessAdminController.ActivateLine), WirelessAdminController.Name, new { userPlanId = Model.UserPlan.Id })" class="btn btn-primary">Start Plan Activation</a>
+							} else {
+								<p>There is a misconfiguration in this users plan and they cannot be activated.</p>
+							}
+						}
+					</div>
+				</div>
+			}
+			@if (Model.UserPlan.WirelessStatus == WirelessStatus.Active && Model.UserPlan.IsPorting)
+			{
+				<div class="card">
+					<div class="card-header">
+						<h4>Check Port Status</h4>
+					</div>
+					<div class="card-body">
+						<a href="@Url.Action(nameof(WirelessAdminController.CheckPortStatus), WirelessAdminController.Name, new { id = Model.UserPlan.Id,
+						         returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new { userPlanId = Model.UserPlan.Id }) })" class="btn btn-primary">Check Port</a>
+					</div>
+				</div>
+			}
+			<div class="card">
+				<div class="card-header">
+					<h4>Data Usage as of Today</h4>
+				</div>
+				<div class="card-body">
+					@if (!Model.UserPlan.MDN.IsNull())
+					{
+						<p><a href="@Url.Action(nameof(UserPlansController.GenerateCSVDataReport), UserPlansController.Name, new {id = Model.UserPlan.Id, name = (Model.UserPlan.Profile.FirstName + " " + Model.UserPlan.Profile.LastName), returnUrl = Url.Action(nameof(UserPlansController.Index), UserPlansController.Name, new {userPlanId = Model.UserPlan.Id})})" class="badge badge-secondary">Generate CSV report of User's data</a></p>
+					}
+					<p><a href="@Url.Action(nameof(UserPlansController.HistoricalDataUsage), UserPlansController.Name, new { id = Model.UserPlan.Id })" class="badge badge-secondary">Historical data usage</a></p>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>
+									<a class="btn btn-sm btn-secondary" href="@Url.Action(nameof(UserPlansController.UpdateUsage), UserPlansController.Name, new {id = Model.UserPlan.Id})">Update Usage</a>
+								</th>
+								<th>Usage</th>
+								<th>Next Throttle</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Data (GB)</td>
+								<td>@(Model.UsageDay != null ? StaticUtils.ConvertKBToGB(Model.UsageDay.KBData) : 0)</td>
+								<td>@(Model.UsageDay != null ? StaticUtils.ConvertKBToGB(Model.UsageDay.KBData > Model.UserPlan.PlanType.FirstThrottle ? Model.UserPlan.PlanType.SecondThrottle : Model.UserPlan.PlanType.FirstThrottle) : Model.UserPlan.PlanType.FirstThrottle)</td>
+							</tr>
+							<tr>
+								<td>SMS</td>
+								<td>@Model.UsageDay?.SMS</td>
+							</tr>
+							<tr>
+								<td>Minutes</td>
+								<td>@Model.UsageDay?.Minutes</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="portRequestModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<div class="row">
+							<div class="col-md-12">
+								Port Details
+							</div>
+						</div>
+					</div>
+					<div class="modal-body">
+						<form id="portDetails">
+							@if (Model.UserPlan.PortRequest != null) {
+								if (Model.UserPlan.PortRequest.Id != null) {
+									<input type="hidden" name="Id" id="portRequestId" value="@Model.UserPlan.PortRequest.Id" />
+								}
+							}
+							<div class="form-group mb-3">
+								<div class="col-md-12">
+									@if (Model.UserPlan.PortRequest != null) {
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.MDN)) {
+												<label>MDN</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.MDN" name="MDN" id="portDetailsMDN" placeholder="MDN">
+											} else {
+												<label>MDN</label>
+												<input type="text" class="form-control" name="MDN" id="portDetailsMDN" placeholder="MDN">
+											}
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.AccountNumber)) {
+												<label>AccountNumber</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.AccountNumber" name="AccountNumber" id="portDetailsAccountNumber" placeholder="AccountNumber">
+											} else {
+												<label>AccountNumber</label>
+												<input type="text" class="form-control" name="AccountNumber" id="portDetailsAccountNumber" placeholder="AccountNumber">
+											}
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.Password)) {
+												<label>Password</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.Password" name="Password" id="portDetailsPassword" placeholder="Password">
+											} else {
+												<label>Password</label>
+												<input type="text" class="form-control" name="Password" id="portDetailsPassword" placeholder="Password">
+											}
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.Status.ToString())) {
+												<label>Status</label>
+												@if (ViewBag.PortStatusList != null) {
+													<select id="statusSelected" class="form-control" name="Status">
+														@foreach (var items in ViewBag.PortStatusList) {
+															@if (Model.UserPlan.PortRequest.Status.ToString() == items.Text) {
+																<option selected="selected" value="@items.Value">@items.Text</option>
+															} else 	{
+																<option value="@items.Value">@items.Text</option>
+															}
+														}
+													</select>
+													<span id="statusErrMsg" class="text-danger"></span>
+												}
+											} else {
+												<label>Status</label>
+												@if (ViewBag.PortStatusList != null) {
+													foreach (var items in ViewBag.PortStatusList) {
+														<select id="statusSelected" class="form-control" name="Status">
+															<option value="@items.Key">@items.Value</option>
+														</select>
+													}
+													<span id="statusErrMsg" class="text-danger"></span>
+												}
+											}
+										</div>
+										<div class="form-group">
+											@if (Model.UserPlan.PortRequest.CanBeSubmitted)
+											{
+												<label>CanBeSubmitted</label>
+												<label class="radio-inline">
+													<input type="radio" id="CanBeSubmitted" value="true" name="CanBeSubmitted" checked>Yes
+												</label>
+												<label class="radio-inline">
+													<input type="radio" value="false" name="CanBeSubmitted">No
+												</label>
+											}
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.AddressLine1)) {
+												<label>AddressLine1</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.AddressLine1" name="AddressLine1" id="portAddressLine1" placeholder="AddressLine1">
+											} else {
+												<label>AddressLine1</label>
+												<input type="text" class="form-control" name="AddressLine1" id="portAddressLine1" placeholder="AddressLine1">
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.AddressLine2)) {
+												<label>AddressLine2</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.AddressLine2" name="AddressLine2" id="portDetailsAddressLine2" placeholder="AddressLine2">
+											} else {
+												<label>AddressLine2</label>
+												<input type="text" class="form-control" name="AddressLine2" id="portDetailsAddressLine2" placeholder="AddressLine2">
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.City)) {
+												<label>City</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.City" name="City" id="portDetailsCity" placeholder="City">
+											} else {
+												<label>City</label>
+												<input type="text" class="form-control" name="City" id="portDetailsCity" placeholder="City">
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.FirstName)) {
+												<label>FirstName</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.FirstName" name="FirstName" id="portDetailsFirstName" placeholder="FirstName">
+											} else {
+												<label>FirstName</label>
+												<input type="text" class="form-control" name="FirstName" id="portDetailsFirstName" placeholder="FirstName">
+
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.LastName)) {
+												<label>LastName</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.LastName" name="LastName" id="portDetailsLastName" placeholder="LastName">
+											} else {
+												<label>LastName</label>
+												<input type="text" class="form-control" name="LastName" id="portDetailsLastName" placeholder="LastName">
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.MiddleInitial)) {
+												<label>MiddleInitial</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.MiddleInitial" name="MiddleInitial" id="portDetailsMiddleInitial" placeholder="MiddleInitial">
+											} else {
+												<label>MiddleInitial</label>
+												<input type="text" class="form-control" name="MiddleInitial" id="portDetailsMiddleInitial" placeholder="MiddleInitial">
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.OSPName)) {
+												<label>OSPName</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.OSPName" name="OSPName" id="portDetailsOSPName" placeholder="OSPName">
+											} else {
+												<label>OSPName</label>
+												<input type="text" class="form-control" name="OSPName" id="portDetailsOSPName" placeholder="OSPName">
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.State)) {
+												<label>State</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.State" name="State" id="portDetailsState" placeholder="State">
+											} else {
+												<label>State</label>
+												<input type="text" class="form-control" name="State" id="portDetailsState" placeholder="State">
+											}
+
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.Zip)) {
+												<label>Zip</label>
+												<input type="text" value="@Model.UserPlan.PortRequest.Zip" class="form-control" name="Zip" id="portDetailsZip" placeholder="Zip">
+											} else {
+												<label>Zip</label>
+												<input type="text" class="form-control" name="Zip" id="portDetailsZip" placeholder="Zip">
+											}
+										</div>
+										<div class="form-group">
+											@if (!string.IsNullOrEmpty(Model.UserPlan.PortRequest.StatusDescription)) {
+												<label>Zip</label>
+												<input type="text" class="form-control" value="@Model.UserPlan.PortRequest.StatusDescription" name="StatusDescription" id="portDetailsStatusDescription" placeholder="StatusDescription">
+											} else {
+												<label>Zip</label>
+												<input type="text" class="form-control" name="StatusDescription" id="portDetailsStatusDescription" placeholder="StatusDescription">
+											}
+										</div>
+									}
+								</div>
+							</div>
+							<div id="errMessage" style="color:red"></div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-info clickable" id="portDetailsSave">Save</button>
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="errorMessage" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+
+				<div class="modal-body">
+					<p>@Model.ErrorMessage</p>
+					<p>If the error above points to an issue with the Number Port, please contact the customer for updated information. Verizon now requires a special PIN number when porting that the customer must get from Verizon.</p>
+					<p>Phone-@Model.UserPlan.Profile.Phone</p>
+					<p>Email-@Model.UserPlan.Profile.Account.UserName</p>
+				</div>
+
+			</div>
+			</div>
+		</div>
+
+	<div id="ReAssignSimModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-body">
+					<h5 class="modal-title">Re-Assign Sim</h5>
+					<br>
+					<div class="row">
+						<input type="hidden" value="@Model.UserPlan.Id" id="planId" />
+						<select id="txtICC" class="form-control"></select>
+					</div>
+					<br>
+					<div class="modal-footer">
+							<button type="button" class="btn btn-info clickable" id="assignSim">Assign</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+			@section scripts {
+				<script src="~/js/Autocomplete/jquery-ui.js"></script>
+				<link href="~/js/Autocomplete/jquery-ui.css" rel="stylesheet" />
+                <script src="~/js/Autocomplete/jquery-editable-select.min.js"></script>
+				<link href="~/js/Autocomplete/jquery-editable-select.min.css" rel="stylesheet" />
+				<script>
+					var failSafe = 15;
+					var executionCount = 0;
+					$('.portCheck').click(function () {
+						$('.portCheck').html("Checking...");
+
+						var id = $(this).data('id');
+						var mdn = $(this).data('mdn');
+
+						$.ajax({
+							url: `/api/wireless/ValidateMDN/${mdn}/`,
+							success: function (response) {
+								var ref = response.message;
+								checkPortStatus(ref, id);
+							},
+							error: function (error) {
+								console.log(error);
+								$('.portCheck').html("Check Port");
+							}
+						});
+					});
+
+					function checkPortStatus(ref, id) {
+						//executionCount++;
+						//if (executionCount < failSafe) {
+						setTimeout(function () {
+							$.ajax({
+								url: `/api/wireless/UpdateMDNStatus/${ref}/?planId=${id}`,
+								success: function (response) {
+									if (response.success) {
+										window.location.reload();
+									} else {
+										// Recurse
+										$('.portCheck').html("Check Again");
+									}
+								},
+								error: function (error) {
+									console.log(error);
+								}
+							});
+						},
+							1000);
+						//} else {
+						// failed
+						//$('.portCheck').html("Failed");
+						//}
+					}
+
+					$('.imeiValid').click(function () {
+						var id = $(this).data('id');
+						var imei = $(this).data('imei');
+
+						$.ajax({
+							url: `/api/wireless/ValidateIMEI/${imei}/?userDeviceId=${id}`,
+							success: function (response) {
+								if (response.success && !response.error) {
+									window.location.reload();
+								} else {
+									$('.imeiValid').html(response.error);
+								}
+							},
+							error: function () {
+								console.log(error);
+							}
+						});
+					});
+
+					$('#wirelessPlanCheckButton').click(function () {
+						$('#wirelessPlanCheckButton').html("Checking...");
+
+			var planId = $(this).data('id');
+			checkWirelessPlan(planId, function (apiResponse) {
+				var wirelessPlanCheckModalText = "Valid wireless plan is not found";
+				if (apiResponse.wirelessPlanName != null && apiResponse.wirelessPlanName != "") {
+					wirelessPlanCheckModalText = "Wireless plan: <br>" + apiResponse.wirelessPlanName;
+				}
+				$("#wirelessPlanCheckModalHeader").html(wirelessPlanCheckModalText);
+
+				var options = { "backdrop": "static", keyboard: true };
+				$('#wirelessPlanCheckModal').modal(options);
+				$('#wirelessPlanCheckModal').modal('show');
+				$('#wirelessPlanCheckButton').html("Check Plan");
+			});
+
+					});
+
+		function checkWirelessPlan(planId, successCallback) {
+			setTimeout(function () {
+				$.ajax({
+					method: 'Get',
+					url: `/api/Wireless/CheckWirelessPlan/${planId}`,
+					success: function (response) {
+						successCallback(response);
+					},
+					error: function (error) {
+						alert("Wireless plane details load failed.");
+					}
+				});
+			}, 1000);
+		}
+
+		$("#closeWirelessPlanCheckModal").click(function () {
+			$('#wirelessPlanCheckModal').modal('hide');
+		});
+
+		$('#changeWirelessPlanModalButton').click(function () {
+			$('#changeWirelessPlanModalButton').html("Loading...");
+			$("#changeWirelessPlanModalCurrentPlan").html("");
+			$('#changeWirelessPlanButton').html("Change plan");
+			getExternalPlanIds();
+		});
+
+		$("#closeChangeWirelessPlanModal").click(function () {
+			$('#changeWirelessPlanModal').modal('hide');
+		});
+
+		$("#changeWirelessPlanButton").click(function () {
+			$('#changeWirelessPlanButton').html("Changing...");
+			var newPlanName = $("#externalPlanIdSelect option:selected").text();
+			var existingPlanId = $(this).data('id');
+			changeWirelessPlan(existingPlanId, newPlanName);
+		});
+
+		$("#getCurrentWirelessPlanButton").click(function () {
+			$('#getCurrentWirelessPlanButton').html("Loading...");
+
+			var planId = $(this).data('id');
+			checkWirelessPlan(planId, function (apiResponse) {
+				$("#changeWirelessPlanModalCurrentPlan").html("");
+				var wirelessPlanCheckModalText = "Valid wireless plan is not found";
+				if (apiResponse.wirelessPlanName != null && apiResponse.wirelessPlanName != "") {
+					wirelessPlanCheckModalText = "Current plan: <br>" + apiResponse.wirelessPlanName;
+				}
+				$("#changeWirelessPlanModalCurrentPlan").html(wirelessPlanCheckModalText);
+				$('#getCurrentWirelessPlanButton').html("Get current plan");
+			});
+		});
+
+		function changeWirelessPlan(existingPlanId, newPlanName) {
+			setTimeout(function () {
+				$.ajax({
+					method: 'Post',
+					url: `/api/Wireless/ChangePackageOnMDN`,
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					dataType: 'json',
+					data: JSON.stringify({
+						ExistingPlanId: existingPlanId,
+						NewPlanName: newPlanName
+					}),
+					success: function () {
+						$('#changeWirelessPlanModal').modal('hide');
+						window.location.reload(false); 
+					},
+					error: function (error) {
+						$('#changeWirelessPlanModal').modal('hide');
+						alert("Plan update has failed.");
+					}
+				});
+			}, 1000);
+		}
+
+		function getExternalPlanIds() {
+			setTimeout(function () {
+				$.ajax({
+					method: 'Get',
+					url: `/api/Wireless/GetExternalPlanIds`,
+					success: function (response) {
+
+						var externalPlanIdSelect = $('#externalPlanIdSelect')
+						externalPlanIdSelect.html("");
+
+						$.each(response.externalPlanIds, function (index, value) {
+							externalPlanIdSelect.append($('<option></option>').val(value.id).html(value.externalId));
+						});
+
+						var options = { "backdrop": "static", keyboard: true };
+						$('#changeWirelessPlanModal').modal(options);
+						$('#changeWirelessPlanModal').modal('show');
+						$('#changeWirelessPlanModalButton').html("Change Plan");
+					},
+					error: function (error) {
+						alert("External plan ids load failed.");
+					}
+				});
+			}, 1000);
+		}
+
+		$(document).on("click",
+			"#portDetailsSave",
+			function () {
+				$.ajax({
+					type: "Post",
+					url: "/admin/UserPlans/UpdatePortRequest",
+					data: $("#portDetails").serialize(),
+					dataType: "json",
+					success: function (response) {
+						if (response) {
+							$('#portRequestModal').modal('hide');
+							window.location.reload();
+						}
+						else {
+							$('#errMessage').html("Error coming from server side");
+						}
+					}
+				});
+
+			})
+					$(function () {
+						$('#txtICC').editableSelect();
+						$("#txtICC").autocomplete({
+							source: function (request, response) {
+								$.ajax({
+									url: '/admin/UserPlans/GetAvailableSIMs',
+									data: { icc: request.term },
+									dataType: "json",
+									type: "GET",
+									contentType: "application/json; charset=utf-8",
+									success: function (data) {
+										response($.map(data, function (item) {
+											return item;
+										}))
+									},
+									error: function (response) {
+										alert(response.responseText);
+									},
+									failure: function (response) {
+										alert(response.responseText);
+									}
+								});
+							},
+							minLength: 0
+						})
+					});
+
+					$(document).on("click",
+						"#assignSim",
+						function () {							
+							$.ajax({
+								type: "Post",
+								url: "/admin/UserPlans/ReAssignSim",
+								data: {
+									iccNumber: $("#txtICC").val(), previousIccNumber: $("#previousAssignedSIMICC").val(), planId: $("#planId").val()},
+								dataType: "json",
+								success: function (response) {
+									if (response) {
+										$('#ReAssignSimModal').modal('hide');
+										window.location.reload();
+									}									
+								}
+							});
+						})
+
+	</script>
+}

@@ -1,0 +1,60 @@
+﻿@model Lexvor.API.Objects.DiscountCode
+@{
+    ViewData["Title"] = "Create";
+}
+<h2>Create</h2>
+<h4>Discount Code</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Code" class="control-label"></label>
+                <input asp-for="Code" class="form-control" />
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartDate" class=" control-label"></label>
+                <input name="StartDate" id="StartDate" class="form-control datepicker" data-date-format="mm-dd-yyyy" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label"></label>
+                <input name="EndDate" id="EndDate" class="form-control datepicker" data-date-format="mm-dd-yyyy" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OneTimeUse" class="control-label"></label>
+                <input asp-for="OneTimeUse" class="form-control" />
+                <span asp-validation-for="OneTimeUse" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OneTimeUsePerUser" class=" control-label"></label>
+                <input asp-for="OneTimeUsePerUser" class="form-control" />
+                <span asp-validation-for="OneTimeUsePerUser" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewMonthlyCost" class="control-label"></label>
+                <input asp-for="NewMonthlyCost" class="form-control" />
+                <span asp-validation-for="NewMonthlyCost" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewInitiationFee" class="control-label"></label>
+                <input asp-for="NewInitiationFee" class="form-control" />
+                <span asp-validation-for="NewInitiationFee" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PlanTypeId" class="control-label">What plan type will this code apply to?</label>
+                <select asp-for="PlanTypeId" class="form-control"
+                        asp-items="@(new SelectList(ViewBag.PlanTypes, "Id", "Name"))"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

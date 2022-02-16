@@ -1,0 +1,25 @@
+﻿@using Lexvor.Controllers
+@{
+    ViewData["Title"] = "Locked out";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-8 col-lg-4">
+    <div class="card shadow zindex-100 mb-0">
+        <div class="card-body px-md-5 py-5">
+            <div class="mb-5">
+                <div class="card">
+                    <a href="@Url.Action(nameof(HomeController.Index), "Home")">
+	                    <img src="@Url.Content("/img/logo-black.png")" class="card-img-top" alt="Lexvor">
+                    </a>
+                </div>
+                <p class="text-muted mb-0">Your account has been locked out.</p>
+            </div>
+            <span class="clearfix"></span>
+            <p>If you feel that this is in error, please contact support.</p>
+        </div>
+        <div class="card-footer px-md-5">
+            <a href="@Url.Action(nameof(AccountController.Login), "Account")" class="small font-weight-bold">Back to Log in</a>
+        </div>
+    </div>
+</div>

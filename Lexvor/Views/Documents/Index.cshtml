@@ -1,0 +1,136 @@
+﻿@model Lexvor.API.Objects.User.UserDocumentViewModel
+@using Lexvor.API.Objects.Enums
+@using Lexvor.API.Objects.User
+@using Lexvor.Models.HomeViewModels
+
+@using Lexvor.Controllers
+@{
+	ViewData["Title"] = "User Documents";
+}
+
+<style type="text/css">
+	.dataTables_scroll {
+		overflow-x: scroll;
+		width: 85%
+	}
+
+	.form-control.input-sm {
+		width: auto;
+		padding: 0 5px;
+		margin: 0 10px;
+		height: 40px;
+	}
+
+	.device-table_wrapper {
+		table-layout: fixed;
+	}
+
+	.dataTables_length, .dataTables_filter {
+		width: 25%;
+	}
+
+		.dataTables_length label {
+			float: left;
+		}
+
+
+	ul.pagination li {
+		padding: 2px 10px;
+		border: 1px solid #e0e6ed;
+		border-radius: 5px;
+		margin: 0 3px;
+</style>
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		@await Html.PartialAsync("_ProfileSetting", Model.SettingViewModel)
+
+		<ul class="list-group media-list media-list-stream mb-4">
+			<li class="media list-group-item p-4">
+
+				<div class="media-body">
+					<div class="row">
+						<div class="col-md-10"><h5>User Documents</h5></div>
+
+					</div>
+					<div class="row">
+						<table class="table" id="document-table" style="table-layout:fixed">
+							<thead>
+								<tr>
+									<th>Document Name</th>
+									<th>Type</th>
+									<th>URL</th>
+									<th>Genrated On</th>
+									<td></td>
+								</tr>
+							</thead>
+							<tbody>
+								@if (Model.UserDocumentsView.Any())
+								{
+									foreach (var item in Model.UserDocumentsView)
+									{
+
+										<tr class="@(string.IsNullOrEmpty(item.ViewedOn.ToString())? "font-weight-bolder":"")">
+
+											<td>@Html.DisplayFor(modelItem => item.DocumentName)</td>
+											<td>@(item.DocumentType==DocumentType.Agreement? "Agreement":(item.DocumentType==DocumentType.Authorization? "Authorization":"Bill"))</td>
+											<td>@Html.DisplayFor(modelItem => item.URL)</td>
+											<td>@Html.DisplayFor(modelItem => item.GeneratedOn)</td>
+											<td>
+												@*<a href="#" data-href="@item.Id" class="btn btn-default viewer">View File</a>*@
+												<a data-href="@item.Id" href="@Url.Action(nameof(DocumentsController.DownloadUserDocument),new {documentUrl=item.URL })" class="btn btn-default viewer">View File</a>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+			</li>
+		</ul>
+	</div>
+</div>
+@await Html.PartialAsync("_ValidationScriptsPartial")
+
+@section scripts {
+	<script src="~/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="~/libs/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+	<script src="https://cdn.ravenjs.com/3.26.4/raven.min.js" crossorigin="anonymous"></script>
+	<script>
+		 Raven.config('https://cd01092bf68d4b3fbacd31954a976ea3@sentry.io/231489').install();
+        $.ajax({
+            url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home")',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+        });
+
+		var mainTable;
+		mainTable = $('#document-table').DataTable({
+			"dom": 'Blfrtp',
+			"info": false,
+			"searching": false,
+			"ordering": false,
+			"scrollX": true,
+			"order": [[0, "asc"]],
+			'orderCellsTop': true,
+			'fixedHeader': true
+		});
+
+		$("a.viewer").on("click", function (e) {
+			var blob = $(this).data('href');
+			$.ajax({
+
+				url: '/Documents/ViewUserDocument?documentId=' + blob,
+				method: 'GET',
+				success: function (data) {
+
+					window.location.assign(data.pdfUrl);
+				}
+			});
+
+		})
+	</script>
+}

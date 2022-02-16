@@ -1,0 +1,77 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@using System.Diagnostics
+@using Lexvor.API.Objects.Enums
+@using Lexvor.Extensions
+@model IEnumerable<Lexvor.API.Objects.UserPlan>
+
+@{
+    ViewData["Title"] = "User Plans Waiting";
+	ViewData["PageTitle"] = "User Plans Waiting for Activation";
+}
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								Name
+							</th>
+							<th>
+								Plan Type
+							</th>
+							<th>
+								ID Verified
+							</th>
+							<th>
+								Status
+							</th>
+							<th>
+								Wireless
+							</th>
+							<th>
+								Device
+							</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+					@if (Model.Any())
+					{
+						foreach (var item in Model)
+						{
+						<tr>
+							<td>
+								<a href="@Url.Action(nameof(UsersController.UserDetails), UsersController.Name, new { id = item.Profile.Id })">@item.Profile.FullName</a>
+							</td>
+							<th>
+								@(item.PlanType.ShortName ?? item.PlanType.Name)
+							</th>
+							<th>
+								@Html.Raw(item.Profile.IDVerifyStatus == IDVerifyStatus.Verified ? "<i class='fas fa-check text-success'></i>" : "<i class='fas fa-ban text-danger'></i>")
+							</th>
+							<th>
+								@item.Status.ToString()
+							</th>
+							<th>
+								@item.WirelessStatus.ToString()
+							</th>
+							<th>
+								@item.Device?.Name.Truncate(25)
+							</th>
+							<td>
+								<a asp-action="Index" asp-route-userPlanId="@item.Id">Details</a>
+							</td>
+						</tr>
+						}
+					}
+					else
+					{
+						<tr><td colspan="4">No Activations Waiting</td></tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>

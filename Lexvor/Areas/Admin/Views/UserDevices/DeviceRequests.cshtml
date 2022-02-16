@@ -1,0 +1,64 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@model Lexvor.Areas.Admin.Controllers.DeviceRequestsViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_AdminLayout";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>Users that have requested a new device</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Upgrade Requested</th>
+                        <th>Device Name</th>
+                        <th>Complete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.New) {
+                    <tr>
+                        <td>@item.UserPlan.Profile.FirstName</td>
+                        <td>@item.UserPlan.Profile.LastName</td>
+                        <td>@item.UserDevice.Requested</td>
+                        <td>@item.UserPlan.Device.Name</td>
+                        <td><a class="btn btn-sm" href="@Url.Action(nameof(UserDevicesController.CompleteRequest), "UserDevices", new { id = item.UserDevice.Id })">Complete</a></td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </li>
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>Users that have requested a device upgrade</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Upgrade Requested</th>
+                        <th>Device Name</th>
+                        <th>Complete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Upgrades) {
+                        <tr>
+                            <td>@item.UserPlan.Profile.FirstName</td>
+                            <td>@item.UserPlan.Profile.LastName</td>
+                            <td>@item.UserDevice.Requested</td>
+                            <td>@item.UserPlan.Device.Name</td>
+                            <td><a class="btn btn-sm" href="@Url.Action(nameof(UserDevicesController.CompleteRequest), "UserDevices", new { id = item.UserDevice.Id })">Complete</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>
+@section scripts {
+}

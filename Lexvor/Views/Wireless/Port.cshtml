@@ -1,0 +1,130 @@
+﻿@using Lexvor.API.Objects
+@using Lexvor.API.Objects.User
+@using Lexvor.Controllers
+@using Lexvor.API
+@model Lexvor.Models.ProfileViewModels.AdministerDevicesViewModel
+
+@{
+    ViewData["Title"] = "Number Porting";
+    Layout = "_Layout";
+    ViewData["PageName"] = "Your Number Port Information";
+    ViewData["PageSubtitle"] = "Please fill out every field to ensure that your number port goes smoothly.";
+}
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<a href="@Url.Action(nameof(WirelessController.StartPort), WirelessController.Name, new {id = Model.CurrentUserPlan.Id})">I actually don't want to port numbers</a>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				@if (Model.CurrentUserPlan.PortRequest == null) {
+					<div class="card">
+						<div class="card-body">
+							<a href="@Url.Action(nameof(WirelessController.StartPort), WirelessController.Name, new {id = Model.CurrentUserPlan.Id})">Start new Port Request</a>
+						</div>
+					</div>
+				}
+				else if (Model.CurrentUserPlan.PortRequest.Status == PortStatus.Completed) {
+					<div class="card">
+						<div class="card-body">
+							<p>Port successful for @StaticUtils.FormatPhone(Model.CurrentUserPlan.PortRequest.MDN)</p>
+						</div>
+					</div>
+				}
+				else {
+					if (Model.CurrentUserPlan.PortRequest.Status == PortStatus.Error) {
+						<div class="alert alert-danger">
+							<p>There was an issue with your port (@Model.CurrentUserPlan.PortRequest.StatusDescription)</p>
+						</div>
+					}
+					<form asp-action="SubmitPort" asp-controller="Wireless" role="form" method="post">
+						<div class="card">
+							<div class="card-header">
+								<h2>Port Status</h2>
+							</div>
+							<div class="card-body">
+								<p>Please fill out this form to start your port in request. These details come from your current provider.</p>
+								<input type="hidden" asp-for="CurrentUserPlan.Id"/>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.OSPName" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.OSPName" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.MDN" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.MDN" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.AccountNumber" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.AccountNumber" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.Password" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.Password" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.FirstName" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.FirstName" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.MiddleInitial" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.MiddleInitial" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.LastName" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.LastName" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.AddressLine1" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.AddressLine1" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.AddressLine2" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.AddressLine2" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.City" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.City" class="form-control"/>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.State" class="control-label"></label>
+									<select asp-for="CurrentUserPlan.PortRequest.State" asp-items="SelectLists.USStates" class="form-control">
+										<option value="">Select a State</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label asp-for="CurrentUserPlan.PortRequest.Zip" class="control-label"></label>
+									<input asp-for="CurrentUserPlan.PortRequest.Zip" class="form-control"/>
+								</div>
+							</div>
+							<div class="card-footer">
+								@if (!Model.CurrentUserPlan.PortRequest.CanBeSubmitted) {
+									<p class="text-muted text-sm">You cannot submit your port request yet, as we have not yet shipped your SIM card. Please fill out the details above and come back to Submit your request when you receive your SIM card.</p>
+									<button type="submit" class="btn btn-info">Save Request</button>
+								}
+								else {
+									<p class="text-sm">Please DO NOT submit your request until you have received your SIM card. Clicking this button WILL initiate the porting process. If you accidentally submitted, please call support ASAP so we can cancel your request.</p>
+									<button type="submit" class="btn btn-primary">Submit Request</button>
+								}
+							</div>
+						</div>
+					</form>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+    <script>
+	    $.ajax({
+            url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home")',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+        });
+    </script>
+}

@@ -1,0 +1,100 @@
+﻿@model Lexvor.Areas.Admin.Controllers.UserOrdersViewModel
+
+@{
+	ViewData["Title"] = "Device Accessory Purchases";
+}
+
+<style>
+	.form-control.input-sm {
+		width: auto;
+		padding: 0 5px;
+		margin: 0 10px;
+		height: 40px;
+	}
+
+	.dataTables_length, .dataTables_filter {
+		width: 50%;
+	}
+
+		.dataTables_length label {
+			float: left;
+		}
+
+		.dataTables_filter label {
+			float: right;
+		}
+
+	ul.pagination li {
+		padding: 2px 10px;
+		border: 1px solid #e0e6ed;
+		border-radius: 5px;
+		margin: 0 3px;
+	}
+</style>
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<h4>Accessories purchased in the last 180 days</h4>
+			<table class="table" id="accessory-table">
+				<thead>
+					<tr>
+						<th>Customer Name</th>
+						<th>Accessory 1</th>
+						<th>Accessory 2</th>
+						<th>Accessory 3</th>
+						<th>Accessory Purchase Total</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var order in Model.Orders) {
+						<tr>
+							<td>@Html.DisplayFor(modelItem => order.CustomerName)</td>
+							<td>@(order.Accessory1 != null ? $"{order.Accessory1.Accessory} with {(order.Accessory1.LifetimeWarranty ? "" : " no")} warranty" : "")</td>
+							<td>@(order.Accessory2 != null ? $"{order.Accessory2.Accessory} with {(order.Accessory2.LifetimeWarranty ? "" : " no")} warranty" : "")</td>
+							<td>@(order.Accessory3 != null ? $"{order.Accessory3.Accessory} with {(order.Accessory3.LifetimeWarranty ? "" : " no")} warranty" : "")</td>
+							<td>$@((order.AccessoryTotal / 100).ToString("F"))</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</li>
+</ul>
+
+	@section scripts {
+		<script src="~/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+		<script src="~/libs/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+		<script>
+			var mainTable;
+
+			$('#accessory-table thead tr').clone(true).appendTo('#accessory-table thead');
+			$('#accessory-table thead tr:eq(1) th').each(function (i) {
+				var title = $(this).text();
+				$(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+				$('input', this).on('keyup change',
+					function () {
+						if (mainTable.column(i).search() !== this.value) {
+							mainTable
+								.column(i)
+								.search(this.value)
+								.draw();
+						}
+					});
+			});
+
+			mainTable = $('#accessory-table').DataTable({
+				"dom": 'Blfrtp',
+				"info": false,
+				"searching": true,
+				"ordering": true,
+				"scrollX": true,
+				"order": [[0, "asc"]],
+				'orderCellsTop': true,
+				'fixedHeader': true
+			});
+
+		</script>
+
+	}

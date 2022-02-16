@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Lexvor.API.Objects.UsageDay>
+@using Lexvor.API
+@{
+	ViewData["Title"] = "Historical Data Usage";
+	Layout = "_AdminLayout";
+}
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							Fullname
+						</th>
+						<th>
+							MDN
+						</th>
+						<th>
+							SMS
+						</th>
+						<th>
+							Minutes
+						</th>
+						<th>
+							Data
+						</th>
+						<th>
+							Date
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.Any()) {
+						foreach (var item in Model) {
+							<tr>
+								<td>
+									@ViewData["FullName"]
+								</td>
+								<td>
+									@item.MDN
+								</td>
+								<td>
+									@item.SMS
+								</td>
+								<td>
+									@item.Minutes
+								</td>
+								<td>
+									@(item.KBData >0 ? StaticUtils.ConvertKBToGB(item.KBData) : 0)
+								</td>
+								<td>
+									@item.Date.ToString("MM/dd/yyyy")
+								</td>
+							</tr>
+						}
+					} else {
+						<tr><td colspan="4">No Historical Data Usage</td></tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

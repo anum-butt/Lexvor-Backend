@@ -1,0 +1,51 @@
+﻿@model IEnumerable<Lexvor.API.Objects.UserPlan>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_AdminLayout";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>Users that have requested a device return</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Device Name</th>
+                    <th>Requested</th>
+                    <th>IMEI</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>@item.Profile.FirstName</td>
+                        <td>@item.Profile.LastName</td>
+                        <td>@item.Device.Name</td>
+                        <td>@item.UserDevice.ReturnRequested</td>
+                        <td>@item.UserDevice.IMEI</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>
+@section scripts {
+    <script>
+
+        $('.plan-type').on('click',
+            function() {
+                var e = $(this);
+                var id = e.data('id');
+                $.ajax({
+                    url: '@Url.Action("GetPlanLevel", "Users")?id=' + id,
+                    method: 'GET',
+                    success: function(data) {
+                        e.html(data);
+                    }
+                });
+            });
+    </script>
+}

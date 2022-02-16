@@ -1,0 +1,249 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers.API
+@using Microsoft.AspNetCore.Http
+@model Lexvor.Models.AdminViewModels.VerifyViewModel
+@{
+	ViewData["Title"] = "Verify User Identity";
+	Layout = "_AdminLayout";
+	var add = Model.Profile.BillingAddress;
+}
+<div class="row">
+	<div class="col-sm-12">
+		<div class="card">
+			<div class="card-body">
+				<h4>@Model.Profile.FullName</h4>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-body">
+								<h4>User Data</h4>
+								<h6>Email</h6>
+								<p>@Model.Profile.Account.Email <span class="badge @(Model.Profile.Account.EmailConfirmed ? "badge-success" : "badge-danger")">@(Model.Profile.Account.EmailConfirmed ? "Verified" : "Not Verified")</span></p>
+								<h6>Phone</h6>
+								<p>@Model.Profile.Phone</p>
+								@if (add != null) {
+									<h6>Address</h6>
+									<p>@add.Line1 @add.Line2</p>
+									<p>@add.City, @add.Provence @add.PostalCode</p>
+									<h6>Source</h6>
+									<p>@add.Source.ToString()</p>
+								} else {
+									<p class="badge badge-danger">No Billing Address was found.</p>
+								}
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-body">
+								<h6>Twilio Verification</h6>
+								@if (Model.TwilioIdentity != null) {
+									<table class="table table-striped">
+										<tr>
+											<td>Account Name</td>
+											<td>@Model.TwilioIdentity.FirstName @Model.TwilioIdentity.LastName</td>
+										</tr>
+									</table>
+								} else {
+									<a href="@Url.Action(nameof(UsersController.GetNameFromPrimaryPhone), UsersController.Name, new { id = Model.Profile.Id })" class="btn btn-info"
+									   data-toggle="tooltip" title="This validation will incur a 10 cent charge to Lexvor. Only use this check if there is doubt about the user's identity.">Get Current Account Name from Phone</a>
+								}
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-body">
+								@if (Model.VouchedIdentity == null) {
+									<p class="badge badge-danger">No Vouched Identities Were Found.</p>
+								} else {
+									<h4>Vouched Identity</h4>
+									<table class="table table-striped">
+										<tr>
+											<td>Authenticity Confidence</td>
+											<td>@(Model.VouchedIdentity.AuthenticityConfidence * 100)%</td>
+										</tr>
+										<tr>
+											<td>ID Type</td>
+											<td>@Model.VouchedIdentity.DocumentType</td>
+										</tr>
+										<tr>
+											<td>Name</td>
+											<td>@Model.VouchedIdentity.FirstName @Model.VouchedIdentity.LastName</td>
+										</tr>
+										<tr>
+											<td>DOB</td>
+											<td>@Model.VouchedIdentity.BirthDate.ToString("d")</td>
+										</tr>
+										<tr>
+											<td>Document Expiry</td>
+											<td>
+												<p class="@(Model.VouchedIdentity.ExpiryDate < DateTime.UtcNow ? "text-danger" : "")">@Model.VouchedIdentity.ExpiryDate.ToString("d")</p>
+											</td>
+										</tr>
+										<tr>
+											<td>Document Address</td>
+											<td>@Model.VouchedIdentity.Address?.GetAddressBlock()</td>
+										</tr>
+									</table>
+								}
+							</div>
+						</div>
+						@if (Model.PlaidIdentity != null) {
+							<div class="card">
+								<div class="card-body">
+									<h4>Bank Account Identity</h4>
+									<table>
+										<tr>
+											<td>Email</td>
+											<td>@Model.PlaidIdentity.Email</td>
+										</tr>
+										<tr>
+											<td>Name</td>
+											<td>@Model.PlaidIdentity.FirstName @Model.PlaidIdentity.LastName</td>
+										</tr>
+										<tr>
+											<td>Address</td>
+											<td>@Model.PlaidIdentity.Address?.GetAddressBlock()</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+
+				@for (int i = 0; i < Model.Profile.IdentityDocuments.Count; i++) {
+					<div class="row">
+						@if (i % 2 == 0) {
+							var id = Model.Profile.IdentityDocuments[i];
+							<div class="col-md-6">
+								@if (!string.IsNullOrWhiteSpace(id.DocumentUrl) && id.DocumentUrl.ToLower().EndsWith(".pdf")) {
+									<div class="card">
+										<div class="card-body">
+											<a href="#" data-href="@id.DocumentUrl" class="btn btn-default viewer">View File</a>
+										</div>
+										<div class="card-footer">
+											<a class="btn btn-primary" href="@Url.Action(nameof(ProfileController.RunIDCheck), "Profile",
+												                                 new { id = id.Id, returnUrl = Url.Action(nameof(UsersController.VerifyID), UsersController.Name,new { id = Model.Profile.Id } ) })">Run ID Authenticity Check</a>
+										</div>
+									</div>
+								} else {
+									<div class="card">
+										<div class="card-body">
+											<a href="#"><img src="@id.DocumentUrl" class="ad-image-large" width="100%" /></a>
+										</div>
+										<div class="card-footer">
+											<a class="btn btn-primary" href="@Url.Action(nameof(ProfileController.RunIDCheck), "Profile", new { id = id.Id, returnUrl = Url.Action(nameof(UsersController.VerifyID), UsersController.Name,new { id = Model.Profile.Id } ) })">Run ID Authenticity Check</a>
+										</div>
+									</div>
+								}
+							</div>
+						}
+						@if (i % 2 != 0) {
+							var id = Model.Profile.IdentityDocuments[i];
+							<div class="col-md-6">
+								@if (!string.IsNullOrWhiteSpace(id.DocumentUrl) && id.DocumentUrl.ToLower().EndsWith(".pdf")) {
+									<div class="card">
+										<div class="card-body">
+											<a href="#" data-href="@id.DocumentUrl" class="btn btn-default viewer">View File</a>
+										</div>
+										<div class="card-footer">
+											<a class="btn btn-primary" href="@Url.Action(nameof(ProfileController.RunIDCheck), "Profile", new { id = id.Id, returnUrl = Url.Action(nameof(UsersController.VerifyID), UsersController.Name,new { id = Model.Profile.Id } ) })">Run ID Authenticity Check</a>
+										</div>
+									</div>
+								} else {
+									<div class="card">
+										<div class="card-body">
+											<a href="#"><img src="@id.DocumentUrl" class="ad-image-large" width="100%" /></a>
+										</div>
+										<div class="card-footer">
+											<a class="btn btn-primary" href="@Url.Action(nameof(ProfileController.RunIDCheck), "Profile", new { id = id.Id, returnUrl = Url.Action(nameof(UsersController.VerifyID), UsersController.Name,new { id = Model.Profile.Id } ) })">Run ID Authenticity Check</a>
+										</div>
+									</div>
+								}
+							</div>
+						}
+					</div>
+				}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header">
+						<h5>Request update from user</h5>
+					</div>
+					<div class="card-body">
+						<form asp-action="RequestIDUpdate">
+							<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+							<div class="form-group">
+								<input type="hidden" asp-for="Profile.Id" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="Notes">Notes for User</label>
+								<input asp-for="Notes" class="form-control" />
+							</div>
+							<div class="form-group">
+								<input type="submit" value="Request updates from user" class="btn btn-success clickable" />
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header">
+						<h5>Confirm Identity</h5>
+					</div>
+					<div class="card-body">
+						<form asp-action="VerifyID">
+							<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+							<div class="form-group">
+								<input type="hidden" asp-for="Profile.Id" class="form-control" />
+							</div>
+							<div class="form-group">
+								<input type="submit" value="Mark ID as Verified" class="btn btn-warning clickable" />
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section scripts {
+	<script>
+        $(document).ready(function() {
+            var img = $('img');
+
+            $(img).each(function(i, e) {
+                var blob = $(e).attr('src');
+                var a = $(e).parent();
+                var url = '@Url.Action(nameof(DashboardController.RetreiveSensitiveBlobAsset), DashboardController.Name)?blobName=' + encodeURIComponent(blob);
+                $.ajax({
+                    url,
+                    method: 'GET',
+                    success: function(data) {
+                        $(e).attr('src', data.imageUrl);
+                        $(a).attr('href', data.imageUrl);
+                    }
+                });
+            });
+
+            var views = $('a.viewer');
+
+            $(views).on('click', function(e) {
+                var blob = $(this).data('href');
+                var url = '@Url.Action(nameof(DashboardController.RetreiveSensitiveBlobAsset), DashboardController.Name)?blobName=' + encodeURIComponent(blob);
+                $.ajax({
+                    url,
+                    method: 'GET',
+                    success: function (data) {
+                        window.open(data.imageUrl);
+                    }
+                });
+            });
+        });
+	</script>
+}

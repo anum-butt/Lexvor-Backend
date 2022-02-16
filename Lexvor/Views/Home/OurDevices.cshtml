@@ -1,0 +1,55 @@
+﻿@using Lexvor.Controllers
+@using Lexvor.Models.HomeViewModels
+@model Lexvor.Models.HomeViewModels.OurDevicesViewModel
+@{
+    ViewData["Title"] = "Our Devices";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-offset-2 col-sm-8">
+    <div class="row">
+        <div class="col-md-12 ma-centered">
+            <div class="card">
+                <div class="card-header">
+                    Devices for the @Model.Plan.Name Plan
+                </div>
+                <div class="card-body">
+                    <p>We strive to accommodate all financial situations by providing the devices you want at affordable rates.</p>
+
+                    <p>
+                        <b>Choose the subscription that works best for you. You can save on your initiation with a qualifying trade in today!</b>
+                    </p>
+
+                    @if (Model.Devices.Count <= 0) {
+                        <h3>We are working on adding devices for this plan. Stay tuned.</h3>
+                    }
+                    <div class="row">
+                        @if (Model.Devices.Count > 0) {
+                            foreach (var device in Model.Devices) {
+                                <div class="col-sm-6">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <div class="">
+                                                <div class="">
+                                                    @device.Name
+                                                </div>
+                                                <figure class="figure">
+                                                    <img class="img-center img-fluid max-h-10" src="https://lexvorassets.blob.core.windows.net/website-assets/@device.ImageUrl" alt="@device.Name" />
+                                                </figure>
+                                            </div>
+                                            <a href="@Url.Action(nameof(AccountController.Register), "Account")" class="btn btn-success">Sign up Now</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="card-footer px-md-5">
+                    <a href="@Url.Action(nameof(AccountController.Login), "Account")" class="small font-weight-bold">Back to Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

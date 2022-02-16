@@ -1,0 +1,28 @@
+﻿@using Lexvor.Controllers
+@using Lexvor.Data
+@{
+    ViewData["Title"] = "Access denied";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-8 col-lg-4">
+    <div class="card shadow zindex-100 mb-0">
+        <div class="card-body px-md-5 py-5">
+            <div class="mb-5">
+                <div class="card">
+                    <a href="@Url.Action(nameof(HomeController.Index), "Home")">
+                        <img src="@Url.Content("/img/logo-black.png")" class="card-img-top" alt="Lexvor">
+                    </a>
+                </div>
+                <p class="text-muted mb-0">You do not have access to this resource.</p>
+            </div>
+            <span class="clearfix"></span>
+            @if (User.IsInRole(Roles.Trial)) {
+                @:<p class="text-danger">You must verify your account before accessing this page.</p>
+            }
+        </div>
+        <div class="card-footer px-md-5">
+            <a href="javascript:history.back();" class="small font-weight-bold">Go Back</a>
+        </div>
+    </div>
+</div>

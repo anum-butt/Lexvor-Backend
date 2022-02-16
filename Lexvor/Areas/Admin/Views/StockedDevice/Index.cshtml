@@ -1,0 +1,212 @@
+﻿@model Lexvor.Models.AdminViewModels.StockDeviceListAllVM
+@using Lexvor.API.Objects;
+@using Lexvor.Models.AdminViewModels;
+
+@{
+	ViewData["Title"] = "Stocked Device";
+	Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<div>
+				<div class="row">
+					<div class="col-md-10"><h5>Devices</h5></div>
+					<div class="col-md-2">
+						<p>
+							<a href="@Url.Action("Create")" class="btn btn-primary btn-sm">Create New</a>
+						</p>
+					</div>
+				</div>
+
+				<div class="row">
+
+					@{
+						var vm = Model.StockDeviceListVM;
+					}
+					<div class="col-md-3">
+						<select class="csDev form-control" asp-for="@Model.stockfilter.stock" id="selStock" onchange='callFilter();'>
+							<option value="0">--All--</option>
+							<option value="1">Stock</option>
+							<option value="2">Archived</option>
+							<option value="3">Assigned</option>
+						</select>
+					</div>
+					<div class="col-md-3">
+						<select class="csDev form-control" asp-for="@Model.stockfilter.deviceid" id="selDev" onchange='callFilter();'
+								asp-items="@(new SelectList(Model.Dev, "Id", "Name"))">
+							<option value="0">--Select Device--</option>
+						</select>
+					</div>
+					<div class="col-md-3">
+						<select class="form-control" asp-for="@Model.stockfilter.userid" id="selUser" onchange='callFilter();'
+								asp-items="@(new SelectList(Model.Users,"Id","Email"))">
+							<option value="0">--Select Users--</option>
+						</select>
+					</div>
+					<div class="col-md-3"><input id="txtImei" class="form-control" asp-for="@Model.stockfilter.imei" onkeyup="callFilter();" placeholder="IMEI" /></div>
+
+				</div>
+				<br />
+				@if (vm.Any())
+				{
+					int index = 1;
+					<table class="table">
+						<thead>
+							<tr>
+								<th>
+									Sl.No
+								</th>
+								<th>
+									Device
+								</th>
+								<th>
+									IMEI
+								</th>
+								<th>
+									Assigned To
+								</th>
+
+								<th>
+
+								</th>
+
+							</tr>
+						</thead>
+						<tbody>
+
+							@foreach (var item in vm)
+							{
+								<tr>
+									<td>
+										<span> @index </span>
+									</td>
+									<td>
+										@Html.DisplayFor(modelItem => item.Device.Name)
+										@*@(item.Devices.Count > 0 ? string.Join(", ", item.Devices.Select(x => x.Device.Name)) : "")*@
+									</td>
+									<td>
+										@Html.DisplayFor(modelItem => item.IMEI)
+									</td>
+									<td>
+										@Html.DisplayFor(modelItem => item.User.Email)
+									</td>
+									<td>
+										@if (item.User == null)
+										{
+
+											<a asp-action="NewAssign" asp-route-id="@item.Id" asp-route-assigntype="New Assign">Assign</a>
+										}
+										else
+										{
+											<a asp-action="NewAssign" asp-route-id="@item.Id" asp-route-assigntype="Re Assign">Re-Assign</a>
+										}
+										|
+										<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+										@{string arcStat = "Archive";}
+										@if (item.StockedDevice.Available == false && item.User == null)
+										{
+											arcStat = "UnArchive";
+										}
+										else if (item.StockedDevice.Available == false && item.User != null)
+										{
+											arcStat = "Archive";
+											item.StockedDevice.Available = true;
+										}
+										<a id="btnArchive" href="" data-toggle="modal" data-target="#modConfirm" onclick='PArchive({id : "@item.Id", Available : "@item.StockedDevice.Available",IMEI:"@item.IMEI"})'>
+											@arcStat
+										</a>
+									</td>
+								</tr>
+								index++;
+							}
+						</tbody>
+					</table>
+				}
+				else
+				{
+					<br />
+					<div>
+						<span class="text-lg">No Devices Found</span>
+					</div>
+				}
+			</div>
+		</div>
+	</li>
+</ul>
+<div class="modal fade" id="modConfirm" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span id="todoAssignType" />
+			</div>
+			<div class="modal-body">
+				<div class="form-group mb-3">
+					<input type="hidden" id="todoId" />
+					<div class="row">
+						<div class="input-group col-sm-10 ma-centered">
+							Are you sure to &nbsp; <span id="todoArchiveStatus" />
+						</div>
+					</div>
+					<div class="row">
+						<div class="input-group col-sm-10 ma-centered">
+							IMEI &nbsp;<span id="todoIMEI"></span>
+						</div>
+
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-info rename clickable" id="btnPSave">Yes</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@section scripts {
+	<script type="text/javascript">
+		function PArchive(data) {
+			debugger;
+			//var toId = $('#btnArchive').data('todo').id;
+			var toAvailable = data.Available;
+			var toArchiveStatus = "Archive";
+			if (toAvailable == "False") {
+				toArchiveStatus = "UnArchive";
+			}
+			$(".modal-body #todoId").val(data.id);
+			$(".modal-body #todoArchiveStatus").html(toArchiveStatus);
+			$(".modal-body #todoIMEI").html(data.IMEI);
+		}
+	</script>
+	<script type="text/javascript">
+		$(document).on("click", "#btnPSave", function () {
+			debugger;
+			var toId1 = $(".modal-body #todoId").val();
+			var toArchiveStatus1 = $(".modal-body #todoArchiveStatus").html();
+			window.location = '/Admin/StockedDevice/Archive/' + toId1 + '?ArchiveStatus=' + toArchiveStatus1;
+		});</script>
+	<script type="text/javascript">
+		var st = false;
+		var ar = true;
+		var ass = false;
+
+
+		function callFilter() {
+			debugger;
+			var sDev = $("#selDev").children("option:selected").val();
+			var sStk = $("#selStock").children("option:selected").val();
+			var sImei = $("#txtImei").val();
+			var sUser = "";
+			var sDev = "";
+			if ($("#selUser").children("option:selected").val() != "0") {
+				sUser = $("#selUser").children("option:selected").val();
+			}
+			if ($("#selDev").children("option:selected").val() != "0") {
+				sDev = $("#selDev").children("option:selected").val();
+			}
+
+			window.location = '/Admin/StockedDevice/Index/?stock=' + sStk + '&imei=' + sImei + '&deviceid=' + sDev + '&userid=' + sUser;
+		}
+	</script>
+}

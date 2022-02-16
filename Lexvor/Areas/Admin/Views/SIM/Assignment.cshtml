@@ -1,0 +1,35 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@model Lexvor.Models.AdminViewModels.SIMAssignmentViewModel
+@{
+    ViewData["Title"] = "Stocked Sims";
+    Layout = "_AdminLayout";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>SIMs</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ICC Number</th>
+                        <th>Date Added</th>
+                        <th>Available</th>
+                        <th>Deactivate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.AvailableSIMs) {
+                    <tr>
+                        <td>@item.ICCNumber</td>
+                        <td>@item.DateAdded</td>
+                        <td>@item.Available</td>
+	                    <td>
+		                    <a href="@Url.Action(nameof(SIMController.Assign), SIMController.Name, new { id = item.Id, planId = Model.PlanId, returnUrl = ViewData["returnUrl"] })">Assign To This Plan</a>
+	                    </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>

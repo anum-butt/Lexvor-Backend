@@ -1,0 +1,394 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers
+@using Lexvor.Data
+@using Lexvor.Extensions
+@using Microsoft.AspNetCore.Mvc.Razor
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Lexvor">
+	<title>@ViewData["Title"] - Lexvor</title>
+
+	<environment include="Development">
+		<link rel="stylesheet" href="~/css/popup.css" />
+		<link rel="stylesheet" href="~/css/purpose.css" />
+		<link rel="stylesheet" href="~/old/css/datepicker.css" />
+		@*<link rel="stylesheet" href="~/css/animate.css" />
+			<link rel="stylesheet" href="~/css/hopscotch.css" />*@
+	</environment>
+	<environment exclude="Development">
+		<link rel="stylesheet" href="~/css/purpose.min.css" asp-append-version="true" />
+
+		<script src="https://cdn.lr-ingest.io/LogRocket.min.js" crossorigin="anonymous"></script>
+		<script>window.LogRocket && window.LogRocket.init('t1diwl/fyinance');</script>
+		@if (User.Identity.IsAuthenticated) {
+			<script>LogRocket.identify('@User.Identity.Name', { email: '@User.Identity.Name' });</script>
+		}
+	</environment>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-181021117-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'UA-181021117-1');
+	</script>
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet"> 
+
+	@RenderSection("PageStyles", required: false)
+</head>
+<body class="application application-offset">
+	<div class="container-fluid container-application">
+		<div class="sidenav" id="sidenav-main">
+			<!-- Sidenav header -->
+			<div class="sidenav-header d-flex align-items-center">
+				<a class="navbar-brand" href="/">
+					<img src="~/img/logo-white.png" class="navbar-brand-img" alt="Lexvor">
+				</a>
+				<div class="ml-auto">
+					<!-- Sidenav toggler -->
+					<div class="sidenav-toggler sidenav-toggler-dark d-md-none" data-action="sidenav-unpin" data-target="#sidenav-main">
+						<div class="sidenav-toggler-inner">
+							<i class="sidenav-toggler-line bg-white"></i>
+							<i class="sidenav-toggler-line bg-white"></i>
+							<i class="sidenav-toggler-line bg-white"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- User mini profile -->
+			<div class="sidenav-user d-flex flex-column align-items-center justify-content-between text-center">
+				<!-- Avatar -->
+				<div>
+					<div class="mt-4">
+						@*<h5 class="mb-0 text-white">Heather Parker</h5>
+							<span class="d-block text-sm text-white opacity-8 mb-3">Architect</span>*@
+					</div>
+				</div>
+				<!-- User info -->
+				<!-- Actions -->
+				<div class="w-100 mt-4 actions d-flex justify-content-between">
+					<a href="@Url.Action(nameof(ProfileController.Settings), ProfileController.Name)" class="action-item action-item-lg text-white pl-0" data-toggle="tooltip" data-placement="bottom" title="Settings">
+						<i class="fas fa-user"></i>
+					</a>
+					<a href="@Url.Action(nameof(HomeController.Support), HomeController.Name)" class="action-item action-item-lg text-white" data-toggle="tooltip" data-placement="bottom" title="Support">
+						<i class="fas fa-comment-alt"></i>
+					</a>
+					<a href="@Url.Action(nameof(BillingController.Index), BillingController.Name)" class="action-item action-item-lg text-white pr-0" data-toggle="tooltip" data-placement="bottom" title="Billing">
+						<i class="fas fa-receipt"></i>
+					</a>
+				</div>
+			</div>
+			<!-- Application nav -->
+			<div class="nav-application clearfix">
+			</div>
+		</div>
+		<div class="main-content position-relative">
+			<!-- Main nav -->
+			<nav class="navbar navbar-main navbar-expand-lg navbar-dark bg-primary navbar-border" id="navbar-main">
+				<div class="container-fluid">
+					<!-- Brand + Toggler (for mobile devices) -->
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<!-- User's navbar -->
+					@*<div class="navbar-user d-lg-none ml-auto">
+							<ul class="navbar-nav flex-row align-items-center">
+								<li class="nav-item">
+									<a href="#" class="nav-link nav-link-icon sidenav-toggler" data-action="sidenav-pin" data-target="#sidenav-main"><i class="fas fa-bars"></i></a>
+								</li>
+								<li class="nav-item dropdown dropdown-animate">
+									<a class="nav-link nav-link-icon" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-bell"></i></a>
+									<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg dropdown-menu-arrow p-0">
+										<div class="py-3 px-3">
+											<h5 class="heading h6 mb-0">Notifications</h5>
+										</div>
+										<div class="list-group list-group-flush">
+											<a href="#" class="list-group-item list-group-item-action">
+												<div class="d-flex align-items-center" data-toggle="tooltip" data-placement="right" data-title="2 hrs ago">
+													<div>
+														<span class="avatar bg-primary text-white rounded-circle">AM</span>
+													</div>
+													<div class="flex-fill ml-3">
+														<div class="h6 text-sm mb-0">Alex Michael <small class="float-right text-muted">2 hrs ago</small></div>
+														<p class="text-sm lh-140 mb-0">
+															Some quick example text to build on the card title.
+														</p>
+													</div>
+												</div>
+											</a>
+											<a href="#" class="list-group-item list-group-item-action">
+												<div class="d-flex align-items-center" data-toggle="tooltip" data-placement="right" data-title="3 hrs ago">
+													<div>
+														<span class="avatar bg-warning text-white rounded-circle">SW</span>
+													</div>
+													<div class="flex-fill ml-3">
+														<div class="h6 text-sm mb-0">Sandra Wayne <small class="float-right text-muted">3 hrs ago</small></div>
+														<p class="text-sm lh-140 mb-0">
+															Some quick example text to build on the card title.
+														</p>
+													</div>
+												</div>
+											</a>
+											<a href="#" class="list-group-item list-group-item-action">
+												<div class="d-flex align-items-center" data-toggle="tooltip" data-placement="right" data-title="5 hrs ago">
+													<div>
+														<span class="avatar bg-info text-white rounded-circle">JM</span>
+													</div>
+													<div class="flex-fill ml-3">
+														<div class="h6 text-sm mb-0">Jason Miller <small class="float-right text-muted">5 hrs ago</small></div>
+														<p class="text-sm lh-140 mb-0">
+															Some quick example text to build on the card title.
+														</p>
+													</div>
+												</div>
+											</a>
+											<a href="#" class="list-group-item list-group-item-action">
+												<div class="d-flex align-items-center" data-toggle="tooltip" data-placement="right" data-title="2 hrs ago">
+													<div>
+														<span class="avatar bg-dark text-white rounded-circle">MJ</span>
+													</div>
+													<div class="flex-fill ml-3">
+														<div class="h6 text-sm mb-0">Mike Thomson <small class="float-right text-muted">2 hrs ago</small></div>
+														<p class="text-sm lh-140 mb-0">
+															Some quick example text to build on the card title.
+														</p>
+													</div>
+												</div>
+											</a>
+											<a href="#" class="list-group-item list-group-item-action">
+												<div class="d-flex align-items-center" data-toggle="tooltip" data-placement="right" data-title="3 hrs ago">
+													<div>
+														<span class="avatar bg-primary text-white rounded-circle">RN</span>
+													</div>
+													<div class="flex-fill ml-3">
+														<div class="h6 text-sm mb-0">Richard Nixon <small class="float-right text-muted">3 hrs ago</small></div>
+														<p class="text-sm lh-140 mb-0">
+															Some quick example text to build on the card title.
+														</p>
+													</div>
+												</div>
+											</a>
+										</div>
+										<div class="py-3 text-center">
+											<a href="#" class="link link-sm link--style-3">View all notifications</a>
+										</div>
+									</div>
+								</li>
+								<li class="nav-item dropdown dropdown-animate">
+									<a class="nav-link pr-lg-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<span class="avatar avatar-sm rounded-circle">
+											<img alt="Image placeholder" src="./img/theme/light/team-4-800x800.jpg">
+										</span>
+									</a>
+									<div class="dropdown-menu dropdown-menu-sm dropdown-menu-right dropdown-menu-arrow">
+										<h6 class="dropdown-header px-0">Hi, Heather!</h6>
+										<a href="../application/user/profile.html" class="dropdown-item">
+											<i class="fas fa-user"></i>
+											<span>My profile</span>
+										</a>
+										<a href="../application/account/settings.html" class="dropdown-item">
+											<i class="fas fa-cog"></i>
+											<span>Settings</span>
+										</a>
+										<a href="../application/account/billing.html" class="dropdown-item">
+											<i class="fas fa-credit-card"></i>
+											<span>Billing</span>
+										</a>
+										<a href="../application/shop/orders.html" class="dropdown-item">
+											<i class="fas fa-shopping-basket"></i>
+											<span>Orders</span>
+										</a>
+										<div class="dropdown-divider"></div>
+										<a href="../application/authentication/login.html" class="dropdown-item">
+											<i class="fas fa-sign-out-alt"></i>
+											<span>Logout</span>
+										</a>
+									</div>
+								</li>
+							</ul>
+						</div>*@
+					<!-- Navbar nav -->
+					<div class="collapse navbar-collapse navbar-collapse-fade" id="navbar-main-collapse">
+						<ul class="navbar-nav align-items-lg-center">
+							<li class="border-top opacity-2 my-2"></li>
+							<!-- Home  -->
+							<li class="nav-item pl-lg-0">
+								<a class="nav-link pl-lg-4" href="@Url.Action(nameof(HomeController.Index), HomeController.Name)">
+									Dashboard
+								</a>
+							</li>
+							<!-- Application menu -->
+							<li class="nav-item pl-lg-0">
+								<a class="nav-link pl-lg-4" href="@Url.Action(nameof(HomeController.Support), HomeController.Name)">
+									Support
+								</a>
+							</li>
+							<li class="nav-item pl-lg-0">
+								<a class="nav-link pl-lg-4" href="@Url.Action(nameof(PlanController.Index), PlanController.Name)">
+									Add Line
+								</a>
+							</li>
+							<li class="nav-item pl-lg-0">
+								<a class="nav-link pl-lg-4" href="@Url.Action(nameof(DeviceIntakeController.Index), DeviceIntakeController.Name)">
+									Trade In
+								</a>
+							</li>
+							<li class="nav-item pl-lg-0">
+								<a class="nav-link pl-lg-4" href="@Url.Action(nameof(DocumentsController.Index), DocumentsController.Name)">
+									Documents
+								</a>
+							</li>
+							<li class="nav-item pl-lg-0">
+								<a class="nav-link pl-lg-4" href="https://www.lexvor.com/shop">
+									Store
+								</a>
+							</li>
+							@if (User.IsInRole(Roles.Admin))
+							{
+						<li class="nav-item pl-lg-0">
+							<a class="nav-link pl-lg-4" href="@Url.Action(nameof(DashboardController.Index), DashboardController.Name, new { Area = "admin" })">
+								Admin Panel
+							</a>
+						</li>}
+						</ul><!-- Right menu -->
+						<ul class="navbar-nav ml-lg-auto align-items-center d-lg-flex">
+							<li class="nav-item d-none d-lg-flex">
+								<a href="#" class="nav-link nav-link-icon sidenav-toggler" data-action="sidenav-pin" data-target="#sidenav-main"><i class="fas fa-bars"></i></a>
+							</li>
+							<li class="nav-item dropdown dropdown-animate">
+								<a class="nav-link pr-lg-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<div class="media media-pill align-items-center">
+										<span class="avatar rounded-circle">
+											<img alt="Image placeholder" src="~/old/images/gender-neutral.png">
+										</span>
+										<div class="ml-2 d-block">
+											<span class="mb-0 text-sm  font-weight-bold">@User.Identity.Name</span>
+										</div>
+									</div>
+								</a>
+								<div class="dropdown-menu dropdown-menu-sm dropdown-menu-right dropdown-menu-arrow">
+									<h6 class="dropdown-header px-0">@User.Identity.Name</h6>
+									<a href="@Url.Action(nameof(ProfileController.Settings), ProfileController.Name)" class="dropdown-item">
+										<i class="fas fa-cog"></i>
+										<span>Settings</span>
+									</a>
+									<a href="@Url.Action(nameof(BillingController.Index), BillingController.Name)" class="dropdown-item">
+										<i class="fas fa-credit-card"></i>
+										<span>Billing</span>
+									</a>
+									<div class="dropdown-divider"></div>
+									<a href="@Url.Action(nameof(AccountController.Logout), "Account")" class="dropdown-item">
+										<i class="fas fa-sign-out-alt"></i>
+										<span>Logout</span>
+									</a>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+
+			<!-- Page content -->
+			<div class="page-content">
+				<!-- Page title -->
+				<div class="page-title">
+					<div class="row justify-content-between align-items-center">
+						<div class="col-md-6 mb-3 mb-md-0">
+							@if (ViewData.ContainsKey("PageName")) {
+								<h5 class="h3 font-weight-400 mb-0 text-white">@ViewData["PageName"]</h5>
+							}
+							@if (ViewData.ContainsKey("PageSubtitle")) {
+								<span>@ViewData["PageSubtitle"]</span>
+							}
+						</div>
+					</div>
+				</div>
+				@RenderBody()
+			</div>
+			<!-- Footer -->
+			<div class="footer pt-5 pb-4 footer-light" id="footer-main">
+				<div class="row text-center text-sm-left align-items-sm-center">
+					<div class="col-sm-6">
+						<p class="text-sm mb-0">&copy; @DateTime.Now.Year <a href="https://lexvor.com" class="h6 text-sm" target="_blank">Lexvor</a>. All rights reserved.</p>
+					</div>
+					<div class="col-sm-6 mb-md-0">
+						<ul class="nav justify-content-center justify-content-md-end">
+							<li class="nav-item">
+								<a class="nav-link" href="@Url.Action(nameof(HomeController.Support), HomeController.Name)">Support</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="https://lexvor.com/lease">Terms</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="https://lexvor.com/agreement">EULA</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link pr-0" href="https://lexvor.com/privacy-policy">Privacy</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (ViewData.ContainsKey("IsImpersonating")) {
+		<div>
+			<banner>
+				Currently Impersonating as someone else.
+				<a class="fc-button" href="@Url.Action(nameof(UsersController.StopImpersonate), UsersController.Name, new { area = "Admin" })">Stop Impersonating</a>
+			</banner>
+		</div>
+	}
+
+	<environment include="Development">
+		<script src="~/js/purpose.core.js" asp-append-version="true"></script>
+		<script src="~/js/purpose.js" asp-append-version="true"></script>
+		<script src="~/libs/bootstrap-datepicker.js" asp-append-version="true"></script>
+
+		@*<script src="~/js/chart.js" asp-append-version="true"></script>
+			<script src="~/js/tether.min.js" asp-append-version="true"></script>
+			<script src="~/js/bootstrap-notify.min.js" asp-append-version="true"></script>
+			<script src="~/js/hopscotch.js" asp-append-version="true"></script>*@
+	</environment>
+	<environment exclude="Development">
+		<script src="~/js/purpose.core.js" asp-append-version="true"></script>
+		<script src="~/js/purpose.min.js" asp-append-version="true"></script>
+	</environment>
+
+	<script defer src="https://use.fontawesome.com/releases/v5.8.2/js/all.js"></script>
+	@if (Model.Profile != null) {
+		<script src="https://widget.flowxo.com/embed.js?callback=messengerReady" data-fxo-widget="eyJ0aGVtZSI6IiMwMDAwMDAiLCJ3ZWIiOnsiYm90SWQiOiI1ZjgyNGRhNzc2NmFjZDAwMjNhYTZkZjYiLCJ0aGVtZSI6IiMwMDAwMDAiLCJsYWJlbCI6IkxleHZvciBTdXBwb3J0In0sIndlbGNvbWVUZXh0IjoiR2V0IEhlbHAhIn0=" async defer></script>
+	}
+	
+	<script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+		}
+		
+		function messengerReady() {
+			FxoMessenger.setConfig({
+				externalUserId : '@(Model.Profile == null ? "" : Model.Profile.Id)'
+			});
+		}
+	</script>
+
+	@RenderSection("Scripts", required: false)
+</body>
+</html>

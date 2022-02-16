@@ -1,0 +1,110 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers
+@model IEnumerable<Lexvor.Models.AdminViewModels.ProfileAccount>
+@{
+	ViewData["Title"] = "Index";
+	Layout = "_AdminLayout";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<div class="tab-header">
+		<button id="defaultOpen" class="tablink" onclick="openPage('Inactive', this, '#555')">Inactive Users</button>
+		<button class="tablink" onclick="openPage('Archived', this, '#555')">Archived Users</button>
+	</div>
+	<li class="media list-group-item p-4">
+
+		<div id="Inactive" class="tabcontent">
+			<div class="media-body">
+				<h4>Inactive Users</h4>
+				<p>Users who have not signed up for a plan within 14 days or confirmed their identity.</p>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Email</th>
+							<th>Days Inactive</th>
+							<th>Identity Verified</th>
+							<th></th>
+							<th></th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td>@item.User.Email</td>
+								<td>@((DateTime.UtcNow - (item.Profile.LastModified == DateTime.MinValue ? item.Profile.DateJoined : item.Profile.LastModified)).Days)</td>
+								<td>@item.Profile.IDVerifyStatus.ToString()</td>
+								<td>
+									@Html.ActionLink("Edit", "Edit", new { id = item.Profile.Id })
+								</td>
+								<td>
+									@Html.ActionLink("Resend", "ResendConfirmEmail", new { email = item.User.Email })
+								</td>
+								<td>
+									@Html.ActionLink("Delete", nameof(UsersController.Delete), new { id = item.Profile.Id })
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<a class="btn btn-warning" href="@Url.Action(nameof(UsersController.DeleteInactiveUsers))">Delete Users</a>
+			</div>
+		</div>
+		<div id="Archived" class="tabcontent">
+			<div class="media-body">
+				<h4>Archived Users</h4>
+				<p>Archived users.</p>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Email</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in ViewData["ArchivedUsers"] as IEnumerable<Lexvor.API.Objects.Profile>)
+						{
+							<tr>
+								<td>@item.Account.Email</td>
+								<td>
+									@Html.ActionLink("Edit", "Edit", new { id = item.Id })
+								</td>
+							</tr>
+}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</li>
+</ul>
+@section scripts {
+
+<script>
+	function openPage(pageName, elmnt, color) {
+	// Hide all elements with class="tabcontent" by default */
+	var i, tabcontent, tablinks;
+	tabcontent = document.getElementsByClassName("tabcontent");
+	for (i = 0; i < tabcontent.length; i++) {
+	tabcontent[i].style.display = "none";
+	}
+
+	// Remove the background color of all tablinks/buttons
+	tablinks = document.getElementsByClassName("tablink");
+	for (i = 0; i < tablinks.length; i++) {
+	tablinks[i].style.backgroundColor = "";
+	}
+
+	// Show the specific tab content
+	document.getElementById(pageName).style.display = "block";
+
+	// Add the specific color to the button used to open the tab content
+	elmnt.style.backgroundColor = color;
+	}
+
+	// Get the element with id="defaultOpen" and click on it
+	document.getElementById("defaultOpen").click();
+	
+</script>
+}

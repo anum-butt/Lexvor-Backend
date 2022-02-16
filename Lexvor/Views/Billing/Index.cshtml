@@ -1,0 +1,219 @@
+﻿@using Lexvor.Controllers
+@model BillingIndexViewModel
+
+@{
+	ViewData["Title"] = "Billing Profile";
+	Layout = "_Layout";
+}
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		@if (!ViewData.ContainsKey("returnUrl")) {
+			<div class="alert alert-warning">
+				<span class="badge badge-warning mr-1">
+					Warning
+				</span>
+				Changing your billing information will invalidate your ID verification. You will be required to re-upload your ID documents.
+			</div>
+
+		}
+		<div class="row">
+			<div class="col-xl-12 col-md-12">
+				<div class="card">
+					<div class="card-header">
+						Profile and Billing Address
+					</div>
+					<div class="card-body">
+						<form asp-action="AddressUpdate" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+							<div asp-validation-summary="All" class="text-danger"></div>
+							<input type="hidden" asp-for="CurrentBillingAddress.Id" />
+
+							<div class="row">
+								<div class="col-xl-12">
+									<div class="form-group">
+										<label asp-for="CurrentBillingAddress.Line1" class="form-control-label"></label>
+										<input asp-for="CurrentBillingAddress.Line1" type="text" class="form-control">
+									</div>
+									<div class="form-group">
+										<label asp-for="CurrentBillingAddress.Line2" class="form-control-label"></label>
+										<input asp-for="CurrentBillingAddress.Line2" type="text" class="form-control">
+									</div>
+									<div class="form-group">
+										<label asp-for="CurrentBillingAddress.City" class="form-control-label"></label>
+										<input asp-for="CurrentBillingAddress.City" type="text" class="form-control">
+									</div>
+									<div class="form-group">
+										<label asp-for="CurrentBillingAddress.Provence" class="form-control-label"></label>
+										<input asp-for="CurrentBillingAddress.Provence" type="text" class="form-control">
+									</div>
+									<div class="form-group">
+										<label asp-for="CurrentBillingAddress.PostalCode" class="form-control-label"></label>
+										<input asp-for="CurrentBillingAddress.PostalCode" type="text" class="form-control">
+									</div>
+								</div>
+							</div>
+
+							<div class="">
+								<button type="submit" class="btn btn-primary clickable">Save</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xl-12 col-md-12">
+				<div class="card">
+					<div class="card-header">
+						Billing History
+					</div>
+					<div class="card-body">
+						<b>
+							Next billing date:
+						</b>
+						@Model.NextBillingDate.ToString("MM/dd/yyyy")
+						<a href="@Url.Action(nameof(BillingController.GenrateBillingInvoice))" class="btn btn-primary">Genrate Invoice</a>
+
+						@if (Model.PastCharges.Count == 0)
+						{
+							<p>You have no past charges.</p>
+						}
+						else
+						{
+							<table class="table">
+								<thead>
+									<tr>
+										<th scope="col">Date</th>
+										<th scope="col">Amount</th>
+										<th scope="col">Description</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var item in Model.PastCharges)
+									{
+										<tr>
+											<td>@item.Date.ToString("MMMM dd yyyy")</td>
+											<td>@string.Format("{0:C}", item.Amount / 100)</td>
+											<td>@item.Description</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-xl-12 col-md-12">
+				<div class="card">
+					<div class="card-header">
+						ACH Bank Information
+					</div>
+					<div class="card-body">
+						@if (Model.CurrentBankAccount == null) {
+							<p>You do not have an ACH account set up.</p>
+						}
+						else {
+							<div class="form-group">
+								<div class="row">
+									<label asp-for="CurrentBankAccount.AccountFirstName" class="control-label col-sm-5"></label>
+									<div class="col-sm-7">
+										<input asp-for="CurrentBankAccount.AccountFirstName" class="form-control" disabled/>
+									</div>
+									<span asp-validation-for="CurrentBankAccount.AccountFirstName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row">
+									<label asp-for="CurrentBankAccount.AccountLastName" class="control-label col-sm-5"></label>
+									<div class="col-sm-7">
+										<input asp-for="CurrentBankAccount.AccountLastName" class="form-control" disabled/>
+									</div>
+									<span asp-validation-for="CurrentBankAccount.AccountLastName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row">
+									<label asp-for="CurrentBankAccount.MaskedAccountNumber" class="control-label col-sm-5"></label>
+									<div class="col-sm-7">
+										<input asp-for="CurrentBankAccount.MaskedAccountNumber" class="form-control" disabled/>
+									</div>
+									<span asp-validation-for="CurrentBankAccount.MaskedAccountNumber" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row">
+									<label asp-for="CurrentBankAccount.RoutingNumber" class="control-label col-sm-5"></label>
+									<div class="col-sm-7">
+										<input asp-for="CurrentBankAccount.RoutingNumber" class="form-control" disabled/>
+									</div>
+									<span asp-validation-for="CurrentBankAccount.RoutingNumber" class="text-danger"></span>
+								</div>
+							</div>
+						}
+						<div class="form-group">
+							<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editbankinformationmodal">Edit</button>
+						</div>
+						
+						@if (Model.CurrentBankAccount != null && Model.PlaidAccount == null) {
+							<p>IMPORTANT: We could not verify your bank’s connection, please reconnect to prevent service disconnection</p>
+							<div class="form-group">
+								<a href="@Url.Action(nameof(BillingController.UpdateConnection))" class="btn btn-primary">Update connection</a>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="editbankinformationmodal" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3>Bank Information</h3>
+				</div>
+				<div class="modal-body">
+					<p>
+						Updating your ACH details will result in a $1 authentication charge to your bank account to confirm the connection.
+						Your account will also be locked from receiving devices until this charge clears. Are you sure you want to update your bank details.
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+					<a href="@Url.Action(nameof(BillingController.Edit))" class="btn btn-primary">Yes</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+        $.ajax({
+            url: '@(Url.Action(nameof(HomeController.HeaderAlert), "Home"))',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+        });
+
+        var tr912 = {
+            id: "tr912",
+            steps: [
+                {
+                    title: "Starting the Trade In process",
+                    content:
+                        "Fill out the form below to start your trade in request. Trade ins are evaluated on a case-by-case basis.",
+                    target: 'tour-tr912-1',
+                    placement: "bottom"
+                }
+            ]
+        };
+
+        if (getParameterByName('t') == 'tr912') {
+            hopscotch.startTour(tr912);
+        }
+	</script>
+}

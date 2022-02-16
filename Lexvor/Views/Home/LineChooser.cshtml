@@ -1,0 +1,90 @@
+﻿@using Lexvor.Models.HomeViewModels
+@using Lexvor.API.Objects.Enums
+@using Lexvor.API.Objects.User
+@using Lexvor.Controllers
+@using System.Web;
+@using Lexvor.API
+@using Lexvor.Extensions
+@model LineChooserViewModel
+@{
+	ViewData["Title"] = "Line chooser";
+	Layout = "_LayoutFull";
+}
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		@if (Model.Plans.Count == 0)
+		{
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body text-center">
+							<h4>You don't have any plans, you must be new. Welcome! The next step is to sign up for a plan using the button below.</h4>
+							<a href="@Url.Action(nameof(PlanController.Index), PlanController.Name)" class="btn btn-lg btn-info mt-6 mb-6">Subscribe to a Plan!</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="row">
+				@foreach (var item in Model.Plans)
+				{
+					<div class="col-lg-3 col-sm-6">
+						<div class="card">
+							<div class="card-header">
+								<div class="row align-items-center">
+									<div class="col-12">
+										<h5 class="card-title mb-0">
+											@if (!item.MDN.IsNull())
+											{
+												@StaticUtils.FormatPhone(item.MDN)
+											}
+											else
+											{
+												@:Number Not Yet Assigned
+											}
+										</h5>
+										<span class="text-muted text-sm">
+											@if (!item.IsWirelessOnly())
+											{
+												@:Wireless & Device
+											}
+											else
+											{
+												@:Wireless
+											} - @(item.UserDevice.BYOD ? "BYOD" : $"{item.Device?.Name}")
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="card-body">
+								<figure class="figure">
+									@if (!item.IsWirelessOnly())
+									{
+										if (item?.Device != null)
+										{
+											<img alt="@item.Device.ImageUrl" src="https://lexvorassets.blob.core.windows.net/website-assets/@item.Device.ImageUrl" class="img-center img-fluid max-h-10">
+										}
+										else
+										{
+											<img class="img-center img-fluid max-h-10" src="~/old/images/phone-placeholder.png" alt="" />
+										}
+									}
+									else
+									{
+										<img class="img-center img-fluid max-h-10" src="~/old/images/phone-placeholder.png" alt="" />
+									}
+								</figure>
+							</div>
+							<div class="card-footer">
+								<a class="btn btn-primary" href="@Model.GetRedirectUrl(item)">Continue with this Line</a>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+</div>

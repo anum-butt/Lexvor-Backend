@@ -1,0 +1,40 @@
+﻿@model Lexvor.Models.AdminViewModels.ChangeBillDateViewModel
+@{
+    ViewData["Title"] = "Change Billing Date";
+    Layout = "_AdminLayout";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <div class="row">
+                <form asp-action="ChangeBillDate">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <h5>If you set this date to more than 30 days from the current date the customer may be given a free month.</h5>
+                        <p>Changing the billing date will tell stripe when to run the next charge. If the customer wants to be billed on a date after their current billing date you have to set the date to the next month. If they want a date before their billing date, use that date in the current month.</p>
+                        <p>Another thing to keep in mind is if the current date is before or after their requested billing date. If the current date is before their new billing date, then use the current month. If it is after, then use next month.</p>
+                        <p>Example: customer is billed on the 12th (current date is the 15th, AFTER the customer was already billed for this month) and wants to be billed on the 25th. Change the billing date to the 25th of next month, NOT the 25th of this month.</p>
+                        <p>Example: customer is billed on the 12th (current date is the 1st, BEFORE the customer will be billed for this month) and wants to be billed on the 25th. Change the billing date to the 25th of this month, NOT the 25th of next month.</p>
+                        <p>Example: customer is billed on the 20th (current date is the 15th, BEFORE the customer will be billed for this month) and wants to be billed on the 1st. Change the billing date to the 1st of this month, NOT the 1st of next month.</p>
+                        <p>Example: customer is billed on the 20th (current date is the 25th, AFTER the customer was already billed for this month) and wants to be billed on the 1st. Change the billing date to the 1st of next month, NOT the 1st of this month.</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" asp-for="UserPlan.Id" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NewBillDate" class="control-label"></label>
+                        <input name="NewBillDate" id="NewBillDate" class="form-control datepicker" data-date-format="mm-dd-yyyy" />
+                        <span asp-validation-for="NewBillDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Change" class="btn btn-success clickable" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </li>
+</ul>
+@section scripts {
+    <script>
+    </script>
+}

@@ -1,0 +1,130 @@
+﻿@using Lexvor.Controllers
+@model ValidateIndexViewModel
+@{
+    ViewData["Title"] = "Number Porting";
+    Layout = "_Layout";
+}
+
+<div class="container pt-4">
+    <div class="row">
+        <div class="col-md-3 hidden-sm-down">
+            @{ await Html.RenderPartialAsync("_ProfileCardPartial", Model.Profile); }
+
+            <div class="card visible-md-block visible-lg-block mb-4 card-link-list">
+                @{ await Html.RenderPartialAsync("_FooterPartial"); }
+            </div>
+        </div>
+        <div class="col-md-9">
+            @*<div class="alert alert-info"></div>*@
+            <div id="header-alerts"></div>
+
+            <div class="list-group media-list media-list-stream mb-4 pagination">
+                <div class="media list-group-item p-4">
+                    <div class="row full-width">
+                        <div class="col-md-12">
+                            <div class="text-center">
+                                <h3>Will you be bringing a device?</h3>
+                                <a href="@Url.Action(nameof(WirelessController.Validate), new { validateImei = true })" class="btn btn-default">Yes, I want to bring my own device</a>
+                                <hr />
+                                <h3>Will you be porting a number?</h3>
+                                <form role="form" class="form-horizontal full-width" method="post">
+                                    <div id="errors" class="text-danger"></div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <label for="mobileNumber" class="control-label col-sm-2 offset-sm-1"></label>
+                                            <div class="col-sm-6">
+                                                <input name="mobileNumber" class="form-control" placeholder="Your Current Mobile Number" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.ShowIMEI) {
+                                        <div class="form-group">
+                                            <div class="row">
+                                                <label for="imei" class="control-label col-sm-2 offset-sm-1"></label>
+                                                <div class="col-sm-6">
+                                                    <input name="imei" class="form-control" placeholder="Your Device's IMEI" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div class="form-group mb-5" align="center">
+                                        <button type="button" id="port-compat" class="btn btn-primary">Check Port Compatibility</button>
+                                    </div>
+                                </form>
+                                <div id="compat-loader" style="display: none;">
+                                    <p id="loader"></p>
+                                </div>
+                                <br />
+
+                                <a href="#" type="button" class="btn btn-default">No I am not porting a number</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        var referenceNum = '';
+
+        $('#port-compat').click(function() {
+            var number = $('input[name="mobileNumber"]').val();
+            var imei = $('input[name="imei"]').val();
+            var validateImei = '@Model.ShowIMEI' == 'True';
+
+            if (validateImei) {
+                $.ajax({
+                    url: '@Url.Action(nameof(WirelessController.ValidateIMEI))',
+                    data: {
+                        'MobileNumber': number,
+                        'IMEI': imei
+                    },
+                    success: function(result) {
+
+                    },
+                    failure: function(error) {},
+                });
+            } else {
+                $.ajax({
+                    url: '@Url.Action(nameof(WirelessController.ValidateMDN))',
+                    data: {
+                        'MobileNumber': number,
+                    },
+                    success: function(result) {
+                        referenceNum = result.referenceNumber;
+                        $('#compat-loader').show();
+                        $('#loader').html("Checking Compatibility...");
+                        checkValidate();
+                    },
+                    failure: function(error) {},
+                });
+            }
+        });
+
+        var timer = {};
+
+        function checkValidate() {
+            timer = setTimeout(function() {
+                    $.ajax({
+                        url: '@Url.Action(nameof(WirelessController.ValidateCheck))?refNumber=' + referenceNum,
+                        success: function (result) {
+                            if (result.success) {
+                                $('#loader').html('<a href="" class="btn btn-success">' + result.message + '</a>');
+                            } else {
+                                $('#loader').html(result.message);
+                            }
+                            clearTimeout(timer);
+                        },
+                        failure: function(error) {},
+                    });
+                $('#loader').html($('#loader').html() + '.');
+            },
+            1000);
+        }
+    </script>
+}

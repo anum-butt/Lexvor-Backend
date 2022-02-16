@@ -1,0 +1,144 @@
+﻿@model IEnumerable<Lexvor.API.Objects.Device>
+
+@{
+	ViewData["Title"] = "Devices";
+}
+
+<style>
+	.form-control.input-sm {
+		width: auto;
+		padding: 0 5px;
+		margin: 0 10px;
+		height: 40px;
+	}
+
+	.dataTables_length, .dataTables_filter {
+		width: 25%;
+	}
+
+	.dataTables_length label {
+		float: left;
+	}
+
+	.dataTables_filter label {
+		float: right;
+	}
+
+	ul.pagination li {
+		padding: 2px 10px;
+		border: 1px solid #e0e6ed;
+		border-radius: 5px;
+		margin: 0 3px;
+	}
+
+</style>
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<div class="col-md-2">
+				<p>
+					<a href="@Url.Action("Create")" class="btn btn-primary btn-sm">Create New</a>
+				</p>
+			</div>
+			<div>
+				<div class="row">
+					<div class="col-md-10"><h5>Device</h5></div>
+				</div>
+				<table class="table" id="device-table">
+					<thead>
+						<tr>
+							<th>@Html.DisplayNameFor(model => model.Name)</th>
+							<th>Image</th>
+							<th>@Html.DisplayNameFor(model => model.Available)</th>
+							<th>@Html.DisplayNameFor(model => model.Archived)</th>
+							<th>Plan Types</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.Any())
+						{
+							foreach (var item in Model)
+							{
+								<tr>
+									<td>@Html.DisplayFor(modelItem => item.Name)</td>
+									<td>
+										@if (!string.IsNullOrEmpty(item.ImageUrl))
+										{
+											<a href="#" data-toggle="modal" data-target="#m-@item.Id">Image</a>
+											<div class="modal modal-wide fade" id="m-@item.Id" tabindex="-1" role="dialog">
+												<div class="modal-dialog" role="document">
+													<div class="modal-content">
+														<div class="modal-header">
+															<h5 class="modal-title">@item.Name</h5>
+															<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+																<span aria-hidden="true">&times;</span>
+															</button>
+														</div>
+														<div class="modal-body">
+															<p><img src="https://lexvorassets.blob.core.windows.net/website-assets/@item.ImageUrl" class="ad-image-large" /></p>
+														</div>
+														<div class="modal-footer">
+															<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+														</div>
+													</div>
+												</div>
+											</div>
+										}
+									</td>
+									<td>@Html.DisplayFor(modelItem => item.Available)</td>
+									<td>@Html.DisplayFor(modelItem => item.Archived)</td>
+									<td>@(item.PlanTypes.Count > 0 ? string.Join(", ", item.PlanTypes.Select(x => x.PlanType.ShortName)) : "")</td>
+									<td><a asp-action="Edit" asp-route-id="@item.Id">Edit</a></td>
+								</tr>
+							}
+						}
+						else
+						{
+							<tr><td colspan="4">No Devices</td></tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</li>
+</ul>
+
+@section scripts {
+	<script src="~/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="~/libs/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+
+	<script>
+		var mainTable;
+
+		$('#device-table thead tr').clone(true).appendTo('#device-table thead');
+		$('#device-table thead tr:eq(1) th').each(function (i) {
+			var title = $(this).text();
+			if (i == 0 || i == 3 || i == 2) {
+				$(this).html('<input type="text" placeholder="Search" />');
+			}
+			
+			$('input', this).on('keyup change', function () {
+				if (mainTable.column(i).search() !== this.value) {
+					mainTable
+						.column(i)
+						.search(this.value)
+						.draw();
+				}
+			});
+		});
+
+		mainTable = $('#device-table').DataTable({
+			"dom": 'Blfrtp',
+			"info": false,
+			"searching": true,
+			"ordering": true,
+			"scrollX": true,
+			"order": [[0, "asc"]],
+			'orderCellsTop': true,
+			'fixedHeader': true
+		});
+
+	</script>
+}

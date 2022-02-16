@@ -1,0 +1,110 @@
+﻿@*@using Lexvor.Controllers
+@model Lexvor.API.Objects.WaitListUser
+@{
+    ViewData["Title"] = "Wait List";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-lg-8 col-md-12 col-sm-12 half-width">
+    <div class="row">
+        <div class="col-md-10 col-sm-12 col-lg-12 col-xl-8 ma-centered">
+            <h2>Upgrade Devices Faster and Save</h2>
+            <br />
+            <h5>Lexvor is a new way to get the devices you want at a price you can afford, and upgrade when you want to.</h5>
+            <br />
+            <h6>Unfortunately at this time we have an overwhelming amount of new device request and we are working hard to fill these orders. </h6>
+            <h6>This waitlist will guarantee your position on the list and spot for your new device. </h6>
+            <h6>Our current average lead time for order fulfillment on deposits is 4 weeks. Non-deposit lead time is 8 weeks. This depends on color, size, and device chosen.</h6>
+            <br />
+            <p>If you have already signed up for the waitlist, use the form at the bottom of the page.</p>
+            <p>You will receive a credit for your initiation fee with a qualifying trade in.</p>
+
+            <form role="form" class="form-horizontal" method="post">
+                <h4>New Sign Up</h4>
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <div class="row">
+                        <label asp-for="FullName" class="control-label col-sm-3 offset-sm-1"></label>
+                        <div class="col-sm-6">
+                            <input asp-for="FullName" class="form-control" />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <label asp-for="Email" class="control-label col-sm-3 offset-sm-1"></label>
+                        <div class="col-sm-6">
+                            <input asp-for="Email" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <label asp-for="Phone" class="control-label col-sm-3 offset-sm-1"></label>
+                        <div class="col-sm-6">
+                            <input asp-for="Phone" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <label asp-for="RequestedPhone" class="control-label col-sm-3 offset-sm-1"></label>
+                        <div class="col-sm-6">
+                            <select asp-for="RequestedPhone" class="form-control"
+                                    asp-items="@(new SelectList(ViewBag.Phones, "Name", "Name"))"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <label asp-for="RequestedPlan" class="control-label col-sm-3 offset-sm-1"></label>
+                        <div class="col-sm-6">
+                            <select asp-for="RequestedPlan" class="form-control"
+                                    asp-items="@(new SelectList(ViewBag.Plans, "Name", "Name"))"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <label asp-for="TradeIn" class="control-label col-sm-3 offset-sm-1"></label>
+                        <div class="col-sm-6">
+                            <input asp-for="TradeIn" class="form-control" />
+                        </div>
+                        <span asp-validation-for="TradeIn" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-5" align="center">
+                    <button type="submit" class="btn btn-primary">Sign up!</button>
+                </div>
+            </form>
+
+            <hr />
+
+            <form role="form" class="form-horizontal" method="post">
+                <h4>View Your Status</h4>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <div class="row">
+                        <label asp-for="Email" class="control-label col-sm-3 offset-sm-1"></label>
+                        <div class="col-sm-6">
+                            <input asp-for="Email" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-5" align="center">
+                    <button type="submit" class="btn btn-primary">Check my status!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>*@

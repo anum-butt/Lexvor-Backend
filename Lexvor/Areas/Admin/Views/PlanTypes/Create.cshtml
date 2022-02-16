@@ -1,0 +1,167 @@
+﻿@using Lexvor.API.Objects
+@model Lexvor.Models.AdminViewModels.PlanTypeCreateVM
+@{
+	ViewData["Title"] = "Create";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<h2>Create Plan Type</h2>
+		<div class="row">
+			<div class="col-md-12">
+				<form asp-action="Create">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<div class="row">
+						<div class="col-md-8">
+							<div class="form-group">
+								<label asp-for="@Model.PlanType.Name" class="control-label"></label>
+								<input asp-for="@Model.PlanType.Name" class="form-control" />
+								<span asp-validation-for="@Model.PlanType.Name" class="text-danger"></span>
+								@Html.ValidationMessage("PLANNAMEERR", new { @class = "text-danger" })
+							</div>
+							<div class="form-group">
+								@Html.LabelFor(m => m.PlanType.ExternalId)
+								<select asp-for="PlanType.ExternalId" class="form-control">
+									<option selected="selected" value="">Select the Wireless plan for mapping to the Provider</option>
+									<option value="">Lexvor - Heart Ship 4G HD - iPhone CDMAless</option>
+									<option value="">Lexvor - BYOD 4G HD - iPhone CDMAless</option>
+									<option value="">Lexvor - Modern 4G HD - iPhone CDMAless</option>
+									<option value="">Lexvor - Tech 4G HD - iPhone CDMAless</option>
+									<option value="">Lexvor - Business 4G HD - iPhone CDMAless</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label asp-for="@Model.PlanType.PlanDetails" class="control-label"></label>
+								<textarea asp-for="@Model.PlanType.PlanDetails" class="editor form-control"></textarea>
+								<span asp-validation-for="@Model.PlanType.PlanDetails" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="@Model.PlanType.SortOrder" class="control-label"></label>
+								<input asp-for="@Model.PlanType.SortOrder" class="form-control" />
+								<span asp-validation-for="@Model.PlanType.SortOrder" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="@Model.PlanType.FirstThrottle" class="control-label"></label>
+								<input asp-for="@Model.PlanType.FirstThrottle" class="form-control" />
+								<span asp-validation-for="@Model.PlanType.FirstThrottle" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="@Model.PlanType.SecondThrottle" class="control-label"></label>
+								<input asp-for="@Model.PlanType.SecondThrottle" class="form-control" />
+								<span asp-validation-for="@Model.PlanType.SecondThrottle" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="@Model.PlanType.TermLength" class="control-label"></label>
+								<input asp-for="@Model.PlanType.TermLength" class="form-control" />
+								<span asp-validation-for="@Model.PlanType.TermLength" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.Archived" class="form-check-input" />
+								<label asp-for="@Model.PlanType.Archived" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.Archived" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.Archived" class="form-check-input" />
+								<label asp-for="@Model.PlanType.Archived" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.Archived" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.DisplayOnPublicPages" class="form-check-input" />
+								<label asp-for="@Model.PlanType.DisplayOnPublicPages" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.DisplayOnPublicPages" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.EnableDeviceOptions" class="form-check-input" />
+								<label asp-for="@Model.PlanType.EnableDeviceOptions" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.EnableDeviceOptions" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.EnableDeviceOrdering" class="form-check-input" />
+								<label asp-for="@Model.PlanType.EnableDeviceOrdering" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.EnableDeviceOrdering" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.ForceDeviceOrdering" class="form-check-input" />
+								<label asp-for="@Model.PlanType.ForceDeviceOrdering" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.ForceDeviceOrdering" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.AllowAccessoryPurchase" class="form-check-input" />
+								<label asp-for="@Model.PlanType.AllowAccessoryPurchase" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.AllowAccessoryPurchase" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.AllowAffirmPurchases" class="form-check-input" />
+								<label asp-for="@Model.PlanType.AllowAffirmPurchases" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.AllowAffirmPurchases" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="@Model.PlanType.AllowStripePurchases" class="form-check-input" />
+								<label asp-for="@Model.PlanType.AllowStripePurchases" class="form-check-label"></label>
+								<span asp-validation-for="@Model.PlanType.AllowStripePurchases" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								@Html.LabelFor(m => m.PlanType.Flag)
+								<select asp-for="PlanType.Flag" asp-items="Html.GetEnumSelectList<PlanTypeSpecialFlags>()" class="form-control">
+									<option selected="selected" value="">Is this a special plan type?</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<input type="submit" class="btn btn-primary btn-sm" value="Save" />
+								<a asp-action="Index">Back to List</a>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>
+											Device
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@if (Model.PlanTypeDeviceSel.Count > 0) {
+										for (var i = 0; i < Model.PlanTypeDeviceSel.Count(); i++) {
+											<tr>
+												<td>
+													<div class="form-check">
+														@Html.HiddenFor(x => Model.PlanTypeDeviceSel[i].DeviceId)
+														@Html.CheckBoxFor(x => Model.PlanTypeDeviceSel[i].DevSelect, new { @class = "form-check-input", @readonly = "readonly" })
+														<label class="form-check-label">@Model.PlanTypeDeviceSel[i].DeviceName</label>
+													</div>
+												</td>
+											</tr>
+										}
+									} else {
+										<tr><td>No Devices</td></tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</li>
+</ul>
+@section Scripts {
+	<link rel="stylesheet" href="~/libs/trumbowyg/trumbowyg.min.css" />
+	<script src="~/libs/trumbowyg/trumbowyg.min.js"></script>
+	<script>
+		$.trumbowyg.svgPath = '@Url.Content("~/libs/trumbowyg/ui/icons.svg")';
+		$(document).ready(function () {
+			$('.editor').trumbowyg({
+				btns: [
+					['strong', 'em', 'del', 'foreColor'],
+					['undo', 'redo', 'removeformat'],
+					['unorderedList', 'orderedList'],
+					['viewHTML']
+				],
+				autogrow: true,
+				resetCss: true,
+				removeformatPasted: true
+			});
+		});
+	</script>
+}

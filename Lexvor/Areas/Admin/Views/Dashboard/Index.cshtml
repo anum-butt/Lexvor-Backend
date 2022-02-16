@@ -1,0 +1,200 @@
+﻿@using Lexvor.API.Objects.Enums
+@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers
+@using Lexvor.Extensions
+@using Newtonsoft.Json
+@model Lexvor.Models.AdminViewModels.AdminDashboardViewModel
+@{
+	ViewData["Title"] = "Dashboard";
+	Layout = "_AdminLayout";
+}
+
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div class="card">
+			<div class="card-header">
+				<h5>Needs Attention</h5>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-12">
+						@if (Model.IdsPending > 0)
+						{
+							<a href="@Url.Action(nameof(UsersController.PendingIDs), UsersController.Name)" class="btn btn-warning">@(Model.IdsPending) Identities To Verify</a>
+							<br />
+						}
+						@if (Model.ActivationsPending > 0)
+						{
+							<a href="@Url.Action(nameof(UserPlansController.Activations), UserPlansController.Name)" class="btn btn-warning">@(Model.ActivationsPending) Plans To Activate</a>
+							<br />
+						}
+						@if (Model.TradeInsPending > 0)
+						{
+							<a href="@Url.Action(nameof(UserDevicesController.TradeIns), UserDevicesController.Name)" class="btn btn-warning">@(Model.TradeInsPending) Trade Ins To Eval</a>
+							<br />
+						}
+						@if (Model.MdnsPending > 0)
+						{
+							<a href="@Url.Action(nameof(UserPlansController.MdnsPending), UserPlansController.Name)" class="btn btn-warning">@(Model.MdnsPending) MDN's Pending</a>
+							<br />
+						}
+						@if (Model.PortsPending > 0)
+						{
+							<a href="@Url.Action(nameof(UserPlansController.PendingPorts), UserPlansController.Name)" class="btn btn-warning">@(Model.PortsPending) Ports Pending</a>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        
+
+		<div class="card">
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-6">
+						<h6>Cumlu. Users By Month</h6>
+						<div id="users-by-month" style="height: 260px;"></div>
+					</div>
+					<div class="col-md-6">
+						<h6>Cumlu. Monthly Recurring Revenue</h6>
+						<div id="mrr" style="height: 260px;"></div>
+					</div>
+				</div>
+				<div>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>New users in the last week (email confirm)</th>
+								<th>New users in the last month (email confirm)</th>
+								<th>Total Users</th>
+								<th>Total Plans</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									@Model.LastWeekUsers
+								</td>
+								<td>
+									@Model.LastMonthUsers
+								</td>
+								<td>
+									@Model.TotalUsers
+								</td>
+								<td>
+									@Model.TotalPlans
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<a href="@Url.Action(nameof(UserPlansController.RevenueVsCost), UserPlansController.Name)" class="btn btn-primary">View Active Plans Revenue vs Cost</a>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-header">
+				<h4>Settings</h4>
+			</div>
+			<div class="card-body">
+				<a class="btn btn-primary" href="@Url.Action(nameof(DashboardController.TaxRatingData), DashboardController.Name)">Tax Rating Data</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section scripts {
+	<script src="~/libs/amcharts/amcharts.js"></script>
+	<script src="~/libs/amcharts/serial.js"></script>
+	<script src="~/libs/amcharts/themes/light.js"></script>
+	<script>
+        var reportsPerWeek = @Html.Raw(JsonConvert.SerializeObject(Model.UsersByMonth.ToList()));
+        var mrr = @Html.Raw(JsonConvert.SerializeObject(Model.MonthlyRecurringRevenue.ToList()));
+
+        var rpw = AmCharts.makeChart("users-by-month", buildLineChart(reportsPerWeek, "<span style='font-size:14px;'>[[Value]]</span>"));
+        rpw.addListener("rendered", zoomChartrpw);
+        zoomChartrpw();
+
+        function zoomChartrpw() {
+            rpw.zoomToIndexes(rpw.dataProvider.length - 90, rpw.dataProvider.length - 1);
+        }
+		
+        var mrr = AmCharts.makeChart("mrr", buildLineChart(mrr, "<span style='font-size:14px;'>$[[Value]]</span>"));
+        mrr.addListener("rendered", zoomChartmrr);
+        zoomChartmrr();
+
+        function zoomChartmrr() {
+            mrr.zoomToIndexes(rpw.dataProvider.length - 90, rpw.dataProvider.length - 1);
+        }
+
+        function buildLineChart(dataset, balloonText) {
+            return {
+                "type": "serial",
+                "theme": "light",
+                "marginRight": 40,
+                "marginLeft": 40,
+                "marginTop": 50,
+                "marginBottom": 20,
+                "autoMarginOffset": 20,
+                "mouseWheelZoomEnabled": true,
+                "dataDateFormat": "YYYY-MM-DD",
+                "valueAxes": [
+                    {
+                        "id": "v1",
+                        "axisAlpha": 0,
+                        "position": "left",
+                        "ignoreAxisWidth": true
+                    }
+                ],
+                "balloon": {
+                    "borderThickness": 1,
+                    "shadowAlpha": 0,
+                    "horizontalPadding": 1,
+                    "verticalPadding": 1
+                },
+                "graphs": [
+                    {
+                        "id": "g1",
+                        "balloon": {
+                            "drop": true,
+                            "adjustBorderColor": false,
+                            "color": "#ffffff"
+                        },
+                        "bullet": "round",
+                        "bulletBorderAlpha": 1,
+                        "bulletColor": "#FFFFFF",
+                        "bulletSize": 3,
+                        "hideBulletsCount": 50,
+                        "lineThickness": 2,
+                        "title": "red line",
+                        "useLineColorForBulletBorder": true,
+                        "valueField": "Value",
+                        "balloonText": balloonText
+                    }
+                ],
+                "chartCursor": {
+                    "pan": true,
+                    "valueLineEnabled": true,
+                    "valueLineBalloonEnabled": true,
+                    "cursorAlpha": 1,
+                    "cursorColor": "#258cbb",
+                    "limitToGraph": "g1",
+                    "valueLineAlpha": 0.2,
+                    "valueZoomable": true
+                },
+                "categoryField": "Label",
+                "categoryAxis": {
+                    "parseDates": true,
+                    "dashLength": 1,
+                    "minorGridEnabled": true
+                },
+                "export": {
+                    "enabled": false
+                },
+                "dataProvider": dataset
+            }
+        }
+	</script>
+}

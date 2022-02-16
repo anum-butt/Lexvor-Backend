@@ -1,0 +1,25 @@
+﻿@using Lexvor.Controllers
+@model Lexvor.API.Objects.Profile
+<div class="card card-profile mb-4 hidden-sm-down">
+    <div class="card-header" style="background-image: url(https://lexvorassets.blob.core.windows.net/website-assets/background-image);"></div>
+    <div class="card-block text-center">
+        Need some help? Talk to <a href="@Url.Action(nameof(HomeController.Support), "Home")">Support</a>.
+        @*<a href="@Url.Action(nameof(BudgetController.Details), "Budget")">
+            @if (Model.Gender == "M") {
+                @:<img class="card-profile-img" src="@Url.Content("/images/male.png")">
+            } else if (Model.Gender == "F") {
+                @:<img class="card-profile-img" src="@Url.Content("/images/female.png")">
+            } else {
+                @:<img class="card-profile-img" src="@Url.Content("/images/gender-neutral.png")">
+            }
+        </a>
+        <h6 class="card-title">
+            <a class="text-inherit" href="@Url.Action(nameof(BudgetController.Details), "Budget")">@Model.FirstName @Model.LastName</a>
+        </h6>*@
+    </div>
+</div>
+@*<div class="card visible-md-block visible-lg-block mb-4">
+    <div class="card-block text-center" id="notifications-partial">
+        <h5>Refer your Friends for great perks!</h5>
+    </div>
+</div>*@

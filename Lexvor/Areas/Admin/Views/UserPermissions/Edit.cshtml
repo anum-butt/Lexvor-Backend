@@ -1,0 +1,67 @@
+﻿@model Lexvor.Models.AdminViewModels.UserEditViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "_AdminLayout";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h2>Edit</h2>
+
+            <h4>Profile</h4>
+            <hr />
+            <div class="row">
+                <div class="col-md-4" >
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <input type="hidden" asp-for="Profile.Id" class="form-control" />
+                            <input type="hidden" asp-for="Profile.AccountId" class="form-control" />
+                            <input type="hidden" asp-for="Profile.ExternalCustomerId" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Profile.FirstName" class="control-label"></label>
+                            <input asp-for="Profile.FirstName" class="form-control" />
+                            <span asp-validation-for="Profile.FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Profile.LastName" class="control-label"></label>
+                            <input asp-for="Profile.LastName" class="form-control" />
+                            <span asp-validation-for="Profile.LastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Profile.Phone" class="control-label"></label>
+                            <input asp-for="Profile.Phone" class="form-control" />
+                            <span asp-validation-for="Profile.Phone" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ImageUpload1" class="control-label"></label>
+                            <input type="file" id="ImageUpload1" name="ImageUpload1" class="form-control" />
+                            <span asp-validation-for="ImageUpload1" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ImageUpload2" class="control-label"></label>
+                            <input type="file" id="ImageUpload2" name="ImageUpload2" class="form-control" />
+                            <span asp-validation-for="ImageUpload2" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ImageUpload3" class="control-label"></label>
+                            <input type="file" id="ImageUpload3" name="ImageUpload3" class="form-control" />
+                            <span asp-validation-for="ImageUpload3" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Save" class="btn btn-default" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <a asp-action="Index">Back to List</a>
+            </div>
+
+        </div>
+    </li>
+</ul>

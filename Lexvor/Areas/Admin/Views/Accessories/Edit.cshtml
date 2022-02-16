@@ -1,0 +1,71 @@
+﻿@model Lexvor.API.Objects.PlanAccessory
+
+@{
+	ViewData["Title"] = "Edit Accessory";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<h2>Edit Accessory</h2>
+		<div class="row">
+			<div class="col-md-12">
+				<form asp-action="Edit" enctype="multipart/form-data">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<div class="row">
+						<div class="col-md-8">
+							<div class="form-group">
+								<label asp-for="Name" class="control-label"></label>
+								<input asp-for="Name" class="form-control" />
+								<span asp-validation-for="Name" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="Description" class=" control-label"></label>
+								<textarea asp-for="Description" class="editor form-control"></textarea>
+								<span asp-validation-for="Description" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="Price" class="control-label"></label>
+								<input asp-for="Price" class="form-control" />
+								<span asp-validation-for="Price" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="Options" class=" control-label"></label>
+								<input asp-for="Options" class="form-control" />
+								<span asp-validation-for="Options" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label asp-for="Grouping" class=" control-label"></label>
+								<textarea asp-for="Grouping" class="editor form-control"></textarea>
+								<span asp-validation-for="Grouping" class="text-danger"></span>
+							</div>
+							<div class="form-check">
+								<input asp-for="LifetimeWarranty" class="form-check-input" />
+								<label asp-for="LifetimeWarranty" class="form-check-label"></label>
+								<span asp-validation-for="LifetimeWarranty" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Image</label>
+								<input type="file" id="ImageUpload" name="ImageUpload" class="form-control" />
+								<span asp-validation-for="ImageUpload" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Life warranty price</label>
+								<input asp-for="LifetimeWarrantyPrice" class="form-control" />
+								<span asp-validation-for="LifetimeWarrantyPrice" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Current stiock level</label>
+								<input asp-for="CurrentStockLevel" class="form-control" />
+								<span asp-validation-for="CurrentStockLevel" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<input type="submit" value="Edit" class="btn btn-primary btn-sm" />
+								<a asp-action="Index">Back to List</a>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</li>
+</ul>

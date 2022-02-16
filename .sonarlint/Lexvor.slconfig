@@ -1,0 +1,15 @@
+{
+  "ServerUri": "https://sonarcloud.io/",
+  "Organization": {
+    "Key": "anum-butt",
+    "Name": "Anum Tariq Butt"
+  },
+  "ProjectKey": "anum-butt_Lexvor-Backend",
+  "ProjectName": "Lexvor-Backend",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AX8EBOSjpWdINCtLm3V4",
+      "ProfileTimestamp": "2021-11-22T10:44:23Z"
+    }
+  }
+}

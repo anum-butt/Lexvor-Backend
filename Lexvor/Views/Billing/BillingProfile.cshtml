@@ -1,0 +1,234 @@
+﻿@using Lexvor.API
+@model Lexvor.Models.HomeViewModels.BillingProfileViewModel
+
+@{
+	ViewData["Title"] = "Billing Address Information";
+	Layout = "_Layout";
+	ViewData["PageName"] = "Billing Information";
+	ViewData["PageSubtitle"] = "Please provide your Billing Address as it appears on your Bank Account. Do not use a P.O. Box or other forwarding address as this will delay your order processing.";
+}
+
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		@if (ViewData.ContainsKey("ReturnUrl")) {
+			<div class="row">
+				<div class="col-xl-12 col-md-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="progress-wrapper">
+								<div class="progress mb-2" style="height: 30px;">
+									<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"></div>
+									<div class="progress-bar bg-dark" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+									<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">Step 3 of 5</div>
+									<div class="progress-bar bg-dark" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+									<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2 text-center">Pick your Plan</div>
+								<div class="col-md-3 text-center">Choose device</div>
+								<div class="col-md-2 text-center">Complete Billing Info</div>
+								<div class="col-md-3 text-center">Authorize Payment</div>
+								<div class="col-md-2 text-center">Connect Bank</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+		<div class="row full-width">
+			<div class="col-md-12">
+				<div class="card card-fluid">
+					<div class="card-body">
+						<form role="form" asp-route-returnurl="@ViewData["ReturnUrl"]" class="form-horizontal" method="post">
+							<div asp-validation-summary="All" class="text-danger"></div>
+
+							<div class="form-group">
+								<div class="row">
+									<label asp-for="Profile.FirstName" class="control-label col-sm-3 offset-sm-1"></label>
+									<div class="col-sm-6">
+										<input asp-for="Profile.FirstName" class="form-control" />
+									</div>
+									<span asp-validation-for="Profile.FirstName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row">
+									<label asp-for="Profile.LastName" class="control-label col-sm-3 offset-sm-1"></label>
+									<div class="col-sm-6">
+										<input asp-for="Profile.LastName" class="form-control" />
+									</div>
+									<span asp-validation-for="Profile.LastName" class="text-danger"></span>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="row">
+									<label asp-for="Profile.Phone" class="control-label col-sm-3 offset-sm-1"></label>
+									<div class="col-sm-6">
+										<input asp-for="Profile.Phone" class="form-control" value="@StaticUtils.FormatPhone(Model.Profile.Phone)" />
+									</div>
+									<span asp-validation-for="Profile.Phone" class="text-danger"></span>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="row">
+									<label class="control-label col-sm-3 offset-sm-1">Enter Your Address</label>
+									<div class="col-sm-6">
+										<input class="form-control" id="autocomplete" type="text" />
+									</div>
+								</div>
+							</div>
+
+							<hr />
+							<div class="form-group">
+								<div class="row">
+									<label class="control-label col-sm-11 offset-sm-1">Please use the auto-fill above, unless you cannot find your address.</label>
+								</div>
+							</div>
+
+							<div id="address-components">
+								<div class="form-group">
+									<div class="row">
+										<label asp-for="Profile.BillingAddress.Line1" class="control-label col-sm-3 offset-sm-1"></label>
+										<div class="col-sm-6">
+											<input id="route" asp-for="Profile.BillingAddress.Line1" class="form-control" />
+										</div>
+										<span asp-validation-for="Profile.BillingAddress.Line1" class="text-danger"></span>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<label asp-for="Profile.BillingAddress.Line2" class="control-label col-sm-3 offset-sm-1"></label>
+										<div class="col-sm-6">
+											<input asp-for="Profile.BillingAddress.Line2" class="form-control" />
+										</div>
+										<span asp-validation-for="Profile.BillingAddress.Line2" class="text-danger"></span>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<label asp-for="Profile.BillingAddress.City" class="control-label col-sm-3 offset-sm-1"></label>
+										<div class="col-sm-6">
+											<input id="locality" asp-for="Profile.BillingAddress.City" class="form-control" />
+										</div>
+										<span asp-validation-for="Profile.BillingAddress.City" class="text-danger"></span>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<label asp-for="Profile.BillingAddress.Provence" class="control-label col-sm-3 offset-sm-1"></label>
+										<div class="col-sm-6">
+											<select id="administrative_area_level_1" asp-for="Profile.BillingAddress.Provence" asp-items="SelectLists.USStates" class="form-control">
+												<option value="">Select a State</option>
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="row">
+										<label asp-for="Profile.BillingAddress.PostalCode" class="control-label col-sm-3 offset-sm-1"></label>
+										<div class="col-sm-6">
+											<input id="postal_code" asp-for="Profile.BillingAddress.PostalCode" class="form-control" />
+										</div>
+										<span asp-validation-for="Profile.BillingAddress.PostalCode" class="text-danger"></span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group mb-5" align="center">
+								<button type="submit" class="btn btn-primary">Continue</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section scripts {
+	@await Html.PartialAsync("_ValidationScriptsPartial")
+	<script src="https://maps.googleapis.com/maps/api/js?key=@Model.GoogleMapsKey&libraries=places&callback=initAutocomplete" defer></script>
+	<script>
+		let autocomplete;
+		let placeSearch;
+
+		const componentForm = {
+			route: "long_name",
+			locality: "long_name",
+			administrative_area_level_1: "short_name",
+			postal_code: "short_name",
+		};
+
+		var addressForm = $("#address-components").filter(":input");
+
+		function initAutocomplete() {
+			// Create the autocomplete object, restricting the search predictions to
+			// geographical location types.
+			autocomplete = new google.maps.places.Autocomplete(
+				document.getElementById("autocomplete"),
+				{ types: ["address"] }
+			);
+			// Avoid paying for data that you don't need by restricting the set of
+			// place fields that are returned to just the address components.
+			autocomplete.setFields(["address_component"]);
+			// When the user selects an address from the drop-down, populate the
+			// address fields in the form.
+			autocomplete.addListener("place_changed", fillInAddress);
+		}
+
+		function fillInAddress() {
+			// Get the place details from the autocomplete object.
+			const place = autocomplete.getPlace();
+
+			for (const component in addressForm) {
+				component.value = "";
+			}
+
+			// Get each component of the address from the place details,
+			// and then fill-in the corresponding field on the form.
+			for (const component of place.address_components) {
+				const addressType = component.types[0];
+
+				if (componentForm[addressType]) {
+					if (addressType == "route") {
+						const val = place.address_components[0].long_name + " " + component[componentForm[addressType]];
+						document.getElementById(addressType).value = val;
+					} else {
+						const val = component[componentForm[addressType]];
+						document.getElementById(addressType).value = val;
+					}
+				}
+			}
+		}
+
+		// Bias the autocomplete object to the user's geographical location,
+		// as supplied by the browser's 'navigator.geolocation' object.
+		function geolocate() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition((position) => {
+					const geolocation = {
+						lat: position.coords.latitude,
+						lng: position.coords.longitude,
+					};
+					const circle = new google.maps.Circle({
+						center: geolocation,
+						radius: position.coords.accuracy,
+					});
+					autocomplete.setBounds(circle.getBounds());
+				});
+			}
+		}
+
+	</script>
+
+}

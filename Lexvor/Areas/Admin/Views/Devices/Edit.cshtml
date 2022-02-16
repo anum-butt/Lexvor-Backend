@@ -1,0 +1,327 @@
+﻿@using Newtonsoft.Json
+@model Lexvor.Models.AdminViewModels.DeviceEditVM
+
+@{
+	ViewData["Title"] = "Edit";
+}
+<form asp-action="Edit" enctype="multipart/form-data">
+	<ul class="list-group media-list media-list-stream mb-4">
+		<li class="media list-group-item p-4">
+			<h2>Edit Device</h2>
+			<div class="row">
+				<div class="col-md-4">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<input type="hidden" asp-for="@Model.Device.Id" />
+					<div class="form-group">
+						<label asp-for="@Model.Device.Name" class="control-label"></label>
+						<input asp-for="@Model.Device.Name" class="form-control" />
+						<span asp-validation-for="@Model.Device.Name" class="text-danger"></span>
+						@Html.ValidationMessage("DEVICENAMEERR", new { @class = "text-danger" })
+					</div>
+					@*<div class="form-group">
+			<label asp-for="PlanTypeId" class="control-label"></label>
+			<select asp-for="PlanTypeId" class="form-control"
+					asp-items="@(new SelectList(ViewBag.PlanTypes, "Id", "Name"))"></select>
+		</div>*@
+					<div class="form-group">
+						<label asp-for="@Model.Device.Description" class=" control-label"></label>
+						<textarea asp-for="@Model.Device.Description" class="editor form-control"></textarea>
+						<span asp-validation-for="@Model.Device.Description" class="text-danger"></span>
+					</div>
+					<div class="form-check">
+						<input asp-for="@Model.ShowDeviceOptions" class="form-check-input" checked="@Model.ShowDeviceOptions" />
+						<label asp-for="@Model.ShowDeviceOptions" class="form-check-label">Enable Device Options</label>
+					</div>
+					<div class="form-check">
+						<input asp-for="@Model.Device.Archived" class="form-check-input" />
+						<label asp-for="@Model.Device.Archived" class="form-check-label"></label>
+						<span asp-validation-for="@Model.Device.Archived" class="text-danger"></span>
+					</div>
+					<div class="form-check">
+						<input asp-for="@Model.Device.Available" class="form-check-input" />
+						<label asp-for="@Model.Device.Available" class="form-check-label"></label>
+						<span asp-validation-for="@Model.Device.Available" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="@Model.Device.SortOrder" class="control-label"></label>
+						<input asp-for="@Model.Device.SortOrder" class="form-control" />
+						<span asp-validation-for="@Model.Device.SortOrder" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="@Model.Device.Price" class="control-label"></label>
+						<input asp-for="@Model.Device.Price" class="form-control" />
+						<span asp-validation-for="@Model.Device.Price" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="@Model.Device.ImageUpload" class="control-label"></label>
+						<input type="file" asp-for="@Model.Device.ImageUpload" class="form-control" />
+						<span asp-validation-for="@Model.Device.ImageUpload" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<input type="submit" value="Save" class="btn btn-primary btn-sm" />
+						<a asp-action="Index">Back to List</a>
+					</div>
+
+				</div>
+				<div class="col-md-3">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>
+									Plan Type
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.DevicePlanTypeSel.Count > 0) {
+								for (var i = 0; i < Model.DevicePlanTypeSel.Count(); i++) {
+									<tr>
+										<td>
+											<div class="form-check">
+												@Html.HiddenFor(x => Model.DevicePlanTypeSel[i].PlanType.Id)
+												@Html.HiddenFor(x => Model.DevicePlanTypeSel[i].PlanTypeSelectPre)
+												@Html.CheckBoxFor(x => Model.DevicePlanTypeSel[i].PlanTypeSelect, new { @class = "form-check-input", @readonly = "readonly" })
+												<label class="form-check-label">@Model.DevicePlanTypeSel[i].PlanType.Name</label>
+											</div>
+										</td>
+									</tr>
+								}
+							} else {
+								<tr><td>No Plantype</td></tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div class="col-md-4 deviceOptions @(Model.DeviceOption.Count == 0 ? "d-none": "")">
+					<div class="row">
+
+						<div class="col-md-12">
+							<table class="table" id="tblDevOpt">
+								<thead>
+									<tr>
+										<th>
+											Device Group
+										</th>
+										<th>
+											Option Name
+										</th>
+										<th>
+											Surcharge
+										</th>
+										<th>
+											<a href='#' data-toggle="modal" data-target="#deviceOptionModal" onclick='addDeviceOption()'>
+												Add
+											</a>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@if (Model.DeviceOption.Count > 0) {
+										foreach (var deviceOption in Model.DeviceOption) {
+											<tr>
+												<td>
+													<span>@deviceOption.OptionGroup</span>
+												</td>
+												<td>
+													<span>@deviceOption.OptionValue</span>
+												</td>
+												<td>
+													<span>@deviceOption.Surcharge</span>
+												</td>
+												<td>
+													<a href="" onclick="editDeviceOption('@deviceOption.Id', '@deviceOption.OptionGroup','@deviceOption.OptionValue', '@deviceOption.Surcharge')">Edit</a> |
+													<a href="" onclick="deleteDeviceOption('@deviceOption.Id', '@deviceOption.OptionValue')">Delete</a>
+												</td>
+											</tr>
+										}
+									} else {
+										<tr><td>No Device Option</td></tr>
+									}
+								</tbody>
+							</table>
+							<table id="result"></table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</li>
+	</ul>
+	<div class="modal fade" id="deviceOptionModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<div class="row">
+						<div class="col-md-12">
+							Device Option
+						</div>
+					</div>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="deviceOptionId" />
+					<div class="form-group mb-3">
+						<div class="col-md-12">
+							<div class="form-group">
+								<input type="text" class="form-control" id="deviceOptionGroup" placeholder="Grouping (Size, Color, etc)">
+								<span id="deviceOptionGroupErrMsg" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control" id="deviceOptionValue" placeholder="Option">
+								<span id="deviceOptionValueErrMsg" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control" id="deviceOptionoptionValue" placeholder="optionValue">
+								<span id="deviceOptionoptionValueErrMsg" class="text-danger"></span>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info clickable" id="deviceOptionSave">Save</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="deviceOptionDeleteModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span id="deviceOptionDeleteValue"></span>
+				</div>
+				<div class="modal-body">
+					<div class="form-group mb-3">
+						<input type="hidden" id="deviceOptionDeleteId" />
+						<div class="row">
+							Are you sure you want to delete this option?
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-info clickable" id="deviceOptConfirmDelete">Yes</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+@section scripts {
+
+	<script type="text/javascript">
+		$(document).on("change",
+			"#ShowDeviceOptions",
+			function() {
+				if (this.checked) {
+					$(".deviceOptions").removeClass('d-none');
+				} else {
+					$(".deviceOptions").addClass('d-none');
+				}
+			});
+
+		function addDeviceOption() {
+			$("#deviceOptionId").val('0');
+			$("#deviceOptionGroup").val('');
+			$("#deviceOptionValue").val('');
+			$("#deviceOptionoptionValue").val('');
+		}
+
+		function editDeviceOption(id, group, value, optionValue) {
+			event.preventDefault();
+			$("#deviceOptionId").val(id);
+			$("#deviceOptionGroup").val(group);
+			$("#deviceOptionValue").val(value);
+			$("#deviceOptionoptionValue").val(optionValue);
+			$('#deviceOptionModal').modal('show');
+			$("#deviceOptionValueErrMsg").html('');
+			$("#deviceOptionValueValErrMsg").html('');
+		}
+
+		function deleteDeviceOption(id, value) {
+			event.preventDefault();
+			$("#deviceOptionDeleteId").val(id);
+			$("#deviceOptionDeleteValue").html('Device Option ' + value);
+			$('#deviceOptionDeleteModal').modal('show');
+			$("#deviceOptionValueErrMsg").html('');
+			$("#deviceOptionValueValErrMsg").html('');
+		}
+
+		$(document).on("click",
+			"#deviceOptionSave",
+			function() {
+				var deviceId = $("#Device_Id").val();
+				var optionId = $("#deviceOptionId").val();
+				var optionValue = $("#deviceOptionValue").val();
+				var optionGroup = $("#deviceOptionGroup").val();
+				var surcharge = $("#deviceOptionoptionValue").val();
+				var valid = true;
+				$("#deviceOptionValueErrMsg").html('');
+				$("#deviceOptionValueValErrMsg").html('');
+
+				if (optionValue == '') {
+					valid = false;
+					$("#deviceOptionValueErrMsg").html('Please Enter Option Group');
+				}
+
+				if (surcharge == '') {
+					valid = false;
+					$("#deviceOptionValueValErrMsg").html('Please Enter Option Value');
+				}
+
+				if (valid) {
+					var payload = { deviceId, optionId, optionValue, surcharge, optionGroup };
+					$.ajax({
+						type: "Post",
+						url: "/Admin/Devices/SaveDeviceOpt/",
+						data: payload,
+						dataType: "json",
+						success: function(response) {
+							buildDevOptTab(response);
+							$('#deviceOptionModal').modal('hide');
+						}
+					});
+				}
+
+			});
+
+		$(document).on("click",  "#deviceOptConfirmDelete",
+			function() {
+				var deviceId = $("#Device_Id").val();
+				var optionId = $("#deviceOptionDeleteId").val();
+				var urlP = "/Admin/Devices/DeleteDeviceOpt/";
+				var payload = { deviceId, optionId };
+
+				$.ajax({
+					type: "Delete",
+					url: urlP,
+					data: payload,
+					dataType: "json",
+					success: function(response) {
+						buildDevOptTab(response);
+						$('#deviceOptionDeleteModal').modal('hide');
+					}
+				});
+			});
+
+		function buildDevOptTab(response) {
+			$("#tblDevOpt tbody").html("");
+			var len = response.length;
+			for (var i = 0; i < len; i++) {
+				const optionId = response[i].id;
+				const optionGroup = response[i].optionGroup;
+				const optionValue = response[i].optionValue;
+				const surcharge = response[i].surcharge;
+				var tr_str = `<tr><td>${optionGroup}</td>` +
+					`<td>${optionValue}</td>` +
+					`<td>${surcharge}</td>` +
+					`<td><a href="" onclick="editDeviceOption('${optionId}', '${optionGroup}', ,'${optionValue}' '${surcharge}')">Edit</a> | ` +
+					`<a href="" onclick="deleteDeviceOption('${optionId}', '${optionValue}')">Delete</a></td>` +
+					'</tr>';
+
+				$("#tblDevOpt tbody").append(tr_str);
+			}
+		}
+	</script>
+
+
+
+}

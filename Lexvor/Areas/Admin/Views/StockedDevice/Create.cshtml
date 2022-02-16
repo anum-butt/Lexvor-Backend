@@ -1,0 +1,190 @@
+﻿@model Lexvor.Models.AdminViewModels.StockDeviceCreateViewModels
+@{
+	ViewData["Title"] = "Create";
+	Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<h2>Create Stock</h2>
+		<div class="row">
+			<div class="col-md-8">
+				@{
+					bool modeSingle = true;
+					bool modeBulk = false;
+					string clsSingle = "";
+					string clsBulk = "d-none";
+					if (Model.createMode == "Bulk")
+					{
+						modeSingle = false;
+						modeBulk = true;
+						clsSingle = "d-none";
+						clsBulk = "";
+					}
+				}
+				<div class="form-group">
+					<label class="radio-inline">
+						<input type="radio" name="selMode" value="1" checked=@modeSingle> Single Device
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="selMode" value="2" checked=@modeBulk> Bulk
+					</label><br>
+				</div>
+				<div class="dSingle @clsSingle">
+					<form asp-action="Create" enctype="multipart/form-data">
+						<div class="form-group">
+							<label asp-for="StockedDevice.DeviceId" class="control-label"></label>
+							<select asp-for="StockedDevice.DeviceId" class="form-control"
+									asp-items="@(new SelectList(Model.Device, "Id", "Name"))">
+								<option>--Select Device--</option>
+							</select>
+							<span asp-validation-for="StockedDevice.DeviceId" class="text-danger"></span>
+
+							@*<div class="col-4">
+									Devices
+								</div>
+								<div class="col-8">
+									@Html.DropDownListFor(m => m.deviceId, Model.DeviceList, "-Select a Device",
+								   new { @class = "form-control" })
+									<span asp-validation-for="deviceId" class="text-danger"></span>
+								</div>*@
+						</div>
+						<div class="form-group">
+							<label asp-for="StockedDevice.IMEI" class="control-label"></label>
+							<input asp-for="StockedDevice.IMEI" class="form-control" />
+							<span asp-validation-for="StockedDevice.IMEI" class="text-danger"></span>
+							@Html.ValidationMessage("IMEIError", new { @class = "text-danger" })
+						</div>
+						<div class="form-group">
+							<input type="submit" value="Create" class="btn btn-primary btn-sm" />
+							<a asp-action="Index">Back to List</a>
+						</div>
+					</form>
+				</div>
+				<div class="dBulk @clsBulk">
+					<form asp-action="createBulk" enctype="multipart/form-data">
+						<div class="form-group">
+							<label class="control-label">Select CSV</label>
+							<input type="file" id="upload" name="upload" class="form-control">
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<input type="submit" title="Upload" id="btnUp" value="Upload" class="btn btn-primary btn-sm" />
+								<a asp-action="Index">Back to List</a>
+								<span id="fileErr" class="text-danger">@Model.ErrorMessage</span>
+							</div>
+						</div>
+						<br />
+						<div class="row">
+							@if (Model.csvdevnamelist != null)
+							{
+								<div class="col-md-4">
+									@if (Model.csvdevnamelist.Count > 0)
+									{
+										<div class="row">
+											<h5 class="text-danger">Device not matched</h5>
+										</div>
+										<div class="row">
+											<table class="table">
+												<tbody>
+													@foreach (var it in Model.csvdevnamelist)
+													{
+														<tr>
+															<td>
+																@it.Name
+															</td>
+														</tr>
+													}
+												</tbody>
+											</table>
+										</div>
+									}
+								</div>
+								<div class="col-md-4">
+									@if (Model.csvdevimeilist.Count > 0)
+									{
+										<div class="row">
+											<h5 class="text-danger">IMEI already exists</h5>
+										</div>
+										<div class="row">
+											<table class="table">
+												<tbody>
+													@foreach (var it in Model.csvdevimeilist)
+													{
+														<tr>
+															<td>
+																@it.imei
+															</td>
+														</tr>
+													}
+												</tbody>
+											</table>
+										</div>
+									}
+								</div>
+								<div class="col-md-4">
+									@if (Model.csvduplicateimeilist.Count > 0)
+									{
+										<div class="row">
+											<h5 class="text-danger">Duplicate IMEI</h5>
+										</div>
+										<div class="row">
+											<table class="table">
+												<tbody>
+													@foreach (var it in Model.csvduplicateimeilist)
+													{
+														<tr>
+															<td>
+																@it
+															</td>
+														</tr>
+													}
+												</tbody>
+											</table>
+										</div>
+									}
+								</div>
+							}
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</li>
+</ul>
+@section scripts {
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('input[type=radio][name=selMode]').change(function () {
+				debugger;
+				if (this.value == "1") {
+					$(".dSingle").removeClass('d-none');
+					$(".dBulk").addClass('d-none');
+				}
+				else if (this.value == "2") {
+					$(".dSingle").addClass('d-none');
+					$(".dBulk").removeClass('d-none');
+				}
+			});
+		});</script>
+
+	<script type="text/javascript">
+		$("#btnUp").click(function () {
+			var fileExtension = ['csv'];
+			var val = 1;
+			if ($("#upload").val() == "") {
+				var val = 0;
+				$("#fileErr").text("No file exists");
+			}
+			else if ($.inArray($("#upload").val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+				$("#upload").val().value = "";
+				$("#fileErr").text("Only CSV file is supported");
+				var val = 0;
+				//alert("Only formats are allowed : " + fileExtension.join(', '));
+			}
+			if (val == 0) {
+				event.preventDefault();
+			}
+
+		});
+	</script>
+}

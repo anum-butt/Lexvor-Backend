@@ -1,0 +1,35 @@
+﻿@model Lexvor.Models.AdminViewModels.ChargePayAccountViewModel
+@{
+	ViewData["Title"] = "Charge User";
+	Layout = "_AdminLayout";
+	ViewData["PageName"] = "Charge User";
+}
+
+<div class="card">
+	<div class="card-body">
+		<form role="form" asp-action="ChargePayAccount" method="post">
+			<div class="form-group">
+				<label asp-for="@Model.ChargeAmount">Charge Amount</label>
+				<input asp-for="@Model.ChargeAmount" class="form-control">
+				<span asp-validation-for="@Model.ChargeAmount" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="@Model.ChargeDescription">Charge Description</label>
+				<input asp-for="@Model.ChargeDescription" class="form-control">
+				<span asp-validation-for="@Model.ChargeDescription" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<input type="hidden" asp-for="@Model.ProfileId" class="form-control">
+			</div>
+			<div class="form-group">
+				<input type="hidden" asp-for="@Model.PayAccountId" class="form-control">
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Charge User" class="btn btn-primary" />
+			</div>
+		</form>
+	</div>
+</div>
+
+
+

@@ -1,0 +1,204 @@
+﻿@using Lexvor.Controllers
+@using Lexvor.API
+@model Lexvor.Models.HomeViewModels.SupportViewModel
+
+@{
+	ViewData["Title"] = "Support";
+	Layout = "_Layout";
+	ViewData["PageName"] = "Need Support?";
+	ViewData["PageSubtitle"] = "We usually respond within 24 hours.";
+}
+
+<div class="row">
+	<div id="header-alerts"></div>
+	<div class="col-xl-8 col-md-8">
+		<div class="card">
+			<div class="card-header">
+				<h6 class="mb-0">Frequently Asked Questions</h6>
+			</div>
+			<div class="card-body">
+				<ul>
+					<li><a href="#byod">How do I bring my own device?</a></li>
+					<li><a href="#bank">How do I link my bank account?</a></li>
+					<li><a href="#port">How do I port my number?</a></li>
+					<li><a href="#plan">How do I Select a Plan with a Device?</a></li>
+					<li><a href="#setup">How do I Set Up my Lexvor Account?</a></li>
+					<li><a href="#billing">How do I change / update my billing information?</a></li>
+					<li><a href="#add">Can I add a new service line?</a></li>
+					<li><a href="#return">How do I return my device and cancel my subscription?</a></li>
+					<li><a href="#lost">My device has been lost, stolen, or damaged how do I submit my claim?</a></li>
+					<li><a href="#upgrade">How do I upgrade my device?</a></li>
+					<li><a href="#contact">How do I get in contact with someone about my account?</a></li>
+					<li><a href="#trade">How do I trade in my old device?</a></li>
+					<li><a href="#identity">How do I send my identity verification documents?</a></li>
+				</ul>
+
+				<a name="byod"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I bring my own device?</h4>
+						<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/wRz3vKQcqWs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				</div>
+
+				<a name="bank"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I link my bank account?</h4>
+						<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/PCVi7WzJbdM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				</div>
+
+				<a name="port"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I port my number?</h4>
+						<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/IBZAPSwWxRM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				</div>
+
+				<a name="plan"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I Select a Plan with a Device?</h4>
+						<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/_A5C0mUXbNo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				</div>
+
+				<a name="setup"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I Set Up my Lexvor Account?</h4>
+						<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/ysSX3BhEq0g" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				</div>
+
+				<a name="billing"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I change/update my billing information?</h4>
+						<p>From the Billing page (accessbile by clicking on your email address in the top right) you can update your billing details and shipping address.</p>
+						@*<p><a href="@Url.Action(nameof(ProfileController.Settings), "Profile")?t=ud637">Click here for a tour</a></p>*@
+					</div>
+				</div>
+
+				<a name="add"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>Can I add a new service line?</h4>
+						<p>You can add a new subscription by clicking the Add Device button at the bottom of your Dashboard, or the Add Line link at the top of the page.</p>
+						@*<p><a href="@Url.Action(nameof(HomeController.Index), "Home")?t=ad938">Click here for a tour</a></p>*@
+					</div>
+				</div>
+
+				<a name="return"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I return my device and cancel my subscription?</h4>
+						<p>On the Manage Devices page you can fill out the form to request a return kit. Accessible from the Dashboard.</p>
+						@*<p><a href="@Url.Action(nameof(HomeController.Index), "Home")?t=re743">Click here for a tour</a></p>*@
+					</div>
+				</div>
+
+				<a name="lost"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>My device has been lost, stolen, or damaged how do I submit my claim?</h4>
+						<p>You can fill out a loss claim on the Claims page while on the Manage Device screen. Accessible from the Dashboard.</p>
+						@*<p><a href="@Url.Action(nameof(ProfileController.LossClaim), "Profile")?t=st573">Click here for a tour</a></p>*@
+					</div>
+				</div>
+
+				<a name="upgrade"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I upgrade my device?</h4>
+						<p>Only Wireless+Device subscriptions have upgrades. You can view if you are eligible for an upgrade from the Manage Device page. You can also request an upgrade there.</p>
+						<p><a href="@Url.Action(nameof(PlanController.Index), "Plan")?t=up125">Click here for a tour</a></p>
+					</div>
+				</div>
+
+				<a name="contact"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I get in contact with someone about my account?</h4>
+						<p>Use the <a href="#contact-form">form below</a> or email <a href="mailto:customerservice@lexvor.com">customerservice@lexvor.com</a></p>
+					</div>
+				</div>
+
+				<a name="trade"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I trade in my old device?</h4>
+						<p>You can trade in an old device on the Trade In page at the top of the page.</p>
+						@*<p><a href="@Url.Action(nameof(DeviceIntakeController.Index), DeviceIntakeController.Name)?t=tr912">Click here for a tour</a></p>*@
+					</div>
+				</div>
+
+				<a name="identity"></a>
+				<div class="row full-width">
+					<div class="col-md-12">
+						<h4>How do I send my identity verification documents?</h4>
+						<p>If you have not uploaded documents before you may go to the Settings page (by clicking your email address in the upper right) and upload your documents.</p>
+						<p>If you have previously uploaded documents and have not received an email requesting more information, then you are done.</p>
+						<p>@*<a href="@Url.Action(nameof(ProfileController.Settings), ProfileController.Name)?t=id933">Click here for a tour</a>*@</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-xl-4 col-md-4">
+		<div class="card bg-gradient-dark">
+			<div class="card-header text-white ">
+				Contact Us
+				<a name="contact-form"></a>
+			</div>
+			<div class="card-body">
+				<form role="form" method="post" asp-action="Support">
+					<div asp-validation-summary="All" class="text-danger"></div>
+
+					<div class="form-group">
+						<label asp-for="Request.Message" class="form-control-label text-white opacity-8"></label>
+						<textarea asp-for="Request.Message" class="form-control"></textarea>
+					</div>
+
+					<div class="form-group">
+						<label asp-for="Request.PreferredMethodOfContact" class="form-control-label text-white opacity-8"></label>
+						<select asp-for="Request.PreferredMethodOfContact" class="form-control">
+							<option value="email">Email</option>
+							<option value="phone">Phone</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label asp-for="Request.PreferredTime" class="form-control-label text-white opacity-8"></label>
+						<select asp-for="Request.PreferredTime" class="form-control">
+							<option value="">-- Select a Time --</option>
+							<option value="morning">Morning</option>
+							<option value="late-morning">Late Morning</option>
+							<option value="afternoon">Afternoon</option>
+							<option value="evening">Evening</option>
+							<option value="night">Night</option>
+						</select>
+					</div>
+
+					<div class="mb-5">
+						<p>We will use @Model.User.Email or @StaticUtils.FormatPhone(Model.Profile.Phone) to contact you based on your chosen method of contact.</p>
+						<button type="submit" class="btn btn-secondary">Send</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+    $.ajax({
+        url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home")',
+        success: function(data) {
+            $('#header-alerts').html(data);
+        }
+    });
+	</script>
+}

@@ -1,0 +1,89 @@
+﻿@model IEnumerable<Lexvor.API.Objects.DiscountCode>
+
+@{
+    ViewData["Title"] = "Discount Codes";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <div>
+                <h5>Discount Codes</h5>
+                <p>
+                    <a href="@Url.Action("Create")">Create New</a>
+                </p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Code)
+                            </th>
+                            <th>
+                                One time use
+                            </th>
+                            <th>
+                                One time user per user
+                            </th>
+                            <th>
+                                Start Date
+                            </th>
+                            <th>
+                                End Date
+                            </th>
+                            <th>
+                                Final Initiation
+                            </th>
+                            <th>
+                                Final Monthly
+                            </th>
+                            <th>
+                                Plan Type
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Any()) {
+                        foreach (var item in Model) {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Code)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OneTimeUse)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OneTimeUsePerUser)
+                            </td>
+                            <td>
+                                @item.StartDate.ToString("d")
+                            </td>
+                            <td>
+                                @item.EndDate.ToString("d")
+                            </td>
+                            <td>
+                                $@Html.DisplayFor(modelItem => item.NewInitiationFee)
+                            </td>
+                            <td>
+                                $@Html.DisplayFor(modelItem => item.NewMonthlyCost)
+                            </td>
+                            <td>
+                                @item.PlanType.Name
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                        }
+                    }
+                    else {
+                        <tr><td colspan="4">No Discount Codes</td></tr>
+                    }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </li>
+</ul>

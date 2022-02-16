@@ -1,0 +1,55 @@
+﻿@using Lexvor.API.Objects.Enums
+@using Lexvor.API.Objects.User
+@using Lexvor.Controllers
+@using Lexvor.Models.HomeViewModels
+@model Lexvor.Models.HomeViewModels.SettingsViewModel
+@{
+	ViewData["Title"] = "Settings";
+	Layout = "_Layout";
+	ViewData["PageName"] = "Settings";	
+}
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		
+		@await Html.PartialAsync("ChangePasswordPartial", new ChangePasswordViewModel())
+	</div>
+</div>
+
+@await Html.PartialAsync("_ValidationScriptsPartial")
+
+@section Scripts {
+	<script src="https://cdn.ravenjs.com/3.26.4/raven.min.js" crossorigin="anonymous"></script>
+	<script>
+        Raven.config('https://cd01092bf68d4b3fbacd31954a976ea3@sentry.io/231489').install();
+        $.ajax({
+            url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home")',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+        });
+
+        var ud637 = {
+            id: "ud637",
+            steps: [
+                {
+                    title: "Update your Credit Card",
+                    content: "You can update your Credit Card on file using this form. Please note that if you update your credit card your identity documents will be invalidated and you will have to resubmit them.",
+                    target: "tour-ud637-1",
+                    placement: "bottom"
+                },
+                {
+                    title: "Update your Address",
+                    content: "You can update your Home and Office Address here. We ship to your home address by default, so please contact support if you want us to ship your device to your Office.",
+                    target: "tour-ud637-2",
+                    placement: "bottom"
+                }
+            ]
+        };
+
+        if (getParameterByName('t') == 'ud637') {
+            hopscotch.startTour(ud637);
+        }
+	</script>
+}

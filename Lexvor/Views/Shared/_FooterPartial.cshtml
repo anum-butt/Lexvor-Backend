@@ -1,0 +1,11 @@
+@using Lexvor.Controllers
+    <div class="card-block hidden-sm-down">
+        &copy; @DateTime.UtcNow.ToString("yyyy") Lexvor, Inc.
+        <ul class="nav-justified">
+            <li role="presentation"> <a href="https://lexvor.com/lease" type="link"> Lease Agreement</a> </li>
+            <li role="presentation"> <a href="https://lexvor.com/agreement" type="link"> User Agreement</a> </li>
+            <li role="presentation"> <a href="https://lexvor.com/privacy-policy" type="link"> Privacy Policy</a> </li>
+            <li role="presentation"> <a href="https://lexvor.com/commenting-policy" type="link"> Commenting Policy</a> </li>
+            <li role="presentation"> <a href="@Url.Action(nameof(HomeController.Support), "Home")" type="link"> Technical Support</a> </li>
+        </ul>
+    </div>

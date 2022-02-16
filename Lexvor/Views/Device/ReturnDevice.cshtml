@@ -1,0 +1,89 @@
+﻿@using Lexvor.Controllers
+@model Lexvor.API.Objects.UserPlan
+
+@{
+    ViewData["Title"] = "Return/Cancel";
+    Layout = "_Layout";
+    ViewData["PageName"] = "Service Cancellation";
+    ViewData["PageSubtitle"] = Model.IsWirelessOnly() ? "Service Cancellation" : "Device Return and Service Cancellation";
+}
+
+<div class="row">
+    <div class="col-xl-12 col-md-12">
+        <div id="header-alerts"></div>
+        <div class="row">
+            <div class="col-xl-12 col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <p>
+                            Cancelling your service will release your phone number. In other words, you will lose it. If you want to keep your number you must port it out to another provider.
+                            That process is managed by your new provider. We will automatically cancel your plan when a Port Out request is completed.
+                        </p>
+                        @if (!Model.IsWirelessOnly()) {
+                            <p>
+                                Returning your device is necessary before you can cancel your plan. Once you submit your request we will send you a box to return your phone in, along
+                                with a pre-paid shipping label. Just ship the phone back and we will process your cancellation.
+                            </p>
+                            <p><strong>You will continue to be billed for your plan if you port out your number, but fail to return your device.</strong></p>
+                            <p>
+                                If you wish to upgrade your device, please use the <a href="@Url.Action(nameof(DeviceController.AvailableDevices), DeviceController.Name, new {id = Model.Id})">Request Device</a> page instead of this page. As using this page will trigger a cancellation of your plan.
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <form role="form" method="post" class="form-horizontal full-width">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-12">
+                                    <h5 class="card-title mb-0">
+                                        @if (Model.IsWirelessOnly()) {
+                                            @Model.UserGivenName
+                                        } else {
+                                            @(!string.IsNullOrWhiteSpace(Model.MDN) ? Model.MDN : Model.DeviceId.HasValue ? $"{Model.Device?.Name}" : "No Device Selected")
+                                        }
+                                        @if (!Model.AgreementSigned && !Model.IsWirelessOnly()) {
+                                            <a href="@Url.Action(nameof(ProfileController.Agreement), ProfileController.Name, new { planId = Model.Id })" data-toggle="tooltip" title="Missing lease agreement"><i class="fas fa-exclamation-triangle text-danger"></i></a>
+                                        }
+                                    </h5>
+                                    <span class="text-muted text-sm">
+                                        @if (!Model.IsWirelessOnly()) {
+                                            @:Wireless & Device
+                                        } else {
+                                            @:Wireless
+                                        } - @(Model.DeviceId.HasValue ? $"{Model.Device?.Name}" : "No Device Selected")
+                                    </span>
+                                    @if (Model.Status != PlanStatus.Active) {
+                                        <span class="badge badge-success badge-pill">
+                                            @Model.Status.ToString()
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <figure class="figure">
+                                @if (!Model.IsWirelessOnly()) {
+                                    <img alt="@Model.Device.ImageUrl" src="https://lexvorassets.blob.core.windows.net/website-assets/@Model.Device.ImageUrl" class="img-center img-fluid max-h-10">
+                                } else {
+                                    <img class="img-center img-fluid max-h-10" src="~/old/images/phone-placeholder.png" alt="" />
+                                }
+                            </figure>
+                        </div>
+                        <div class="card-footer">
+                            <div class="row align-items-center">
+                                <button type="submit" class="btn btn-danger clickable">@(Model.IsWirelessOnly() ? "Cancel Service": "Confirm Return & Cancel Plan")</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

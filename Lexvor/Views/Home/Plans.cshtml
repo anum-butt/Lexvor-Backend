@@ -1,0 +1,51 @@
+﻿@using Lexvor.Controllers
+@model PlanPurchaseViewModel
+@{
+    ViewData["Title"] = "Purchase a Plan";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-offset-2 col-sm-8 half-width">
+    <div class="row">
+        <div class="col-md-9 ma-centered">
+            <p>Please select a plan below.</p>
+
+            <p>
+                <b>Trade in your old phone and have your initiation fee waived!</b> If you would like to trade-in your old phone, you may do so after choosing a plan.
+                Since trade-ins need to be evaluated on a case-by-case basis you will need to pay the initiation fee first, which will then be refunded once we receive your trade-in.
+            </p>
+
+            <div class="row">
+                <div class="col-sm-12" style="margin: 0 auto;">
+                    <div class="row">
+                        @foreach (var plan in Model.Plans) {
+                            <div class="col-sm-6 mb1">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <h4 class="text-warning">@plan.PlanName</h4>
+                                        <h6>$<span>@(plan.OriginalInitiationFee / 100)</span> Initiation fee then $<span>@(plan.OriginalMonthlyFee / 100)</span> per month</h6>
+
+                                        @Html.Raw(plan.PlanDetails)
+                                        
+                                        <form role="form" class="form-horizontal" method="post">
+                                            <input type="hidden" name="PlanTypeId" value="@plan.PlanTypeId" />
+                                            @if (Context.Request.Query.ContainsKey("f")) {
+                                                <select asp-for="@plan.GroupPlanCount">
+                                                    <option value="2">2 Devices</option>
+                                                    <option value="3">3 Devices</option>
+                                                    <option value="4">4 Devices</option>
+                                                    <option value="5">5 Devices</option>
+                                                </select>
+                                            }
+                                            <button class="btn btn-info clickable">Subscribe Now</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,83 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@model Lexvor.Models.AdminViewModels.TradeInViewModel
+@{
+    ViewData["Title"] = "Trade Ins Requested";
+    Layout = "_AdminLayout";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>Users that have requested a device upgrade</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Requested</th>
+                        <th>Make</th>
+                        <th>Model</th>
+                        <th>IMEI</th>
+                        <th>Front Image</th>
+                        <th>Back Image</th>
+                        <th>On Image</th>
+                        <th></th>
+                        <th>Mark Approved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Pending) {
+                        <tr>
+                            <td>@item.Profile.FullName</td>
+                            <td>@item.Requested.ToString("d")</td>
+                            <td>@item.Make</td>
+                            <td>@item.Model</td>
+                            <td>@item.IMEI</td>
+                            <td>@(!string.IsNullOrEmpty(item.FrontImageUrl) ? Html.Raw($"<a href='https://lexvorassets.blob.core.windows.net/website-assets/{item.FrontImageUrl}' target='_blank'>Front</a>") : null)</td>
+                            <td>@(!string.IsNullOrEmpty(item.BackImageUrl) ? Html.Raw($"<a href='https://lexvorassets.blob.core.windows.net/website-assets/{item.BackImageUrl}' target='_blank'>Back</a>") : null)</td>
+                            <td>@(!string.IsNullOrEmpty(item.OnImageUrl) ? Html.Raw($"<a href='https://lexvorassets.blob.core.windows.net/website-assets/{item.OnImageUrl}' target='_blank'>Device On</a>") : null)</td>
+                            <td><a href="@Url.Action(nameof(UsersController.UserDetails), "Users", new { id = item.Profile.Id})" class="badge">User Details</a></td>
+                            <td><a href="@Url.Action(nameof(UserDevicesController.ApproveTradeIn), new { id = item.Id})">Approve</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>
+
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <h4>Approved Tradeins</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Requested</th>
+                        <th>Make</th>
+                        <th>Model</th>
+                        <th>IMEI</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Complete) {
+                    <tr>
+                        <td>@item.Profile.FullName</td>
+                        <td>@item.Requested.ToString("d")</td>
+                        <td>@item.Make</td>
+                        <td>@item.Model</td>
+                        <td>@item.IMEI</td>
+                        <td><a href="@Url.Action(nameof(UsersController.UserDetails), "Users", new { id = item.Profile.Id})">Details</a></td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>
+@section scripts {
+    <script>
+
+    </script>
+}

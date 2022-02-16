@@ -1,0 +1,175 @@
+﻿@using Lexvor.Areas.Admin.Controllers
+@*@model List<Lexvor.API.Objects.UserPlan>*@
+@model Lexvor.Models.AdminViewModels.NewAssignVM
+@{
+	ViewData["Title"] = "NewAssign";
+	Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<form asp-action="NewAssignSave">
+
+			<div class="media-body">
+				<h5>@Model.AssignType - @Model.StockedDevice.Device.Name (@Model.StockedDevice.IMEI)</h5>
+				<br />
+				@if (Model.AssignType == "Re Assign")
+				{
+					<div class="row">
+						<div class="col-md-2">
+							<h6>Current Assign</h6>
+						</div>
+						<div class="col-md-10">
+							<div class="row">
+								<div class="col-md-4">Plan Type: @Model.CurrUserPlan.PlanType.Name</div>
+								<div class="col-md-4">Email: @Model.CurrUserPlan.Profile.Account.Email</div>
+								<div class="col-md-4">Date: @Model.CurrUserPlan.LastModified</div>
+							</div>
+							@*<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="col-md-4">Initiation:@Model.CurrUserPlan.Initiation </div>
+								<div class="col-md-4">Monthly:@Model.CurrUserPlan.Monthly</div>
+								<div class="col-md-4">Date:@Model.CurrUserPlan.LastModified</div>
+								<div class="col-md-4">Name:@Model.CurrUserPlan.Profile.FirstName</div>
+							</div>
+						</div>
+					</div>*@
+
+						</div>
+					</div>
+				}
+				<br />
+				<div class="col-sm-offset-2 col-sm-8">
+					@if (Model.UserPlan.Any())
+					{
+						int index = 1;
+						<table class="table">
+							<thead>
+								<tr>
+									<th>
+										Sl.No
+									</th>
+									<th>
+										Plan Type
+									</th>
+									<th>
+										Name
+									</th>
+									<th>
+										Email
+									</th>
+									<th>
+										Initiation Amount
+									</th>
+									<th>
+										Monthly
+									</th>
+									<th>
+										Date
+									</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var plan in Model.UserPlan)
+								{
+									<tr>
+										<td>
+											<span> @index </span>
+										</td>
+										<td>
+											<span>@plan.PlanType.Name</span>
+										</td>
+										<td>   <span>@plan.Profile.FirstName</span></td>
+										<td><span>@plan.Profile.Account.Email</span></td>
+										<td><span>@plan.Initiation</span></td>
+										<td> <span>@plan.Monthly</span></td>
+										<td><span>@plan.LastModified.ToShortDateString()</span></td>
+										<td>
+											@*<a href="@Url.Action(nameof(StockedDeviceController.NewAssignSave), "StockedDevice", new {id = plan.Id, StockDeviceId=Model.StockedDevice.Id,IMEI=Model.StockedDevice.IMEI})">Assign</a>*@
+											@*<button type="button" id="btnPop" class="btnAssP btn btn-primary btn-sm" data-toggle="modal" data-target="#modConfirm" data-todo='{"id" : "@plan.Id", "StockDeviceId" : "@Model.StockedDevice.Id","IMEI" : "@Model.StockedDevice.IMEI","Email":"@plan.Profile.Account.Email","AssignType":"@Model.AssignType" }'>
+										@Model.AssignType
+									</button>*@
+											<button type="button" id="btnPop" class="btnAssP btn btn-primary btn-sm" data-toggle="modal" data-target="#modConfirm" onclick="Psave({id : '@plan.Id', StockDeviceId : '@Model.StockedDevice.Id',IMEI : '@Model.StockedDevice.IMEI',Email:'@plan.Profile.Account.Email',AssignType:'@Model.AssignType' })">
+												@*<button type="button" id="btnPop" class="btnAssP btn btn-primary btn-sm" onclick="Psave({id : '@plan.Id' })">*@
+												@Model.AssignType
+											</button>
+										</td>
+									</tr>
+									index++;
+								}
+
+							</tbody>
+						</table>
+					}
+					else
+					{
+						<br />
+						<div>
+							<span class="text-lg">No User Found</span>
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="modal fade" id="modConfirm" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<span id="todoAssignType" />
+						</div>
+						<div class="modal-body">
+							<div class="form-group mb-3">
+								<input type="hidden" id="todoId" />
+								<input type="hidden" id="todoStockDeviceId" />
+								<div class="row">
+									<div class="input-group col-sm-10 ma-centered">
+										Are you sure to assign &nbsp;<span id="todoIMEI" />
+									</div>
+								</div>
+								<div class="row">
+									<div class="input-group col-sm-10 ma-centered">
+										for &nbsp;<span id="todoEmail" class="font-weight-bold" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							@*<a id="btnPSave" href="">Save</a>*@<a id="btnPSave" href=""></a>
+							<button type="button" class="btn btn-info rename clickable" id="btnPSave">Save</button>
+							@*<a href="@Url.Action(nameof(StockedDeviceController.NewAssignSave), "StockedDevice", new {id = PlanData.I, StockDeviceId=Model.StockedDevice.Id,IMEI=Model.StockedDevice.IMEI})">Assign</a>*@
+							@*<a href="@Url.Action(nameof(StockedDeviceController.NewAssignSave), " StockedDevice", new {id=PlanData.Id, StockDeviceId=Model.StockedDevice.Id,IMEI =Model.StockedDevice.IMEI})"></a>*@
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</li>
+</ul>
+@section scripts {
+	<script type="text/javascript">
+		//$(document).on("click", ".btnAssP", function () {
+		function Psave(data) {
+			$(".modal-body #todoId").val(data.id);
+			$(".modal-body #todoStockDeviceId").val(data.StockDeviceId);
+			$(".modal-body #todoIMEI").html(data.IMEI);
+			$(".modal-body #todoEmail").html(data.Email);
+			$(".modal-header #todoAssignType").html(data.AssignType);
+		}
+	</script>
+	<script type="text/javascript">
+		$(document).on("click", "#btnPSave", function () {
+			debugger;
+			var toId1 = $(".modal-body #todoId").val();
+			var toStockDeviceId1 = $(".modal-body #todoStockDeviceId").val();
+			var toIMEI1 = $(".modal-body #todoIMEI").html();
+			var toAssignType1 = $(".modal-header #todoAssignType").html();
+			window.location = '/Admin/StockedDevice/NewAssignSave/' + toId1 + '?StockDeviceId=' + toStockDeviceId1 + '&IMEI=' + toIMEI1 + '&AssignType=' + toAssignType1;
+
+		});</script>
+
+}

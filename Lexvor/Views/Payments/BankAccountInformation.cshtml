@@ -1,0 +1,163 @@
+﻿@using Lexvor.Controllers
+@using Lexvor.API.Objects.Enums
+@model Lexvor.Models.HomeViewModels.BankInformationViewModel
+@{
+	Layout = "_LayoutFull";
+	ViewData["PageName"] = "Bank Account Information";
+	ViewData["PageSubtitle"] = "Please complete your bank account details.";
+}
+<style>
+	#bankAccountMissing, #bankAccountSuccess {
+		display: none;
+	}
+</style>
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div class="card">
+			@*<div class="card-header">
+					<h2>Bank Account Information</h2>
+				</div>*@
+			<div class="card-body">
+				<p>Please complete your bank account information for billing purposes. Please note that you must use a checking account.</p>
+				<p>Your bank details are transmitted and stored encrypted and this website is equipped with SSL/HTTPS to protect your data.</p>
+				<form role="form" asp-route-returnurl="@ViewData["ReturnUrl"]" class="" method="post">
+					<div asp-validation-summary="All" class="text-danger"></div>
+
+					<div class="row">
+						<div class="col-md-3">
+							<div class="form-group">
+								<label asp-for="FirstNameOnAccount" class="form-control-label"></label>
+								<input asp-for="FirstNameOnAccount" placeholder="First Name" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="form-group">
+								<label asp-for="LastNameOnAccount" class="form-control-label"></label>
+								<input asp-for="LastNameOnAccount" placeholder="Last Name" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label asp-for="BankName" class="form-control-label"></label>
+								<input asp-for="BankName" class="form-control" placeholder="Bank Name" />
+							</div>
+						</div>
+					</div>
+
+					<hr />
+
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label asp-for="BankAccountNum" class="form-control-label"></label>
+								<input asp-for="BankAccountNum" placeholder="Account Number" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label asp-for="BankAccountRoutingNum" class="form-control-label"></label>
+								<input asp-for="BankAccountRoutingNum" class="form-control" placeholder="Routing Number" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label for="AccountType" class="form-control-label">Account Type</label>
+								<input name="AccountType" id="AccountType" class="form-control" placeholder="Account Type" disabled value="Checking" />
+							</div>
+						</div>
+					</div>
+
+					<hr />
+
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<p>Please connect your bank account for Verification</p>
+								<button type="button" id='linkButton' class='btn btn-primary clickable'>Link my Account</button>
+								<input type="hidden" asp-for="PublicToken" class="form-control" />
+								<input type="hidden" asp-for="PlaidAccountId" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-6" id="bankAccountMissing">
+							<div class="form-group">
+								<p>If your Bank Account is not listed, please click here</p>
+								<button name="bankAccountMissing" value="true" type="submit" class='btn btn-primary clickable'>My Bank Account is not listed</button>
+							</div>
+						</div>
+						<div class="col-md-6" id="bankAccountSuccess">
+							<div class="form-group">
+								<p>Complete my Purchase</p>
+								<p>WARNING: Only click this button once. You will be charged multiple times if you double click.</p>
+								<p id="errors" class="hidden text-danger"></p>
+								<button type="submit" class="btn btn-primary">Finish</button>
+							</div>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+		<div class="card-footer">
+			<a href="@Url.Action(nameof(PlanController.CancelPendingPlan), new {returnUrl = ViewData["ReturnUrl"]})">Cancel Pending Purchases</a>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script src="https://cdn.ravenjs.com/3.26.4/raven.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+	<script>
+		Raven.config('https://cd01092bf68d4b3fbacd31954a976ea3@sentry.io/231489').install();
+		var linkHandler = Plaid.create({
+			env: '@Model.PlaidEnv.ToLower()',
+			clientName: 'Lexvor',
+			key: '@Model.PlaidPublicKey',
+			product: ['auth', 'identity'],
+			selectAccount: true,
+			onSuccess: function(public_token, metadata) {
+				$('#PublicToken').val(public_token);
+				$('#PlaidAccountId').val(metadata.accounts[0].id);
+				$('#errors').addClass('hidden');
+
+				if (metadata.accounts[0].subtype != 'checking') {
+					$('#errors').removeClass();
+					$('#errors').html('You must connect a checking account');
+				} else {
+					$('#bankAccountSuccess').show();
+				}
+			},
+			onExit: function(err, metadata) {
+				// The user exited the Link flow.
+				if (err != null) {
+					// The user encountered a Plaid API error prior to exiting.
+					Raven.captureException(err);
+				}
+				$('#errors').removeClass('hidden');
+				$('#linkButton').removeAttr('disabled');
+				$('#linkButton').html('Link this Account');
+				$('#bankAccountMissing').show();
+			},
+		});
+
+		// Trigger the Link UI
+		document.getElementById('linkButton').onclick = function() {
+			$('#errors').addClass('hidden');
+			$('#linkButton').attr('disabled', 'disabled');
+			$('#linkButton').val('Linking Account...');
+			$('#bankAccountMissing').hide();
+			$('#bankAccountSuccess').hide();
+			linkHandler.open();
+		};
+
+		var account = $('#PlaidAccountId').val();
+		var token = $('#PublicToken').val();
+		$('#bankAccountMissing').hide();
+		// If profile is trusted, do not require plaid.
+		if ((account && token) || "@(Model.Profile.ProfileStatus == ProfileStatus.Trusted)" == "True") {
+			$('#bankAccountSuccess').show();
+			$('#linkButton').prop('disabled', 'disabled');
+		}
+	</script>
+}

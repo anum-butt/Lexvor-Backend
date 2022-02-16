@@ -1,0 +1,25 @@
+﻿@*@using Lexvor.Controllers
+@model WaitListDepositSuccessViewModel
+@{
+    ViewData["Title"] = "Wait List Deposit";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-12 quarter-width">
+    <div class="row">
+        <div class="col-md-6 ma-centered">
+            <h2>Upgrade Devices Faster and Save</h2>
+            <br />
+            <h6>Your deposit has been successful.</h6>
+            <p>You are number</p>
+            <h5>@Model.Rank</h5>
+            <p>in line for our next batch of devices.</p>
+            <br />
+            <p>You can always come back to this page to view the status of your request or contact support for a refund or if you have questions.</p>
+            <p>If you wish to initiate a refund please reference this transaction id when you call: <b>@Model.WaitListUser.TransactionId</b></p>
+            <br />
+            <p>(657) 335-0086</p>
+            <br />
+        </div>
+    </div>
+</div>*@

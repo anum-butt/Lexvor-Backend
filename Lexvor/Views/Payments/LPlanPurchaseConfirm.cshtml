@@ -1,0 +1,220 @@
+﻿@using Lexvor.Controllers
+@model PlanPurchaseConfirmViewModel
+@{
+    ViewData["Title"] = "Purchase a Plan";
+    Layout = "_LayoutFull";
+}
+
+<form role="form" method="post" class="form-horizontal">
+    <input type="hidden" asp-for="PlanTypeId">
+    <div class="col-xl-offset-2 col-xl-8 col-sm-12 half-width">
+        <p>Confirm your plan choice below.</p>
+
+        <div class="row">
+            <div class="col-sm-8 ma-centered">
+                <div class="row">
+                    <div class="col-sm-12 col-xl-9 ma-centered">
+                        <div class="card">
+                             <div class="card-block">
+                                  <h4 class="text-warning">
+                                       @Model.Plan.PlanName
+                                       @if (Model.GroupPlanCount > 1)
+                                       {
+                                            @Model.GroupPlanCount @:Devices
+                                       }
+                                  </h4>
+                                  <h6>
+                                       Initiation: $<span id="initiation">
+                                            @(Model.Promo != null ? Html.Raw($"<del>{Model.Plan.OriginalInitiationFee}</del>  <b>{Model.Promo.NewInitiationFee}</b>") : Html.Raw($"{Model.Plan.OriginalInitiationFee}"))
+                                       </span>
+                                  </h6>
+                                  <h6>
+                                       Monthly: $<span id="monthly">
+                                            @(Model.Promo != null ? Html.Raw($"<del>{Model.Plan.OriginalMonthlyFee}</del>  <b>{Model.Promo.NewMonthlyCost}</b>") : Html.Raw($"{Model.Plan.OriginalMonthlyFee}"))*
+                                       </span>
+                                  </h6>
+
+                                  @if (Model.CreditAmount > 0)
+                                  {
+                                       <p>Account Credits Applied: $@Model.CreditAmount</p>
+                                  }
+                                  @if (Model.Promo != null)
+                                  {
+                                       <p>Promotion Applied: @Model.Promo.Code</p>
+                                  }
+                                  <hr />
+                                  <p>
+                                       Total Cost Today: $<span id="total">@Model.SubTotal</span>
+                                  </p>
+
+                                  <hr />
+
+                                  <div class="form-group mb-3">
+                                       <div class="row">
+                                            <div class="input-group col-sm-10 ma-centered">
+                                                 <input type="text" class="form-control" asp-for="PromoCode" placeholder="Promo Code:" value="@Model.PromoCode">
+                                                 <span class="input-group-btn">
+                                                      <input type="submit" class="btn btn-default clickable" value="Apply" />
+                                                 </span>
+                                            </div>
+                                       </div>
+                                  </div>
+
+                                  <div id="stripeError" class="alert alert-warning hidden"></div>
+                                  <a class="btn btn-default" href="javascript:window.history.back();">Go Back</a>
+                                  <button class="btn btn-info clickable" id="purchase" data-initiation="@Model.SubTotal">Subscribe Now</button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col-sm-4" style="margin: 0 auto;">
+                <div>By purchasing a plan you are re-affirming your agreement to our <a href="https://lexvor.com/agreement" target="_blank">User</a> and <a href="https://lexvor.com/lease" target="_blank">Lease Agreements</a> that you agreed to when signing up.</div>
+                <div class="small" style="color: #a9a9a9;">
+                    * All our plans include a $5 per month advertising discount.
+                    <a href="#" data-toggle="popover" data-container="body" data-placement="top" data-trigger="focus" data-content="All our plans may or may not eventually support text-based advertisement. We will limit the ads to 1 or 2 relevent ads per month and you will be able opt-out anytime on our website when implemented. If you do not want the ads in the future. Click the 'Disable' link below.">Learn more.</a>
+                    <input type="hidden" asp-for="DisableAds" value="false"/>
+                    @if (Model.DisableAds) {
+                        <input type="submit" class="btn btn-link btn-xs clickable ads" value="Enable"/>
+                    }
+                    else {
+                        <input type="submit" class="btn btn-link btn-xs clickable ads" value="Disable" />
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="purchase-confirm-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Your Purchase</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    You have a card on file. Continuing with this purchase will charge the card on file. If you want to use a different card please change your billing details on the <a href="@Url.Action(nameof(ProfileController.Settings), "Profile")">Settings</a> page.
+                    <button class="btn btn-success" id="profile-purchase">Confirm Purchase</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+@section Scripts {
+    <script src="https://checkout.stripe.com/checkout.js"></script>
+    <script src="https://cdn.ravenjs.com/3.26.4/raven.min.js" crossorigin="anonymous"></script>
+    <script>
+        Raven.config('https://cd01092bf68d4b3fbacd31954a976ea3@sentry.io/231489').install();
+        var handler = StripeCheckout.configure({
+            key: '@Model.StripeKey',
+            image: '@Url.Content("/images/logo.png")',
+            locale: 'auto',
+            token: function(token) {
+                $.ajax({
+                    method: 'POST',
+                    url: '@Url.Action("Charge", "Payments")',
+                    data: { token, promo: '@Model.Promo?.Code', planTypeId: '@Model.PlanTypeId', disableAds: '@Model.DisableAds', count: '@Model.GroupPlanCount' },
+                    success: function (data) {
+                        if (data.error) {
+                            $('#stripeError').removeClass('hidden');
+                            $('#stripeError').html(data.message);
+                            $('#purchase').html('Subscribe Now');
+                            $('#purchase').removeAttr('disabled');
+                        } else {
+                            $('#purchase').html('Redirecting');
+                            $('#purchase').removeAttr('disabled');
+                            window.location = '@Url.Action(nameof(HomeController.Index), HomeController.Name)';
+                        }
+                    },
+                    failure: function(error) {
+                        Raven.captureException(error);
+                        $('#stripeError').removeClass('hidden');
+                        $('#stripeError').html(JSON.stringify(error));
+                        $('#purchase').html('Subscribe Now');
+                        $('#purchase').removeAttr('disabled');
+                    }
+                });
+            }
+        });
+
+        document.getElementById('profile-purchase').addEventListener('click', function() {
+            $.ajax({
+                method: 'POST',
+                url: '@Url.Action("Charge", "Payments")',
+                data: { token: 'cardonfile', promo: '@Model.Promo?.Code', planTypeId: '@Model.PlanTypeId', disableAds: '@Model.DisableAds', count: '@Model.GroupPlanCount' },
+                success: function (data) {
+                    if (data.error) {
+                        $('#stripeError').removeClass('hidden');
+                        $('#stripeError').html(data.message);
+                        $('#purchase').html('Subscribe Now');
+                        $('#purchase').removeAttr('disabled');
+                    } else {
+                        $('#purchase').html('Redirecting');
+                        $('#purchase').removeAttr('disabled');
+                        //window.location = 'Url.Action(nameof(HomeController.AddOns))?planId=' + data.planId;
+                    }
+                },
+                failure: function(error) {
+                    Raven.captureException(error);
+                    $('#stripeError').removeClass('hidden');
+                    $('#stripeError').html(JSON.stringify(error));
+                    $('#purchase').html('Subscribe Now');
+                    $('#purchase').removeAttr('disabled');
+                }
+            });
+        });
+
+        document.getElementById('purchase').addEventListener('click',
+            function (e) {
+                $('#purchase').html('Please wait...');
+                $('#purchase').attr('disabled', 'disabled');
+
+                if (@Model.CustomerHasSource.ToString().ToLower()) {
+                    $('#purchase-confirm-modal').modal('show');
+                } else {
+                    // Open Checkout with further options:
+                    handler.open({
+                        name: 'Lexvor Inc',
+                        description: '@Model.Plan.PlanName',
+                        zipCode: true,
+                        amount: @Model.SubTotal,
+                        billingAddress: true,
+                        panelLabel: "Subscribe now",
+                        allowRememberMe: true,
+                        email: '@Model.User.Email'
+                    });
+                    e.preventDefault();
+                }
+            });
+
+        // Close Checkout on page navigation:
+        window.addEventListener('popstate',
+            function () {
+                handler.close();
+            });
+
+        $(document).on("DOMNodeRemoved",".stripe_checkout_app", close);
+
+        function close(){
+            $('#purchase').html('Subscribe Now');
+            $('#purchase').removeAttr('disabled');
+        }
+
+        $('.ads').click(function () {
+            var adState = $('#DisableAds').val();
+            adState = adState == "true" ? "false" : "true";
+            $('#DisableAds').val(adState);
+            document.forms[0].submit();
+        });
+    </script>
+}

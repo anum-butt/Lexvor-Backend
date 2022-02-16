@@ -1,0 +1,101 @@
+﻿@model Lexvor.Models.AdminViewModels.DeviceCreateVM
+@{
+	ViewData["Title"] = "Create";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<h2>Create Device</h2>
+		<div class="row">
+			<div class="col-md-12">
+				<form asp-action="Create" enctype="multipart/form-data">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<div class="row">
+						<div class="col-md-8">
+							<div class="form-group">
+								<label asp-for="Device.Name" class="control-label"></label>
+								<input asp-for="Device.Name" class="form-control" />
+								<span asp-validation-for="Device.Name" class="text-danger"></span>
+								@Html.ValidationMessage("DEVICENAMEERR", new { @class = "text-danger" })
+							</div>
+							<div class="form-group">
+								<label asp-for="Device.Description" class=" control-label"></label>
+								<textarea asp-for="Device.Description" class="editor form-control"></textarea>
+								<span asp-validation-for="Device.Description" class="text-danger"></span>
+							</div>
+
+							<div class="form-check">
+								<input asp-for="@Model.Device.SortOrder" class="form-check-input" />
+								<label asp-for="@Model.Device.SortOrder" class="form-check-label"></label>
+								<span asp-validation-for="@Model.Device.SortOrder" class="text-danger"></span>
+							</div>
+
+							<div class="form-group">
+								<label asp-for="@Model.Device.Price" class="control-label"></label>
+								<input asp-for="@Model.Device.Price" class="form-control" />
+								<span asp-validation-for="@Model.Device.Price" class="text-danger"></span>
+								<span asp-validation-for="@Model.Device.Price" class="text-danger"></span>
+							</div>
+							@*<div class="form-group">
+			<label asp-for="Device.Archived" class="control-label"></label>
+			<input asp-for="Device.Archived" class="form-control" />
+			<span asp-validation-for="Device.Archived" class="text-danger"></span>
+		</div>
+		<div class="form-group">
+			<label asp-for="Device.Available" class="control-label"></label>
+			<input asp-for="Device.Available" class="form-control" />
+			<span asp-validation-for="Device.Available" class="text-danger"></span>
+		</div>
+		<div class="form-group">
+			<label asp-for="Device.DeviceType" class=" control-label"></label>
+			<input asp-for="Device.DeviceType" class="form-control" />
+			<span asp-validation-for="Device.DeviceType" class="text-danger"></span>
+		</div>*@
+							<div class="form-group">
+								<label asp-for="Device.ImageUpload" class="control-label"></label>
+								<input type="file" id="Device.ImageUpload" name="Device.ImageUpload" class="form-control" />
+								<span asp-validation-for="Device.ImageUpload" class="text-danger"></span>
+							</div>
+
+							<div class="form-group">
+								<input type="submit" value="Create" class="btn btn-primary btn-sm" />
+								<a asp-action="Index">Back to List</a>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>
+											Plan Type
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@if (Model.DevicePlanTypeSel.Count > 0)
+									{
+										for (var i = 0; i < Model.DevicePlanTypeSel.Count(); i++)
+										{
+											<tr>
+												<td>
+													<div class="form-check">
+														@Html.HiddenFor(x => Model.DevicePlanTypeSel[i].PlanType.Id)
+														@Html.CheckBoxFor(x => Model.DevicePlanTypeSel[i].PlanTypeSelect, new { @class = "form-check-input", @readonly = "readonly" })
+														<label class="form-check-label">@Model.DevicePlanTypeSel[i].PlanType.Name</label>
+													</div>
+												</td>
+											</tr>
+										}
+									}
+									else
+									{
+										<tr><td>No Plantype</td></tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</li>
+</ul>

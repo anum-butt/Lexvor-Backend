@@ -1,0 +1,701 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>aspnet-Lexvor-5610D2CE-AFB7-41C3-8692-CC5E91D903AE</UserSecretsId>
+    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <FileVersion>1.5.0.0</FileVersion>
+    <RazorCompileOnBuild>true</RazorCompileOnBuild>
+    <RazorCompileOnPublish>true</RazorCompileOnPublish>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <CodeAnalysisRuleSet>..\.sonarlint\anum-butt_lexvor-backendcsharp.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\.sonarlint\anum-butt_lexvor-backend\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Acklann.Plaid" Version="0.0.15-rc" />
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="Dapper.SimpleCRUD" Version="2.2.0.1" />
+    <PackageReference Include="iTextSharp" Version="5.5.13.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="3.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" PrivateAssets="All" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="NSwag.ApiDescription.Client" Version="13.2.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="RestSharp" Version="106.11.7" />
+    <PackageReference Include="Sentry.AspNetCore" Version="2.1.4" />
+    <PackageReference Include="SmartFormat.NET" Version="2.5.0" />
+    <PackageReference Include="Stripe.net" Version="35.5.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.7.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.7.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.7.0" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.7.0" />
+    <PackageReference Include="Twilio" Version="5.47.0" />
+    <PackageReference Include="Twilio.AspNet.Common" Version="5.33.1" />
+    <PackageReference Include="UAParser" Version="3.1.44" />
+    <PackageReference Include="ValueInjecter" Version="3.2.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+	<DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\img\icons\clothing\bag.svg" />
+    <None Include="wwwroot\img\icons\clothing\beanie.svg" />
+    <None Include="wwwroot\img\icons\clothing\blazer.svg" />
+    <None Include="wwwroot\img\icons\clothing\bra.svg" />
+    <None Include="wwwroot\img\icons\clothing\dress.svg" />
+    <None Include="wwwroot\img\icons\clothing\hat.svg" />
+    <None Include="wwwroot\img\icons\clothing\heel.svg" />
+    <None Include="wwwroot\img\icons\clothing\polo-shirt.svg" />
+    <None Include="wwwroot\img\icons\clothing\rain-coat.svg" />
+    <None Include="wwwroot\img\icons\clothing\shirt.svg" />
+    <None Include="wwwroot\img\icons\clothing\shoe.svg" />
+    <None Include="wwwroot\img\icons\clothing\skirt.svg" />
+    <None Include="wwwroot\img\icons\clothing\sneaker.svg" />
+    <None Include="wwwroot\img\icons\clothing\sock.svg" />
+    <None Include="wwwroot\img\icons\clothing\t-shirt-1.svg" />
+    <None Include="wwwroot\img\icons\clothing\t-shirt-2.svg" />
+    <None Include="wwwroot\img\icons\clothing\tank-top.svg" />
+    <None Include="wwwroot\img\icons\clothing\tie.svg" />
+    <None Include="wwwroot\img\icons\clothing\trousers.svg" />
+    <None Include="wwwroot\img\icons\clothing\underpants.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Add_to_cart.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Add_to_cart_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Airbuds.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Ai_Speaker.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Apple.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Apple_Watch.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Appreciation.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Apps.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\ATM.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\ATM_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Audio.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Ball.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Ballance.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Banana.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Bank.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Basketball.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Battery.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Benchpress.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Bike.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Blender.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Bluetooth.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Book.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Bottle_1.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Bottle_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Briefcase.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Buy.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Calculator.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Calculator_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Calendar.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Calendar_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Calendar_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Call_Canceled.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Call_In.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Call_Out.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Camera.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cart_Add.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cart_Added.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cart_Add_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cart_Delete.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cart_Pay.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cash.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cash_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cash_Withdraw.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\CD.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Certificate.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Charger.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Charts.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Charts_1.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Chat.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Checkout.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Click.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Closed.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cloud.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cloud_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Code.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Code_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Coffee.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cog_Wheel.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cog_Wheels.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Coins.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Coins_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Color_Picker.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Compose_Email.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Conference.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Contact.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Contacts.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Coupon.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Coupon_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Coupon_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Credit_Card.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Credit_Cards.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Crypto.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Crypto_Wallet.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Cup.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Currency.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Currency_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Currency_Up.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Database.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Delivery.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Delivery_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Delivery_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Delivery_3_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Deliver_by_Air.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Depreciation.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Desk.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Desktop.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Desktop_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Desktop_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Discount.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\DOC_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Dollar_Bills.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Donation.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Download.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Download_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Drawer.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Dress.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Drone.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Drone_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Dumbnell.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Earth.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Earth_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Edit_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Email.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Email_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Energy_Bar.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Enterprise.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Enterprise_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Exchange.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\File_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\File_Dock.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Filter.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Fire.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Fit.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Fit_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Fit_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Fit_4.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Fit_5.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Folder.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Folders.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Folder_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Game_Controller.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Gift.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Gift_Card.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Glove.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Gold.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Group.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Group_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Headphones.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Heart.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Help.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Help_1.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\ID.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Ideea.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\ID_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Image_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Inbox.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Influence.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Insert_coin.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Insurance.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Investment.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Journal.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Jumping_Rope.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Junk_Food.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Justice.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Kettlebell.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Key.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Keys.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Laptop.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Laptop_Store.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Like.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Like_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Like_UI.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Link.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Link_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Location.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Lock.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Log_Out.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Map.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Map_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Marketing.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Meat.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Medal.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Medal_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Microphone.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Milk.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mobile_Phone.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mobile_Phones.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mobile_Phone_in_had.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mobile_Store.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mobile_UI.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Money_Bag.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mony_Bag_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mouse.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Mouse_Cursor.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Navigation.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\News.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Nfc.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Notification.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Notification_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Old_School_Phone.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Online_Store.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Online_Store_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Open.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Open_24-7.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Open_24-7_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Open_gift.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Open_Safe.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Package.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Package_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Package_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Package_Opened.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Package_Received.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Package_sent.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Package_sent_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Pants.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Paper_Clip.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Partnership.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Pay_With_Card.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Pay_With_Card_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Pay_With_Cash.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\PDF_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Pen_tool.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Phone.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Phone_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Piggybank.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Pinch.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Podium.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\POS_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\POS_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\POS_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Presentation.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Presentation_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Printer.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Procesor.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Products_in_Basket.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Profile.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Protein.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Punching_Bag.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\QR_Code.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Receiving_Money.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Receiving_money_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Receiving_money_3.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Recipt.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Recipt_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Recipt_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Responsive.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Return_Policy.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Rings.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Router.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Running.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Safe.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Safe_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Sale.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Save.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Save_to_Cloud.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Scales.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Scale_1_.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\SD_Card.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Searcg_Currency.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Search_user.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Secure_Files.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Secure_Payments.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Sent_Email.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Servers.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Servers_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Settings.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Settings_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shaker.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Share.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shield.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shield_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shoe.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shoe_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shopping_Bag.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shopping_Basket.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shopping_Cart.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Shower.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Sleep.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Smartwatch.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Speaker.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Spinning_bike.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Stamp.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Stocks.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Stopwatch.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Store.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Strength.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Strength_2.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Support.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Support_Female.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Support_male.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Swimming.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Swipe.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Sync.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\T-shirt.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Tablet.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Tablet_Interaction.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Tap.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Target.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Task.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Tea.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Text_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\To_Do.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Trash.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Treadmill.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Type_Pin.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Upload.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\USB.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\USB_Stick.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\User_female.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\User_male.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Vegan.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Videochat.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Vitamins.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\VR.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Wallet.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Whistle.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Wi-fi.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\XLS_File.svg" />
+    <None Include="wwwroot\img\icons\essential\detailed\Yogamat.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\bg-1.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\bg-2.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\bg-3.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\bg-4.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\bg-circles-1.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\bg.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\light-texture.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\shapes\shape-1.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\shapes\shape-2.svg" />
+    <None Include="wwwroot\img\svg\backgrounds\shapes\shape-3.svg" />
+    <None Include="wwwroot\img\svg\illustrations\book-lover.svg" />
+    <None Include="wwwroot\img\svg\illustrations\design-thinking.svg" />
+    <None Include="wwwroot\img\svg\illustrations\financial-data.svg" />
+    <None Include="wwwroot\img\svg\illustrations\following.svg" />
+    <None Include="wwwroot\img\svg\illustrations\hello.svg" />
+    <None Include="wwwroot\img\svg\illustrations\in-sync.svg" />
+    <None Include="wwwroot\img\svg\illustrations\instruction-manual.svg" />
+    <None Include="wwwroot\img\svg\illustrations\monitor.svg" />
+    <None Include="wwwroot\img\svg\illustrations\note-list.svg" />
+    <None Include="wwwroot\img\svg\illustrations\online-shopping.svg" />
+    <None Include="wwwroot\img\svg\illustrations\page-not-found.svg" />
+    <None Include="wwwroot\img\svg\illustrations\server-down.svg" />
+    <None Include="wwwroot\img\svg\illustrations\static_assets.svg" />
+    <None Include="wwwroot\img\svg\illustrations\teaching.svg" />
+    <None Include="wwwroot\img\svg\illustrations\walk-in-the-city.svg" />
+    <None Include="wwwroot\img\svg\illustrations\work-chat.svg" />
+    <None Include="wwwroot\img\svg\shapes\clouds.svg" />
+    <None Include="wwwroot\img\svg\shapes\curve-1.svg" />
+    <None Include="wwwroot\img\svg\shapes\wave-1.svg" />
+    <None Include="wwwroot\img\svg\shapes\wave-2-primary.svg" />
+    <None Include="wwwroot\img\svg\shapes\wave-2-secondary.svg" />
+    <None Include="wwwroot\img\svg\shapes\wave-2.svg" />
+    <None Include="wwwroot\img\svg\shapes\wave-3.svg" />
+    <None Include="wwwroot\img\svg\shapes\wave-4.svg" />
+    <None Include="wwwroot\img\theme\light\devices-1.svg" />
+    <None Include="wwwroot\img\theme\light\macbook.svg" />
+    <None Include="wwwroot\libs\bootstrap\dist\js\bootstrap.bundle.min.js" />
+    <None Include="wwwroot\libs\bootstrap\dist\js\bootstrap.min.js" />
+    <None Include="wwwroot\libs\imagesloaded\assets\2D333F_0_0.woff2" />
+    <None Include="wwwroot\libs\imagesloaded\assets\2D333F_1_0.woff2" />
+    <None Include="wwwroot\libs\imagesloaded\assets\2D333F_2_0.woff2" />
+    <None Include="wwwroot\libs\imagesloaded\imagesloaded.js" />
+    <None Include="wwwroot\libs\imagesloaded\imagesloaded.pkgd.min.js" />
+    <None Include="wwwroot\libs\imagesloaded\sandbox\progress\progress.js" />
+    <None Include="wwwroot\libs\in-view\dist\in-view.min.js" />
+    <None Include="wwwroot\libs\jquery-mask-plugin\dist\jquery.mask.min.js" />
+    <None Include="wwwroot\libs\jquery-scroll-lock\dist\jquery-scrollLock.min.js" />
+    <None Include="wwwroot\libs\jquery.scrollbar\index.js" />
+    <None Include="wwwroot\libs\jquery.scrollbar\jquery.scrollbar.min.js" />
+    <None Include="wwwroot\libs\jquery.scrollbar\meteor\tests.js" />
+    <None Include="wwwroot\libs\jquery.scrollbar\package.js" />
+    <None Include="wwwroot\libs\jquery.scrollbar\sass\config.rb" />
+    <None Include="wwwroot\libs\jquery\dist\core.js" />
+    <None Include="wwwroot\libs\jquery\dist\jquery.min.js" />
+    <None Include="wwwroot\libs\jquery\dist\jquery.slim.min.js" />
+    <None Include="wwwroot\libs\sticky-kit\dist\sticky-kit.min.js" />
+    <None Include="wwwroot\libs\sticky-kit\dist\Tupfile" />
+    <None Include="wwwroot\libs\svg-injector\dist\svg-injector.map.js" />
+    <None Include="wwwroot\libs\svg-injector\dist\svg-injector.min.js" />
+    <None Include="wwwroot\sources\js\demo.js" />
+    <None Include="wwwroot\sources\js\purpose\charts\apexcharts\engagement.js" />
+    <None Include="wwwroot\sources\js\purpose\charts\apexcharts\line.js" />
+    <None Include="wwwroot\sources\js\purpose\charts\apexcharts\spark.js" />
+    <None Include="wwwroot\sources\js\purpose\charts\apexcharts\worked-hours.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\bg-img-holder.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\card.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\customizer.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\dropdown.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\forms.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\navbar.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\negative-margin.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\password.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\pricing.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\scroll-to.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\send-email.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\shape.js" />
+    <None Include="wwwroot\sources\js\purpose\custom\spotlight.js" />
+    <None Include="wwwroot\sources\js\purpose\init\popover.js" />
+    <None Include="wwwroot\sources\js\purpose\init\style.js" />
+    <None Include="wwwroot\sources\js\purpose\init\tooltip.js" />
+    <None Include="wwwroot\sources\js\purpose\layout.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\autosize.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\calendar.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\countdown.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\counter.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\datepicker.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\dragula.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\dropzone.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\fullcalendar.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\highlight.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\list.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\masonry.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\notify.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\nouislider.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\popover.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\progressbar.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\quill.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\scrollbar.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\select.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\sticky.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\svg-injector.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\swiper.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\tags.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\typed.js" />
+    <None Include="wwwroot\sources\js\purpose\libs\wavify.js" />
+    <None Include="wwwroot\sources\js\purpose\maps\google-maps-custom.js" />
+    <None Include="wwwroot\sources\js\purpose\maps\google-maps.js" />
+    <None Include="wwwroot\sources\scss\custom\_fonts.scss" />
+    <None Include="wwwroot\sources\scss\custom\_styles.scss" />
+    <None Include="wwwroot\sources\scss\custom\_variables.scss" />
+    <None Include="wwwroot\sources\scss\purpose.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\actions\_actions.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\alerts\_alert-dismissible.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\alerts\_alert-group.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\alerts\_alert-messages.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\alerts\_alert-notify.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\alerts\_alert.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\avatars\_avatar-connect.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\avatars\_avatar-group.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\avatars\_avatar-parent-child.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\avatars\_avatar.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\backgrounds\_background-shapes.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\badges\_badge-circle.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\badges\_badge-dot.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\badges\_badge-floating.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\badges\_badge.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\breadcrumbs\_breadcrumb.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\buttons\_button-animated.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\buttons\_button-app.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\buttons\_button-group.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\buttons\_button-icon.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\buttons\_button-labeled.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\buttons\_button-square.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\buttons\_button.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-accordion.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-browser.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-columns.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-comment.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-group.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-list.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-overlay.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-placeholder.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-pricing.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-product.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-profile.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-progress.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card-translucent.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\cards\_card.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\charts\_chart.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\clients\_client.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\closes\_close.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\collages\_collage.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\custom-forms\_custom-alphanumeric.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\custom-forms\_custom-checkbox.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\custom-forms\_custom-color.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\custom-forms\_custom-file.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\custom-forms\_custom-forms.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\custom-forms\_custom-radio.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\custom-forms\_custom-switch.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\dividers\_divider-fade.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\dividers\_divider-icon.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\dividers\_divider-vertical.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\dividers\_divider.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\dropdowns\_dropdown-extend.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\dropdowns\_dropdown-submenu.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\dropdowns\_dropdown.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\footers\_footer-rotate.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\footers\_footer.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\forms\_form-label.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\forms\_form-stacked.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\forms\_form.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\frames\_frame-laptop.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\grid\_container-kanban.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\headers\_header.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\icons\_icon-actions.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\icons\_icon-floating.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\icons\_icon-shape.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\icons\_icon.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\input-groups\_input-group-merge.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\input-groups\_input-group.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\layout\_application.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\layout\_content.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\layout\_docs.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\layout\_sidenav-toggler.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\list-groups\_list-group-emphasized.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\list-groups\_list-group.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\lists\_list.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\maps\_map.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\masks\_mask-body.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\masks\_mask-fade.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\masks\_mask.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\media-objects\_media-comment.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\media-objects\_media.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\modals\_modal-vertical.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\modals\_modal.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navbars\_navbar-dropdown.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navbars\_navbar-search.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navbars\_navbar-vertical.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navbars\_navbar.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navs\_nav-application.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navs\_nav-dots.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navs\_nav-pills.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navs\_nav-tabs.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\navs\_nav.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\omnisearches\_omnisearch.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\other\_customizer.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\paginations\_pagination-circle.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\paginations\_pagination.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\popovers\_popover.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\progresses\_progress-circle.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\progresses\_progress-label.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\progresses\_progress-tooltip.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\progresses\_progress.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\ratings\_rating.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\ribbons\_ribbon.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\sections\_section-floating-icons.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\sections\_section-half-rounded.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\sections\_section-process.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\sections\_section-rotate.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\sections\_section.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\sidebars\_sidebar-sticky.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\spotlights\_spotlight.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\tables\_table-cards.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\tables\_table-flush.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\tables\_table-sortable.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\tables\_table.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\timelines\_timeline.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\tongues\_tongue.scss" />
+    <None Include="wwwroot\sources\scss\purpose\components\type\_type.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_chartjs.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_countdown.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_counter.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_datepicker.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_dragula.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_dropzone.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_fancybox.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_fullcalendar.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_highlightjs.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_isotope.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_nouislider.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_quill.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_scrollbar.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_select.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_sweet-alert.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_swiper.scss" />
+    <None Include="wwwroot\sources\scss\purpose\libs\_tags.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_alert.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_background-variant.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_badge.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_buttons.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_caret.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_icon.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_link.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_modals.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_popover.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_ribbon.scss" />
+    <None Include="wwwroot\sources\scss\purpose\mixins\_tongue.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_animations.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_background.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_blurable.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_borders.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_delimiters.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_floating.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_helper.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_hover.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_image.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_opacity.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_position.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_separators.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_shadows.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_shape.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_sizing.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_spacing.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_text.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_transforms.scss" />
+    <None Include="wwwroot\sources\scss\purpose\utilities\_zindex.scss" />
+    <None Include="wwwroot\sources\scss\purpose\variables\_application.scss" />
+    <None Include="wwwroot\sources\scss\purpose\variables\_docs.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_bootstrap.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_components.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_functions.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_libs.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_mixins.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_reboot.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_root.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_utilities.scss" />
+    <None Include="wwwroot\sources\scss\purpose\_variables.scss" />
+    <None Include="wwwroot\sources\scss\skins\blue\_dark.scss" />
+    <None Include="wwwroot\sources\scss\skins\blue\_light.scss" />
+    <None Include="wwwroot\sources\scss\skins\default\_dark.scss" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChargeOver\src\ChargeOver.Wrapper\ChargeOver.Wrapper.csproj" />
+    <ProjectReference Include="..\USPS\MAX.USPS.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="wwwroot\libs\imagesloaded\test\" />
+    <Folder Include="wwwroot\sources\scss\purpose\components\collapse\" />
+    <Folder Include="wwwroot\sources\scss\purpose\components\slidebars\" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1Production_1json__JSONSchema="0+" /></VisualStudio></ProjectExtensions>
+
+</Project>

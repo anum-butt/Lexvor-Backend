@@ -1,0 +1,180 @@
+﻿@using Lexvor.API.Objects
+@model Lexvor.Models.AdminViewModels.PlanTypeLinePricing;
+@{
+	ViewData["Title"] = "Line Pricing for Plan Type";
+}
+
+<form asp-action="Edit" method="post">
+	<ul class="list-group media-list media-list-stream mb-4">
+		<li class="media list-group-item p-4">
+			<div class="row">
+				<div class="col-sm-8">
+					<div class="row">
+						<div class="col-md-10"><h5>Line Pricing for @Model.PlanType.Name</h5></div>
+						<div class="col-md-2">
+							<p>
+								<a href="@Url.Action("Edit",new { id=Model.PlanType.Id})" class="btn btn-primary btn-sm">Back</a>
+							</p>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+							<input type="hidden" asp-for="@Model.PlanType.Id" />
+							<div class="card">
+								<div class="card-body">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>
+													Lines
+												</th>
+												<th>
+													Initiation Cost
+												</th>
+												<th>
+													Monthly Fee
+												</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											@if (Model.LinePricing.Count > 0)
+											{
+												foreach (var line in Model.LinePricing)
+												{
+													<tr>
+														<td>
+															@Html.HiddenFor(x => line.Id)
+															<label>@line.RequiredNumOfLines</label>
+														</td>
+														<td>
+															<label>@line.InitiationFee</label>
+														</td>
+														<td>
+															<label>@line.MonthlyCost</label>
+														</td>
+														<td>
+															<a id="btnCreateLinePrice" href="" data-toggle="modal" data-target="#modLinePrice" onclick="LinePriceAdd('@line.Id ','@line.RequiredNumOfLines','@line.InitiationFee','@line.MonthlyCost','@Model.PlanType.Id')">
+																Edit
+															</a>
+														</td>
+													</tr>
+												}
+											}
+											else
+											{
+												<tr><td>No Line Pricing</td></tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal fade" id="modLinePrice" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<div class="row">
+								<div class="col-md-12">
+									<span id="todoLineNoTxt"></span>
+								</div>
+							</div>
+						</div>
+						<div class="modal-body">
+							<input type="hidden" id="todoLineId" />
+							<input type="hidden" id="todoLineNo" />
+							<input type="hidden" id="todoPlanTypeId" />
+							<div class="form-group mb-3">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label class="control-label">Initiation Fee</label>
+										<input type="text" class="form-control" id="txtInitialCost" placeholder="Initial Cost">
+										<span id="txtInitialCostErrMsg" class="text-danger"></span>
+									</div>
+									<div class="form-group">
+										<label class="control-label">Monthly Fee</label>
+										<input type="text" class="form-control" id="txtMonthlyCost" placeholder="Monthly Cost">
+										<span id="txtMonthlyCostErrMsg" class="text-danger"></span>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-info rename clickable" id="btnPSave">Save</button>
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+								<span id="txtSaveErrMsg" class="text-danger"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</li>
+	</ul>
+</form>
+
+@section scripts {
+	<script type="text/javascript">
+		function LinePriceAdd(id, lines, initcost, monthlycost, plantypeid) {
+			var linetxt = "Line pricing for <b>" + lines + " line(s)</b>";
+			event.preventDefault();
+			$("#todoLineId").val(id);
+			$("#todoLineNo").val(lines);
+			$("#todoPlanTypeId").val(plantypeid);
+
+			$("#todoLineNoTxt").html(linetxt);
+			$("#txtInitialCost").val(initcost);
+			$("#txtMonthlyCost").val(monthlycost);
+			$('#modLinePrice').modal('show');
+			$("#txtInitialCostErrMsg").html('');
+			$("#txtMonthlyCostErrMsg").html('');
+		}
+	</script>
+	<script type="text/javascript">
+		$(document).on("click", "#btnPSave", function () {
+			var LineId = $("#todoLineId").val();
+			var LineNo = $("#todoLineNo").val();
+			var PlanTypeId = $("#todoPlanTypeId").val();
+			var InitialCost = $("#txtInitialCost").val();
+			var MonthlyCost = $("#txtMonthlyCost").val();
+			var urlP = "/Admin/PlanTypes/LinePricingInsert/";
+			var valid = 1;
+			$("#txtInitialCostErrMsg").html('');
+			$("#txtMonthlyCostErrMsg").html('');
+			$("#txtSaveErrMsg").html('');
+
+
+			if (isNaN(InitialCost) == true) {
+				valid = 0;
+				$("#txtInitialCostErrMsg").html('Enter valid cost');
+			}
+
+			if (isNaN(MonthlyCost) == true) {
+				valid = 0;
+				$("#txtMonthlyCostErrMsg").html('Enter valid cost');
+			}
+
+			if (valid == 1) {
+				$("#btnPSave").hide();
+
+				var dataP;
+				dataP = { id: LineId, lineno: LineNo, initationcost: InitialCost, monthlycost: MonthlyCost, plantypeid: PlanTypeId };
+				$.ajax({
+					type: "Post",
+					url: urlP,
+					data: dataP,
+					dataType: "json",
+					success: function (response) {
+						window.location.reload();
+					},
+					error: function (jqXHR, exception) {
+						$("#txtSaveErrMsg").html(jqXHR.responseText);						
+					}
+				});
+			}
+
+		});
+	</script>
+}

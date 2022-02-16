@@ -1,0 +1,69 @@
+﻿@model Lexvor.Models.AdminViewModels.AssignDeviceViewModel
+@{
+    ViewData["Title"] = "Assign Device";
+    Layout = "_AdminLayout";
+}
+<div class="row">
+	<div class="col-sm-12">
+		<div class="card">
+			<div class="card-body">
+				<form asp-action="AssignDevice">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<div class="form-group">
+						<input type="hidden" asp-for="UserPlan.Id" class="form-control" />
+						<input type="hidden" asp-for="UserPlan.PlanTypeId" class="form-control" />
+					</div>
+					<div class="form-group">
+						<div class="custom-control custom-checkbox">
+							<input type="checkbox" class="custom-control-input" asp-for="BYOD">
+							<label class="custom-control-label" asp-for="BYOD"></label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label asp-for="DeviceId" class="control-label"></label>
+						<select asp-for="DeviceId" class="form-control"
+						        asp-items="@(new SelectList(ViewBag.Devices, "Id", "Name"))"></select>
+					</div>
+					<div class="form-group">
+						<label asp-for="Carrier" class="control-label"></label>
+						<input asp-for="Carrier" class="form-control" />
+						<span asp-validation-for="Carrier" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="Color" class="control-label"></label>
+						<input asp-for="Color" class="form-control" />
+						<span asp-validation-for="Color" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="IMEI" class="control-label"></label>
+						<input asp-for="IMEI" class="form-control" />
+						<span asp-validation-for="IMEI" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="Requested" class="control-label">Requested date (or date that the phone was given to the customer). This will affect upgrade date so make sure this is right.</label>
+						<input name="Requested" id="Requested" class="form-control datepicker" data-date-format="mm-dd-yyyy" />
+						<span asp-validation-for="Requested" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<input type="submit" value="Assign" class="btn btn-success clickable" />
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section scripts {
+	<script>
+		$('#BYOD').on('change',
+			function() {
+				var byod = $(this).is(':checked');
+				if (byod) {
+					$('#DeviceId').attr('disabled', true);
+				} else {
+					$('#DeviceId').removeAttr('disabled');
+				}
+			});
+	</script>
+}

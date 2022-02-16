@@ -1,0 +1,52 @@
+﻿@using Lexvor.Controllers;
+@model SignEversignDocumentModel
+@{
+	ViewData["Title"] = "Document sign page";
+	Layout = "_Layout";
+	ViewData["PageName"] = "Document sign page";
+	var redirectUrl = Url.Action(nameof(DeviceController.Administer), DeviceController.Name, new { id = Model.PlanId });
+}
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div class="card">
+			<div class="card-header">
+				<h5>Please sign the document</h5>
+			</div>
+			<div class="row">
+				<div class="col-xl-12 col-md-12" id="eversignContainer"></div>
+			</div>
+		</div>
+	</div>
+</div>
+@section scripts {
+	<script type="text/javascript" src="https://static.eversign.com/js/embedded-signing.js"></script>
+	<script>
+		eversign.open({
+			url: "@Model.EmbeddedSigningUrl",
+			containerID: "eversignContainer",
+			width: 900,
+			height: 600,
+			events: {
+				loaded: function () {
+				},
+				signed: function () {
+					$.ajax({
+						url: `@Url.Action(nameof(EversignController.SigningComplete), EversignController.Name, new { planId = Model.PlanId })`,
+						success: function (response) {
+							if (response.isSuccessfullySigned) {
+								window.location.href = "@redirectUrl";
+							}
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+				},
+				declined: function () {
+				},
+				error: function () {
+				}
+			}
+		});
+	</script>
+}

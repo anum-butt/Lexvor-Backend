@@ -1,0 +1,32 @@
+﻿@model ErrorViewModel
+@{
+	ViewData["Title"] = "Error";
+	Layout = "_LayoutFull";
+}
+
+<div class="col-sm-10 col-lg-6">
+	<div class="card">
+		<div class="card-body">
+			<div class="mb-5">
+				<div class="card">
+					<img src="@Url.Content("/img/logo-black.png")" class="card-img-top" alt="Lexvor">
+				</div>
+			</div>
+			<span class="clearfix"></span>
+			<div class="">
+				<h2 class="text-danger">An error occurred that we did not expect. We have been notified.</h2>
+
+				<div class="col-sm-offset-2 col-sm-8 half-width">
+					@if (!string.IsNullOrWhiteSpace(ViewBag.code)) {
+						<p class="text-danger">@ViewBag.code: @ViewBag.message</p>
+					}
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<a class="twitter-timeline" data-lang="en" data-height="400" data-dnt="true" href="https://twitter.com/Lexvor_Wireless?ref_src=twsrc%5Etfw"></a>
+			<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+		</div>
+	</div>
+</div>
+

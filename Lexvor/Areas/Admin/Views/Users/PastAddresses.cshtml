@@ -1,0 +1,83 @@
+﻿@model IEnumerable<Lexvor.API.Objects.User.Address>
+
+@{
+	ViewData["Title"] = "Past Addresses";
+}
+
+<style>
+	.form-control.input-sm {
+		width: auto;
+		padding: 0 5px;
+		margin: 0 10px;
+		height: 40px;
+	}
+
+	.dataTables_length, .dataTables_filter {
+		width: 25%;
+	}
+
+		.dataTables_length label {
+			float: left;
+		}
+
+		.dataTables_filter label {
+			float: right;
+		}
+
+	ul.pagination li {
+		padding: 2px 10px;
+		border: 1px solid #e0e6ed;
+		border-radius: 5px;
+		margin: 0 3px;
+	}
+</style>
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<div>
+				<div class="row">
+					<div class="col-md-10"><h5>Past Addresses</h5></div>
+				</div>
+				@if (Model.Any())
+				{
+					<table class="table" id="addresses-table">
+						<thead>
+							<tr>
+								<th>Line 1</th>
+								<th>Line 2</th>
+								<th>City</th>
+								<th>Provence</th>
+								<th>PostalCode</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.Any())
+							{
+								foreach (var item in Model)
+								{
+									<tr>
+										<td>@Html.DisplayFor(modelItem => item.Line1)</td>
+										<td>@Html.DisplayFor(modelItem => item.Line2)</td>
+										<td>@Html.DisplayFor(modelItem => item.City)</td>
+										<td>@Html.DisplayFor(modelItem => item.Provence)</td>
+										<td>@Html.DisplayFor(modelItem => item.PostalCode)</td>
+
+									</tr>
+								}
+							}
+
+						</tbody>
+					</table>
+				}
+				else
+				{
+					<p>No Addresses</p>
+				}
+			</div>
+		</div>
+	</li>
+</ul>
+
+@section scripts {
+}

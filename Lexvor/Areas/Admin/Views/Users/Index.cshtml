@@ -1,0 +1,237 @@
+﻿@using Lexvor.Controllers
+@using Lexvor.Models.AdminViewModels
+@model Lexvor.Models.AdminViewModels.UserListViewModel
+@{
+	ViewData["Title"] = "Index";
+	Layout = "_AdminLayout";
+}
+
+<style>
+	.form-control.input-sm {
+		width: auto;
+		padding: 0 5px;
+		margin: 0 10px;
+		height: 40px;
+	}
+
+	.dataTables_length, .dataTables_filter {
+		width: 50%;
+	}
+
+	.dataTables_length label {
+		float: left;
+	}
+
+	.dataTables_filter label {
+		float: right;
+	}
+
+	ul.pagination li {
+		padding: 2px 10px;
+		border: 1px solid #e0e6ed;
+		border-radius: 5px;
+		margin: 0 3px;
+	}
+</style>
+
+<ul class="list-group media-list media-list-stream mb-4">
+	<li class="media list-group-item p-4">
+		<div class="media-body">
+			<h4>Users</h4>
+			<table class="table" id="user-table">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Email</th>
+						<th>Joined</th>
+						<th>Id Verified</th>
+						<th>Email Conf.</th>
+						<th>Active Plans</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model.Users) {
+						<tr>
+							<td>@Html.ActionLink($"{item.FirstName} {item.LastName}", "UserDetails", new { id = item.Id })</td>
+							<td>@Html.ActionLink(item.Email, "UserDetails", new { id = item.Id })</td>
+							<td>@item.DateJoined.ToString("yyyy-MM-dd")</td>
+							<td>@item.IDVerifyStatus.ToString()</td>
+							<td>@item.EmailConfirmed</td>
+							<td>@(item.ActivePlanCount > 0)</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</li>
+</ul>
+@section scripts {
+	<script src="~/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script src="~/libs/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+	<script>
+		var mainTable;
+
+		//$('#user-table thead th').each(function () {
+		//	var title = $(this).text();
+		//	$(this).html('<input type="text" placeholder="Search ' + title + '" />');
+		//});
+
+		$('#user-table thead tr').clone(true).appendTo('#user-table thead');
+		$('#user-table thead tr:eq(1) th').each(function(i) {
+			var title = $(this).text();
+			if (i == 0 || i == 1 || i == 5) {
+				$(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+				$('input', this).on('keyup change',
+					function() {
+						if (mainTable.column(i).search() !== this.value) {
+							mainTable
+								.column(i)
+								.search(this.value)
+								.draw();
+						}
+					});
+			}
+		});
+
+		mainTable = $('#user-table').DataTable({
+			"dom": 'Blfrtp',
+			"info": false,
+			"searching": true,
+			"ordering": true,
+			"scrollX": true,
+			"order": [[0, "asc"]],
+			'orderCellsTop': true,
+			'fixedHeader': true
+		});
+
+		//mainTable.columns().every( function () {
+		//	var that = this;
+
+		//	$( 'input', this.footer() ).on( 'keyup change clear', function () {
+		//		if ( that.search() !== this.value ) {
+		//			that
+		//				.search( this.value )
+		//				.draw();
+		//		}
+		//	} );
+		//} );
+
+
+		//var table = new Tabulator("#user-table",
+		//	{
+		//		width: '100%',
+		//		layout: "fitColumns",
+		//		columns: [
+		//			{
+		//				title: "Name", field: "Name",
+		//				formatter: 'html',
+		//				headerFilter: "input"
+		//			},
+		//			{
+		//				title: "Email", field: "Email",
+		//				formatter: 'html',
+		//				headerFilter: "input"
+		//			},
+		//			{
+		//				title: "Date Joined",
+		//				field: "DateJoined",
+		//				sorter: "date",
+		//				sorterParams: {
+		//					format: "MM/DD/YYYY",
+		//					alignEmptyValues: "top",
+		//				},
+		//				headerFilter: "input"
+		//			},
+		//			{
+		//				title: "Identity Verified",
+		//				field: "IdentityVerified",
+		//				formatter: "tickCross", headerFilter: "tickCross",
+		//				headerFilterParams: { "tristate": true },
+		//				headerFilterEmptyCheck: function (value) { return value === null },
+		//				headerFilterFunc: csharpEquality
+		//			},
+		//			{
+		//				title: "Email Confirmed",
+		//				field: "EmailConfirmed",
+		//				formatter: "tickCross", headerFilter: "tickCross",
+		//				headerFilterParams: { "tristate": true },
+		//				headerFilterEmptyCheck: function (value) { return value === null },
+		//				headerFilterFunc: csharpEquality
+		//			},
+		//			{
+		//				title: "Referral User", field: "ReferralUser",
+		//				formatter: "tickCross", headerFilter: "tickCross",
+		//				headerFilterParams: { "tristate": true },
+		//				headerFilterEmptyCheck: function (value) { return value === null },
+		//				headerFilterFunc: csharpEquality
+		//			},
+		//		],
+		//	});
+
+		//function csharpEquality(headerValue, rowValue, rowData, filterParams) {
+		//	if (rowValue == "True") {
+		//		return headerValue == true;
+		//	} else {
+		//		return headerValue == false;
+		//	}
+		//}
+
+		$('.toggle').on('click',
+			function() {
+				var row = this;
+				$(row).parent().next().toggle();
+			});
+
+		$('.frontImage').on('click',
+			function() {
+				var e = this;
+				var img = $(e).parentsUntil('tr').last().find('img.front');
+				var blob = $(img).attr('src');
+				var url = '@Url.Action("RetreiveSensitiveBlobAsset", "Admin")?blobName=' + encodeURIComponent(blob);
+				$.ajax({
+					url,
+					method: 'GET',
+					success: function(data) {
+						$(img).attr('src', data.imageUrl);
+					}
+				});
+			});
+		$('.backImage').on('click',
+			function() {
+				var e = this;
+				var img = $(e).parentsUntil('tr').last().find('img.back');
+				var blob = $(img).attr('src');
+				var url = '@Url.Action("RetreiveSensitiveBlobAsset", "Admin")?blobName=' + encodeURIComponent(blob);
+				$.ajax({
+					url,
+					method: 'GET',
+					success: function(data) {
+						$(img).attr('src', data.imageUrl);
+					}
+				});
+			});
+
+		//$('.tabgroup > div').hide();
+		//// Get tab # if exists
+		//var urlPart = window.location.search;
+		//if (urlPart != '' && urlPart.indexOf('tab') != -1) {
+		//    tab = /tab=([A-Za-z]+)/g.exec(urlPart)[1];
+		//    $('.tabgroup > div#' + tab).show();
+		//} else {
+		//    $('.tabgroup > div:first-of-type').show();
+		//}
+		//$('.tabs a').click(function (e) {
+		//    e.preventDefault();
+		//    var $this = $(this),
+		//        tabgroup = '#' + $this.parents('.tabs').data('tabgroup'),
+		//        others = $this.closest('li').siblings().children('a'),
+		//        target = $this.attr('href');
+		//    others.removeClass('active');
+		//    $this.addClass('active');
+		//    $(tabgroup).children('div').hide();
+		//    $(target).show();
+
+		//});
+	</script>
+}

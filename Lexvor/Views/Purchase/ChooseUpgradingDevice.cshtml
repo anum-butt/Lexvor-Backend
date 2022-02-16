@@ -1,0 +1,496 @@
+﻿@using Lexvor.Controllers
+@using Newtonsoft.Json
+@model Lexvor.Models.ProfileViewModels.ChooseDeviceViewModel
+@{
+	ViewData["Title"] = "Choose your upgrade";
+	Layout = "_Layout";
+	ViewData["PageName"] = "Choose your upgrade";
+	ViewData["PageSubtitle"] = "Choose devices for your upgrades";
+}
+<div class="page-content" id="vue-app">
+	<div class="row">
+		<div class="col-xl-12 col-md-12">
+			<div class="card">
+				<div class="card-body">
+					<div class="progress-wrapper">
+						<div class="progress mb-2" style="height: 30px;">
+							<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 33%;">Step 1 of 3</div>
+							<div class="progress-bar bg-dark" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 33%"></div>
+							<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 34%"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-2 text-center">Pick your devices</div>
+						<div class="col-md-2 text-center">Complete Billing Info</div>
+						<div class="col-md-3 text-center">Approval with Affirm</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-body">
+					<h4>Available devices</h4>
+					<p>Your upgrade must be purchased using Affirm</p>
+					<ul class="nav nav-pills">
+						<li class="nav-item" v-for="line in numberOfLines">
+							<a class="nav-link btn btn-secondary ml-2" data-toggle="pill" v-bind:href="'#a-line' + line">For Line {{line}}</a>
+						</li>
+					</ul>
+					<div class="row">
+						<div class="col-md-8">
+							<div class="tab-content mt-3">
+								<div v-for="line in numberOfLines" v-bind:id="'a-line' + line" class="tab-pane fade">
+									<div class="row">
+										<div v-for="device in devices" class="col-md-6">
+											<div v-if="device.price > 0">
+												<div class="card clickable" v-on:click="setDevice(line, device.id)">
+													<div class="card-body">
+														<div>
+															<img v-bind:alt="device.name" v-bind:src="'https://lexvorassets.blob.core.windows.net/website-assets/' + device.imageUrl" class="max-h-10 d-block ma-centered">
+														</div>
+														<h6 class="card-title mb-3 text-center">{{device.name}} - ${{(device.price / 100)}}</h6>
+														<p class="affirm-as-low-as" data-page-type="cart" v-bind:data-amount="getDeviceTotal(line, device.price)"></p>
+														<div v-for="option in Object.keys(device.options)">
+															<span class="badge badge-primary ml-1">{{option}}</span>
+															<div v-for="opt in device.options[option]" class="inline">
+																<a v-on:click.stop.prevent="setDeviceOption(line, device.id, opt)"
+																   v-bind:class="[deviceOptionActive(line, opt) ? 'badge-primary' : 'badge-secondary']"
+																   class="badge ml-1">{{opt.optionValue}}<span v-if="opt.surcharge != 0"> (${{opt.surcharge / 100}})</span></a>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div>
+								<p v-for="(line, index) in lines"><span class="badge badge-secondary">Line {{index + 1}}</span> {{getDeviceName(line)}}</p>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<p class="text-muted text-xs">
+								Subject to credit check and approval. Down payment may be required. For purchases under $100, limited payment options are available. Affirm loans are made by Cross River Bank, a New Jersey State Chartered Commercial Bank, Member FDIC.
+							</p>
+						</div>
+					</div>
+					<button class="btn btn-secondary" v-show="!accessoriesEnabled" v-on:click="toggleField('doneDeviceSelection', true)">I'm Done Selecting Devices</button>
+					<button class="btn btn-primary" v-show="accessoriesEnabled" v-on:click="toggleField('doneDeviceSelection', true)">Select Accessories</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div v-show="accessoriesEnabled && showDeviceAccessories">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-body">
+						<h4>Please select which accessories you want for each of your lines.</h4>
+						<p class="text-muted">Some accessories have optional lifetime warranties.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div v-for="(plan, index) in PlanModels" class="@(Model.LinesNumbers == 1 ? "col-md-12" : Model.LinesNumbers == 2 ? "col-md-6" : Model.LinesNumbers == 3 ? "col-md-4" : Model.LinesNumbers == 4 ? "col-md-3" : "col-md-2")">
+				<div class="card">
+					<div class="card-body">
+						<h2 class="text-center">{{plan.UserPlan.UserGivenName}}</h2>
+						<h4 class="text-center">Line {{index + 1}} - {{selectedDevicesNames[index]}}</h4>
+						<hr />
+						<div v-for="group in plan.AccessoryGroups">
+							<div class="card">
+								<div class="card-header">
+									<h4>{{group.GroupName}}</h4>
+								</div>
+								<div class="card-body">
+									<table class="table">
+										<tr v-for="acc in group.Accessories">
+											@if (Model.LinesNumbers <= 2) {
+												<td v-if="acc.ImageUrl" class="clickable" v-on:click="show(acc.Id)">
+													<img v-bind:src="'https://lexvorassets.blob.core.windows.net/website-assets/' + acc.ImageUrl" style="max-height: 55px;" />
+												</td>
+											}
+											<td>
+												<div class="radio-selection-heading clickable" v-on:click="show(acc.Id)">{{acc.Name}} <span>(${{acc.Price / 100}})</span></div>
+												<div v-if="acc.LifetimeWarranty">Optional Lifetime Warranty <span class="span-help-text">(${{acc.LifetimeWarrantyPrice / 100}})</span></div>
+											</td>
+											<td>
+												<input type="checkbox" class="mt-2" v-on:change="updateTotals" v-model="acc.Selected" /><br />
+												<input type="checkbox" class="mt-2" v-on:change="updateTotals" v-model="acc.SelectedWarranty" v-if="acc.LifetimeWarranty" />
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-footer">
+						Total: ${{plan.Total}}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="alert alert-danger" v-show="hasAccessoriesError">
+					{{accessoriesError}}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row" v-show="showContinue">
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-body">
+					<h4>Are you ready to continue?</h4>
+				</div>
+				<div class="card-footer">
+					<button class="btn btn-success" v-on:click="submitDevices" v-bind:disabled="invalidState">{{continueText}}</button>
+					<p class="alert alert-danger" v-show="error">{{error}}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+
+	<environment include="Development">
+		<script src="~/js/vue.js" asp-append-version="true"></script>
+		<script src="~/js/vue-addons.js" asp-append-version="true"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="~/js/vue.min.js" asp-append-version="true"></script>
+		<script src="~/js/vue-addons.min.js" asp-append-version="true"></script>
+	</environment>
+
+	<script src="~/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+	<script>
+		function unpinSidenav($this) {
+			$('.sidenav-toggler').removeClass('active');
+			$('.sidenav-toggler').data('action', 'sidenav-pin');
+			$('body').removeClass('sidenav-pinned');
+			$('body').addClass('ready')
+			$('body').find('.sidenav-mask').remove();
+			var $sidenav = $($this.data('target'));
+			$sidenav.removeClass('show');
+			// Store the sidenav state in a cookie session
+			localStorage.setItem('sidenav-state', 'unpinned');
+		}
+
+		$(document).ready(function() {
+			unpinSidenav($('.sidenav-toggler'));
+		});
+
+		@*$.ajax({
+			url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home", new {hidePersistentMessages = true})',
+			success: function(data) {
+				$('#header-alerts').html(data);
+			}
+		});*@
+
+		var _affirm_config = {
+			public_api_key: '@Model.AffirmPublicKey',
+			script: "https://cdn1.affirm.com/js/v2/affirm.js",
+			session_id: "@Model.Profile.Id"
+		};
+		(function(l, g, m, e, a, f, b) {
+			var d, c = l[m] || {}, h = document.createElement(f), n = document.getElementsByTagName(f)[0], k = function(a, b, c) { return function() { a[b]._.push([c, arguments]) } };
+			c[e] = k(c, e, "set");
+			d = c[e];
+			c[a] = {};
+			c[a]._ = [];
+			d._ = [];
+			c[a][b] = k(c, a, b);
+			a = 0;
+			for (b = "set add save post open empty reset on off trigger ready setProduct".split(" "); a < b.length; a++) d[b[a]] = k(c, e, b[a]);
+			a = 0;
+			for (b = ["get", "token", "url", "items"]; a < b.length; a++) d[b[a]] = function() {};
+			h.async = !0;
+			h.src = g[f];
+			n.parentNode.insertBefore(h, n);
+			delete g[f];
+			d(g);
+			l[m] = c
+		})(window, _affirm_config, "affirm", "checkout", "ui", "script", "ready");
+
+		var app = new Vue({
+			el: '#vue-app',
+			data: Object.assign(@Html.Raw(JsonConvert.SerializeObject(Model)),
+				{
+					selectedPlanId: '',
+					selectedPlan: {},
+					numberOfLines: 0,
+					isBringingDevice: false,
+					// So we can hide the clicked style before the user has selected.
+					isBringingDeviceClicked: false,
+					isAffirm: false,
+					isAffirmConfirmed: false,
+					isAffirmClicked: false,
+					isPorting: false,
+					// So we can hide the clicked style before the user has selected.
+					isPortingClicked: false,
+					showPlans: true,
+					showByod: false,
+					showDevice: false,
+					showImei: false,
+					showPort: false,
+					showPhone: false,
+					showContinue: false,
+					devices: [],
+					lines: [],
+					imeis: [],
+					phoneNums: [],
+					error: null,
+					invalidState: false,
+					continueText: 'Continue',
+					imeierror: null,
+					enableID: false,
+					uploadError: null,
+					idUploaded: false,
+					invalidPhoneNumbers: [],
+					enableContinue: false,
+					availablePlans: [],
+					selectedOptions: [],
+					// Only display the modal once when a user clicks on options inside a device box
+					stockModalDisplay: [],
+					chooseFile: "Choose file",
+					planInitiation: null,
+					planMonthly: null,
+					hasAccessoriesError: false,
+					accessoriesError: "",
+					showDeviceAccessories: false,
+					accessoriesEnabled: false,
+					selectedDevicesNames: []
+				}),
+			created: function() {
+				this.setLines(this.LinesNumbers);
+				this.selectPlan(this.SelectedPlanType);
+			},
+			mounted: function() {
+			},
+			methods: {
+				toggleField(name, value) {
+					this[name] = value;
+
+					if (name == 'doneDeviceSelection') {
+						this.showContinue = true;
+						this.showDeviceAccessories = true;
+						this.enableContinue = true;
+						this.selectedDevicesNames = []
+
+						for (let i = 0; i < this.LinesNumbers; i++) {
+							this.selectedDevicesNames[i] = this.devices.filter(x => { return x.id == this.lines[i] })[0].name;
+						}
+					}
+					this.scrollBottom();
+				},
+				scrollBottom() {
+					// Scroll to bottom. Timeout to give vue time to render sections
+					setTimeout(function() {
+							$('html, body').animate({
+									scrollTop: $(document).height()
+								},
+								'slow');
+						},
+						100);
+				},
+				submitDevices: function() {
+					if (!this.lines.every(x => x != undefined)) {
+						this.error = 'You must select all your devices.';
+						return;
+					}
+					if (this.enableID && !this.idUploaded) {
+						this.error = 'You must upload your ID document.';
+						return;
+					}
+
+					var data = {
+						Accessories: this.PlanModels,
+						SelectedDeviceIds: this.lines,
+						MobileNumbers: this.phoneNums.map(x => { return x.phone; }),
+						SelectedPlanId: this.selectedPlanId,
+						NumberOfLines: this.numberOfLines,
+						IMEIs: this.imeis.map(x => { return x.imei; }),
+						BYOD: this.isBringingDevice,
+						Porting: this.isPorting,
+						SelectedOptions: this.selectedOptions,
+						IsAffirmConfirmed: this.isAffirmConfirmed
+					};
+
+					this.continueText = "Please Wait";
+					var url = buildUrl('/Plan/choosedevices');
+					axios.post(url, data).then(response => {
+						if (response.data.success) {
+							window.location.href = response.data.redirectUrl;
+						} else {
+							this.error = response.data.error;
+						}
+						this.continueText = "Continue";
+					}).catch(error => {
+						console.log(error);
+						this.continueText = "Continue";
+					});
+
+					// TODO: not working
+					setTimeout(() => { this.error = null; }, 5000);
+				},
+				setLines: function(num) {
+					this.numberOfLines = num;
+					this.lines = new Array(num);
+					this.stockModalDisplay = Array.apply(null, new Array(num)).map(x => false);
+
+					this.imeis = [];
+					// To prevent value-by-reference types
+					for (var i = 0; i < num; i++) {
+						this.imeis.push({ imei: '', valid: false });
+					}
+					this.phoneNums = [];
+					// To prevent value-by-reference types
+					for (var i = 0; i < num; i++) {
+						this.phoneNums.push({ phone: '' });
+					}
+				},
+				setDevice: function(line, deviceId) {
+					if (!this.stockModalDisplay[line - 1]) {
+						// Disable stock check because we don't want it anymore
+						//var url = buildUrl('/Plan/IsDeviceInStock?deviceId=' + deviceId);
+						//axios.get(url).then(response => {
+						//	if (response.data == false) {
+						//		$("#modalButton").click();
+						//	}
+						//}).catch(error => {
+						//	console.log(error);
+						//});
+					}
+					// Minus 1 to get 0 based index
+					Vue.set(this.lines, line - 1, deviceId);
+					Vue.set(this.stockModalDisplay, line - 1, true);
+				},
+				deviceOptionActive: function(line, option) {
+					// Display option styling if active for this line.
+					var current = this.selectedOptions[line - 1];
+					// If there is no current, then there are no options set at all.
+					if (current == undefined) return false;
+					var optionExists = current.options.filter(x => { return x.id == option.id });
+					// If there are 0 then this option is not in the currently selected options
+					return optionExists.length > 0;
+				},
+				setDeviceOption: function(line, deviceId, option) {
+					this.setDevice(line, deviceId);
+					// Set the option
+					var current = this.selectedOptions[line - 1];
+					// Does the option array already have this value, if not add it
+					// If an option is added from a grouping that already exists on this line, we replace it. Otherwise, add.
+					if (current == undefined) {
+						Vue.set(this.selectedOptions,
+							line - 1,
+							{
+								deviceId,
+								options: [option]
+							});
+					} else {
+						var existingOptionInGroup = current.options.filter(x => { return x.optionGroup == option.optionGroup });
+						if (existingOptionInGroup.length == 1) {
+							// Existing group option, remove it to do the replace
+							current.options = current.options.filter(x => { return x.id !== existingOptionInGroup[0].id });
+						} else if (existingOptionInGroup.length > 1) {
+							console.log('Something really bad happened. You somehow selected more than one option in a group. Wonderous!');
+						}
+						current.options.push(option);
+						Vue.set(this.selectedOptions, line - 1, current);
+					}
+					setTimeout(() => {
+						affirm.ui.refresh();
+					}, 300);
+				},
+				getDeviceTotal: function(line, devicePrice) {
+					var current = this.selectedOptions[line - 1];
+					if (current && current.options.length > 0) {
+						var surcharges = current.options.map(option => { return option.surcharge; });
+						return devicePrice + surcharges.reduce((a, b) => { return a + b; });
+					}
+					return devicePrice;
+				},
+				getDeviceName: function(deviceId) {
+					if (deviceId == undefined) {
+						return "";
+					}
+					return this.devices.filter(x => { return x.id == deviceId })[0]?.name ?? "";
+				},
+				getPlanInitiation(plan, numOfLines) {
+					var pricing = {};
+					if (numOfLines == 1) {
+						pricing = plan.LinePricing1;
+					} else if (numOfLines == 2) {
+						pricing = plan.LinePricing2;
+					} else if (numOfLines == 3) {
+						pricing = plan.LinePricing3;
+					} else if (numOfLines == 4) {
+						pricing = plan.LinePricing4;
+					}
+
+					return pricing.InitiationFee;
+				},
+				getPlanMonthly(plan, numOfLines) {
+					var pricing = {};
+					if (numOfLines == 1) {
+						pricing = plan.LinePricing1;
+					} else if (numOfLines == 2) {
+						pricing = plan.LinePricing2;
+					} else if (numOfLines == 3) {
+						pricing = plan.LinePricing3;
+					} else if (numOfLines == 4) {
+						pricing = plan.LinePricing4;
+					}
+
+					if (pricing == undefined) return 0;
+
+					return pricing.MonthlyCost;
+				},
+				getDevices: function() {
+					var url = buildUrl('/Plan/GetDevices/' + this.selectedPlanId);
+					axios.get(url).then(response => {
+						this.devices = response.data;
+						//Group options by grouping
+						for (var i = 0; i < this.devices.length; i++) {
+							this.devices[i].options = groupBy(this.devices[i].options, (c) => c.optionGroup);
+						}
+					});
+				},
+				updateTotals: function() {
+					for (var i = 0; i < this.PlanModels.length; i++) {
+						var model = this.PlanModels[i];
+						var total = 0;
+						for (var j = 0; j < model.AccessoryGroups.length; j++) {
+							var group = model.AccessoryGroups[j];
+							var selected = group.Accessories.filter(g => { return g.Selected; });
+							for (var k = 0; k < selected.length; k++) {
+								total += selected[k].Price * 1;
+								if (selected[k].SelectedWarranty) {
+									total += selected[k].LifetimeWarrantyPrice * 1;
+								}
+							}
+						}
+						model.Total = total / 100;
+					}
+				},
+			}
+		});
+
+		function groupBy(xs, f) {
+			return xs.reduce((r, v, i, a, k = f(v)) => ((r[k] || (r[k] = [])).push(v), r), {});
+		}
+	</script>
+}

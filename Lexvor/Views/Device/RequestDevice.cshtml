@@ -1,0 +1,53 @@
+﻿@using Lexvor.Controllers
+@model Lexvor.Models.ProfileViewModels.RequestDeviceViewModel
+@{
+    ViewData["Title"] = "Request Device";
+    Layout = "_Layout";
+}
+<div class="container pt-4">
+    <div class="row">
+        <div class="col-md-3 hidden-sm-down">
+            @{ await Html.RenderPartialAsync("_ProfileCardPartial", Model.Profile); }
+
+            <div class="card visible-md-block visible-lg-block mb-4 card-link-list">
+                @{ await Html.RenderPartialAsync("_FooterPartial"); }
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="alert alert-info">
+                Confirm your request
+            </div>
+            <div id="header-alerts"></div>
+            <div class="list-group media-list media-list-stream mb-4 pagination">
+                <div class="media list-group-item p-4">
+                    @if (Model.Device == null) {
+                        <p>There was an error loading this device.</p>
+                    }
+                    else {
+                        <form role="form" method="post" class="form-horizontal">
+                            <p>You will not be able to request another device for at least 12 months on this plan. Are you sure you want this device?</p>
+                            <p>Note: We will try our best to match the color you want, but we cannot guarantee that we can aquire your chosen color.</p>
+                            <input type="hidden" asp-for="Device.Id" />
+                            <input type="hidden" asp-for="UserPlan.Id" />
+
+                            <div class="fluid-grid-item">
+                                <div class="address">
+                                    @Model.Device.Name
+                                </div>
+                                <div class="title">
+                                    Available
+                                </div>
+                                <div class="image">
+                                    <img src="https://lexvorassets.blob.core.windows.net/website-assets/@Model.Device.ImageUrl" alt="@Model.Device.ImageUrl" />
+                                </div>
+                                <div class="buttons">
+                                    <button type="submit" class="btn btn-info clickable">Confirm Request</button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

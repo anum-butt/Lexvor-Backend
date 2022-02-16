@@ -1,0 +1,263 @@
+﻿@using System.Configuration
+@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers
+@using Lexvor.Data
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Lexvor">
+	<title>@ViewData["Title"] - Lexvor</title>
+
+	<environment include="Development">
+		<link rel="stylesheet" href="~/css/purpose.css" />
+		<link rel="stylesheet" href="~/css/tabs.css" />
+
+		<link rel="stylesheet" href="~/old/css/datepicker.css" />
+		<link rel="stylesheet" href="~/css/animate.css" />
+		<link rel="stylesheet" href="~/css/hopscotch.css" />
+	</environment>
+	<environment exclude="Development">
+		<link rel="stylesheet" href="~/css/purpose.min.css" asp-append-version="true" />
+	</environment>
+	<link rel="stylesheet" href="@Url.Content("~/libs/datatables.net-bs/css/dataTables.bootstrap.css")" />
+</head>
+<body class="application application-offset">
+	<div class="container-fluid container-application">
+		<div class="sidenav" id="sidenav-main">
+			<!-- Sidenav header -->
+			<div class="sidenav-header d-flex align-items-center">
+				<a class="navbar-brand" href="/">
+					<img src="~/img/logo-white.png" class="navbar-brand-img" alt="Lexvor">
+				</a>
+				<div class="ml-auto">
+					<!-- Sidenav toggler -->
+					<div class="sidenav-toggler sidenav-toggler-dark d-md-none" data-action="sidenav-unpin" data-target="#sidenav-main">
+						<div class="sidenav-toggler-inner">
+							<i class="sidenav-toggler-line bg-white"></i>
+							<i class="sidenav-toggler-line bg-white"></i>
+							<i class="sidenav-toggler-line bg-white"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- User mini profile -->
+			<div class="sidenav-user d-flex flex-column align-items-center justify-content-between text-center">
+				<!-- Avatar -->
+				<div>
+					<div class="mt-4">
+						<h5 class="mb-0 text-white">ADMIN PANEL</h5>
+					</div>
+				</div>
+				<!-- User info -->
+				<!-- Actions -->
+				<div class="w-100 mt-4 actions d-flex justify-content-between">
+					<a href="#" class="action-item action-item-lg text-white pl-0">
+						@if (ViewBag.IsStaging) {
+							@:---- THIS IS STAGING ----
+						} else {
+							@:---- THIS IS PROD! ----
+						}
+					</a>
+				</div>
+			</div>
+			<!-- Application nav -->
+			<div class="nav-application clearfix">
+				<a href="@Url.Action(nameof(PlanTypesController.Index), "PlanTypes" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-list-ul fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Plan Types</span>
+				</a>
+				<a href="@Url.Action(nameof(UsersController.Index), "Devices" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-mobile-alt fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Devices</span>
+				</a>
+				<a href="@Url.Action(nameof(UsersController.Index), "DiscountCodes" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-tasks fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Promos</span>
+				</a>
+				<a href="@Url.Action(nameof(StockedDeviceController.Index), "StockedDevice" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-mobile-alt fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Stocked Devices</span>
+				</a>
+				<a href="@Url.Action(nameof(UsersController.Index), "Users" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-user fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Users</span>
+				</a>
+				<a href="@Url.Action(nameof(UsersController.InactiveUsers), "Users" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-user-times fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Inactive</span>
+				</a>
+				<a href="@Url.Action(nameof(SIMController.Index), "SIM" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-sim-card fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Stocked Sims</span>
+				</a>
+				<a href="@Url.Action(nameof(UserDevicesController.ReturnsRequested), "UserDevices" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-undo-alt fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Returns Requested</span>
+				</a>
+				<a href="@Url.Action(nameof(UserDevicesController.TradeIns), "UserDevices" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-exchange-alt fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Trade-ins Pending</span>
+				</a>
+				<a href="@Url.Action(nameof(UserDevicesController.DeviceRequests), "UserDevices" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-level-up-alt fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Upgrades Pending</span>
+				</a>
+				<a href="@Url.Action(nameof(UserDevicesController.DeviceAccessories), "UserDevices" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-list-ul fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Accessories Sold</span>
+				</a>
+				<a href="@Url.Action(nameof(AccessoriesController.Index), "Accessories" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-list-ul fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Accessories</span>
+				</a>
+
+				<a href="@Url.Action(nameof(UsersController.HistoricalDataUsageReport), "Users" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-list-ul fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">DataUsage Report</span>
+				</a>
+				<a href="@Url.Action(nameof(UsersController.ACHRejectsResolution), "Users" )" class="btn btn-square text-sm">
+					<span class="btn-inner--icon d-block"><i class="fas fa-list-ul fa-2x"></i></span>
+					<span class="btn-inner--icon d-block pt-2">Charge ACHRejects</span>
+				</a>
+			</div>
+		</div>
+		<div class="main-content position-relative">
+			<!-- Main nav -->
+			<nav class="navbar navbar-main navbar-expand-lg navbar-dark bg-primary navbar-border" id="navbar-main">
+				<div class="container-fluid">	
+					<!-- Brand + Toggler (for mobile devices) -->
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main-collapse" aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<!-- Navbar nav -->
+					<div class="collapse navbar-collapse navbar-collapse-fade" id="navbar-main-collapse">
+						<ul class="navbar-nav align-items-lg-center">
+							<li class="border-top opacity-2 my-2"></li>
+							<!-- Home  -->
+							<li class="nav-item pl-lg-0">
+								<a class="nav-link pl-lg-4" href="@Url.Action(nameof(HomeController.Index), HomeController.Name, new { Area = "" })">
+									Back to App
+								</a>
+							</li>
+
+							@if (User.IsInRole(Roles.Admin)) {
+								<li class="nav-item pl-lg-0">
+									<a class="nav-link pl-lg-4" href="@Url.Action(nameof(DashboardController.Index), DashboardController.Name, new { Area = "admin" })">
+										Admin Panel
+									</a>
+								</li>
+							}
+						</ul><!-- Right menu -->
+						<ul class="navbar-nav ml-lg-auto align-items-center d-lg-flex">
+							<li class="nav-item">
+								<a href="#" class="nav-link nav-link-icon sidenav-toggler" data-action="sidenav-pin" data-target="#sidenav-main"><i class="fas fa-bars"></i></a>
+							</li>
+							<li class="nav-item dropdown dropdown-animate">
+								<a class="nav-link pr-lg-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<div class="media media-pill align-items-center">
+										<span class="avatar rounded-circle">
+											<img alt="Image placeholder" src="~/old/images/gender-neutral.png">
+										</span>
+										<div class="ml-2 d-none d-lg-block">
+											<span class="mb-0 text-sm  font-weight-bold">@User.Identity.Name</span>
+										</div>
+									</div>
+								</a>
+								<div class="dropdown-menu dropdown-menu-sm dropdown-menu-right dropdown-menu-arrow">
+									<h6 class="dropdown-header px-0">Hi @User.Identity.Name!</h6>
+									<div class="dropdown-divider"></div>
+									<a href="@Url.Action(nameof(AccountController.Logout), "Account")" class="dropdown-item">
+										<i class="fas fa-sign-out-alt"></i>
+										<span>Logout</span>
+									</a>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+
+			<!-- Page content -->
+			<div class="page-content">
+				<!-- Page title -->
+				<div class="page-title">
+					<div class="row justify-content-between align-items-center">
+						<div class="col-md-6 mb-3 mb-md-0">
+							<h5 class="h3 font-weight-400 mb-0 text-white">@ViewData["PageName"]</h5>
+							<span>@ViewData["PageSubtitle"]</span>
+						</div>
+					</div>
+				</div>
+
+				<div id="header-alerts"></div>
+
+				@RenderBody()
+			</div>
+			<!-- Footer -->
+			<div class="footer pt-5 pb-4 footer-light" id="footer-main">
+				<div class="row text-center text-sm-left align-items-sm-center">
+					<div class="col-sm-6">
+						<p class="text-sm mb-0">&copy; @DateTime.Now.Year <a href="https://lexvor.com" class="h6 text-sm" target="_blank">Lexvor</a>. All rights reserved.</p>
+					</div>
+					<div class="col-sm-6 mb-md-0">
+						<ul class="nav justify-content-center justify-content-md-end">
+							<li class="nav-item">
+								<a class="nav-link" href="@Url.Action(nameof(HomeController.Support), HomeController.Name)">Support</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="https://lexvor.com/lease">Terms</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="https://lexvor.com/agreement">EULA</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link pr-0" href="https://lexvor.com/privacy-policy">Privacy</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<environment include="Development">
+		<script src="~/libs/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+		<script src="~/js/purpose.core.js" asp-append-version="true"></script>
+		<script src="~/js/purpose.min.js" asp-append-version="true"></script>
+		<script src="~/libs/bootstrap-datepicker.js" asp-append-version="true"></script>
+
+		@*<script src="~/js/chart.js" asp-append-version="true"></script>
+			<script src="~/js/tether.min.js" asp-append-version="true"></script>
+			<script src="~/js/bootstrap-notify.min.js" asp-append-version="true"></script>
+			<script src="~/js/hopscotch.js" asp-append-version="true"></script>*@
+	</environment>
+	<environment exclude="Development">
+		<script src="~/js/purpose.core.js" asp-append-version="true"></script>
+		<script src="~/js/purpose.js" asp-append-version="true"></script>
+	</environment>
+
+	<script defer src="https://use.fontawesome.com/releases/v5.8.2/js/all.js"></script>
+	<script>
+		$(document).ready(function() {
+			//$('.datepicker').datepicker();
+
+			$(function () {
+				$('[data-toggle="tooltip"]').tooltip();
+			});
+
+			$.ajax({
+				url: '/admin/dashboard/headeralert',
+				success: function(data) {
+					$('#header-alerts').html(data);
+				}
+			});
+
+		});
+	</script>
+
+	@RenderSection("Scripts", required: false)
+</body>
+</html>

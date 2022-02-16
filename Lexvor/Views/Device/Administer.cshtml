@@ -1,0 +1,439 @@
+﻿@using Lexvor.API.Objects
+@using Lexvor.API.Objects.User
+@using Lexvor.Controllers
+@using Lexvor.API
+@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Extensions
+@model Lexvor.Models.ProfileViewModels.AdministerDevicesViewModel
+
+@{
+	ViewData["Title"] = Model.CurrentUserPlan.IsWirelessOnly() ? "Your Plan" : "Your Device";
+	Layout = "_Layout";
+	ViewData["PageName"] = Model.CurrentUserPlan.IsWirelessOnly() ? "Your Plan" : "Your Plan and Device";
+	ViewData["PageSubtitle"] = "";
+}
+
+<div class="row">
+	<div class="col-xl-12 col-md-12">
+		<div id="header-alerts"></div>
+		
+		<div class="row">
+			<div class="col-lg-4 col-sm-6">
+				<div class="card" id="device-card">
+					<div class="card-header">
+						<div class="row align-items-center">
+							<div class="col-12">
+								<h5 class="card-title mb-0">
+									@if (!Model.CurrentUserPlan.IsWirelessOnly())
+									{
+										@:Wireless and Device
+									}
+									else
+									{
+										@:Wireless
+									}
+								</h5>
+								<p class="text-muted text-sm m-0 p-0">
+									<span class="num-font">@(!string.IsNullOrWhiteSpace(Model.CurrentUserPlan.MDN) ? StaticUtils.FormatPhone(Model.CurrentUserPlan.MDN) : "Number pending assignment")</span>
+								</p>
+								<p class="text-muted text-sm m-0 p-0">
+									@(Model.CurrentUserPlan.Device != null ? Model.CurrentUserPlan.Device.Name : "")
+								</p>
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<figure class="figure">
+							@if (!Model.CurrentUserPlan.IsWirelessOnly())
+							{
+								<img alt="@Model.CurrentUserPlan.Device.ImageUrl" src="https://lexvorassets.blob.core.windows.net/website-assets/@Model.CurrentUserPlan.Device.ImageUrl" class="img-center img-fluid max-h-10">
+							}
+							else
+							{
+								<img class="img-center img-fluid max-h-10" src="~/old/images/phone-placeholder.png" alt="" />
+							}
+						</figure>
+						@if (Model.CurrentUserPlan.WirelessStatus == WirelessStatus.Active)
+						{
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#viewPortingDetails">
+								View Porting Details
+							</button> 
+						}
+						else
+						{
+							<button type="button" class="@(" btn " + (Model.PortRequest.Status==PortStatus.Error ? " btn-danger" : "btn-secondary" ))" data-toggle="modal" data-target="#viewPortingDetails">
+								View Porting Details
+							</button>
+						}
+						<div>
+							<br />
+							<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#renameplanmodal">
+								Update Name
+							</button>
+						</div>
+					</div>
+					@if (!Model.CurrentUserPlan.IsWirelessOnly())
+					{
+						<div class="card-footer">
+							<a href="@Url.Action(nameof(ProfileController.LossClaim), ProfileController.Name, new {id = Model.CurrentUserPlan.Id})" class="btn btn-sm btn-default">Submit Damage/Loss Claim</a>
+						</div>
+					}
+				</div>
+			</div>
+			<div class="col-xl-8">
+				<div class="card" id="billing-card">
+					<div class="card-body">
+						@if(Model.CurrentUserPlan.UserDevice?.UpgradeAvailable ?? false)
+						{
+						<a href="@Url.Action(nameof(PurchaseController.ChooseUpgradeDevice), PurchaseController.Name, new {returnUrl = Url.Action(nameof(HomeController.Index), HomeController.Name)})"><div class="alert alert-warning">You are eligible for an upgrade! Click here to start the process</div></a>
+						}
+						@if (!string.IsNullOrEmpty(Model.CurrentUserPlan.UserGivenName)) {
+							<p>
+								Line Holder: @Model.CurrentUserPlan.UserGivenName
+							</p>
+						}
+						@if (!Model.CurrentUserPlan.IsWirelessOnly()) {
+							<p>
+								Requested: @Model.CurrentUserPlan.UserDevice.Requested?.ToString("d")
+							</p>
+							<p>
+								@*TODO DEviceService*@
+								@*Next Upgrade: @Model.CurrentUserPlan.UserDevice.NextUpgrade?.ToString("d")*@
+							</p>
+							<p>
+								Shipped: @(Model.CurrentUserPlan.UserDevice.Shipped.HasValue ? Model.CurrentUserPlan.UserDevice.Shipped.Value.ToString("d") : "Not yet shipped")
+							</p>
+						}
+						<p>
+							<strong>Next Billing Date:</strong> @Model.Profile.NextBillDate.ToString("d")
+						</p>
+						<p>
+							@if (Model.UsageDay.KBData == 0) {
+								<strong>Data Usage:</strong>
+								@:Usage data will be available within three days of plan activation.
+							}
+							else {
+								<strong>Data Usage:</strong>
+								@StaticUtils.ConvertKBToGB(Model.UsageDay.KBData)
+								@:GB (Updated: @Model.UsageDay.Date.ToString("d"))
+							}
+						</p>
+						<p>
+							@if (Model.CurrentUserPlan.IsWirelessOnly()) {
+								if (!string.IsNullOrEmpty(Model.CurrentUserPlan.UserDevice.IMEI)) {
+
+									<strong>IMEI:</strong><span class="num-font">@Model.CurrentUserPlan.UserDevice.IMEI</span>
+								}
+								else {
+									<strong>IMEI:</strong>
+								}
+							}
+						</p>
+					</div>
+					<div class="card-footer">
+						<div class="row">
+							<div class="col-md-4">
+								@if (Model.CurrentUserPlan.Status != PlanStatus.Cancelled)
+								{
+									if (!Model.CurrentUserPlan.IsWirelessOnly())
+									{
+										//TODO DEviceService
+											@*if (Model.CurrentUserPlan.UserDevice.NextUpgrade < DateTime.UtcNow) {
+													<a href="@Url.Action(nameof(DeviceController.AvailableDevices), DeviceController.Name, new {id = Model.CurrentUserPlan.Id})" class="btn btn-info">Upgrade Device</a>
+												} else {
+													<button class="btn btn-info" disabled>Not eligible for upgrade</button>
+												}*@
+									}
+								}
+								<a class="btn btn-secondary" href="@Url.Action(nameof(WirelessController.Usage), WirelessController.Name, new { mdn = Model.CurrentUserPlan.MDN })">See All Usage</a>
+							</div>
+							<div class="col-md-4">
+								@if (!Model.CurrentUserPlan.AgreementSigned || string.IsNullOrEmpty(Model.CurrentUserPlan.AgreementUrl))
+								{
+									<a class="btn btn-secondary" href="@Url.Action(nameof(EversignController.SignPlanAgreements), EversignController.Name, new { planId = Model.CurrentUserPlan.Id })">Sign Agreement</a>
+								}
+							</div>
+							<div class="col-md-4 text-right">
+								@*@if (Model.CurrentUserPlan.IsWirelessOnly()) {
+											<a href="@Url.Action(nameof(PlanController.Cancel), PlanController.Name, new {id = Model.CurrentUserPlan.Id})" class="btn btn-default" id="tour-re743-1">Cancel Plan</a>
+										} else {
+											<a href="@Url.Action(nameof(DeviceController.ReturnDevice), DeviceController.Name, new {id = Model.CurrentUserPlan.Id})" class="btn btn-default" id="tour-re743-1">Cancel Plan</a>
+										}*@
+								@if (Model.CurrentUserPlan.Status != PlanStatus.Cancelled)
+								{
+									<button class="btn btn-default" data-toggle="modal" data-target="#cancelmodal">Cancel Plan</button>
+								}
+								else
+								{
+									<button class="btn btn-info" disabled>Plan Cancelled</button>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			@if (Model.CurrentUserPlan.IsWirelessOnly()) {
+				<div class="card">
+					<div class="card-body">
+							<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateIMEIModal">
+								Update IMEI
+							</button>
+					</div>
+				</div>
+			}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="cancelmodal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>We are truly sorry.</h3>
+			</div>
+			<div class="modal-body">
+				<p>We do not yet have the ability for customers to cancel their plans online. We are working hard on it, but for now you must email support.</p>
+				<p>Cancellations are easy and we will never berate you for cancelling, it can be all done over email.</p>
+				<p>We hate it just as much as you do when companies don't make it easy to cancel, and we are working on it.</p>
+				<p>In the mean time, <a href="mailto:customerservice@lexvor.com">customerservice@lexvor.com</a></p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="renameplanmodal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>Rename your Plan</h3>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label class="col-form-label">Name of Line Holder</label>
+						@if (Model != null)
+						{
+							
+								<input type="text" id="txtGivenName" value="@Model.CurrentUserPlan.UserGivenName" class="form-control" placeholder="User's name" />
+							
+						}
+						else
+						{
+							<input type="text"  id="txtGivenName" class="form-control" placeholder="User's name" />
+						}
+
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="renameplan" onclick="renamePlan('@Model.CurrentUserPlan.Id');">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="viewPortingDetails" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Update Port Details</h4>
+			</div>
+			<div class="modal-body">
+				<form asp-action="SubmitPort" asp-controller="Wireless" role="form" method="post">
+					<div class="card">
+						<div class="card-header">
+							<h2>Port Status</h2>
+						</div>
+						<div class="card-body" id="port-request-body">
+							<p>Please fill out this form to start your port in request. These details come from your current provider.</p>
+							<input type="hidden" asp-for="CurrentUserPlan.Id" />
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.OSPName" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.OSPName" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.MDN" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.MDN" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.AccountNumber" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.AccountNumber" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.Password" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.Password" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.FirstName" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.FirstName" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.MiddleInitial" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.MiddleInitial" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.LastName" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.LastName" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.AddressLine1" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.AddressLine1" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.AddressLine2" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.AddressLine2" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.City" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.City" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.State" class="control-label"></label>
+								<select asp-for="CurrentUserPlan.PortRequest.State" asp-items="SelectLists.USStates" class="form-control">
+									<option value="">Select a State</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label asp-for="CurrentUserPlan.PortRequest.Zip" class="control-label"></label>
+								<input asp-for="CurrentUserPlan.PortRequest.Zip" class="form-control" />
+							</div>
+						</div>
+						<div class="card-footer">
+							<button type="submit" class="btn btn-primary">Submit Request</button>
+							<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</form>
+			</div>
+			</div>
+<div class="modal fade" id="updateIMEIModal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>Update IMEI</h3>
+			</div>
+			<div class="modal-body">
+				<form>
+					@if (Model.CurrentUserPlan.UserDevice != null) {
+						if (!string.IsNullOrEmpty(Model.CurrentUserPlan.UserDevice.IMEI)){
+							<div class="form-group">
+								<label class="col-form-label">IMEI</label>
+								<input type="text" class="form-control" value="@Model.CurrentUserPlan.UserDevice.IMEI" id="txt_IMEI" data-mask="00 000000 000000 0" placeholder="12 123456 123456 1" aria-label="Device IMEI"
+									   aria-describedby="prefix" onblur="validateImei()">
+							</div>
+						} else {
+							<div class="form-group">
+								<label class="col-form-label">IMEI</label>
+								<input type="text" class="form-control" id="txt_IMEI" data-mask="00 000000 000000 0" placeholder="12 123456 123456 1" aria-label="Device IMEI" aria-describedby="prefix"
+									   onblur="validateImei()">
+							</div>
+						}
+					} else {
+						<div class="form-group">
+							<label class="col-form-label">IMEI</label>
+							<input type="text" class="form-control" id="txt_IMEI" data-mask="00 000000 000000 0" placeholder="12 123456 123456 1"
+								   aria-label="Device IMEI" aria-describedby="prefix" onblur="validateImei()">
+						</div>
+					}
+
+				</form>
+			</div>
+			<div class="alert alert-danger" id="imeierror" style="display:none"></div>
+			<div class="modal-footer">
+
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="btn_UpdateIMEI">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+		<script>
+
+			function renamePlan(plan) {
+				var name = document.getElementById('txtGivenName').value;
+				$.ajax({
+					url: '@Url.Action(nameof(PlanController.RenamePlan), PlanController.Name)?planId=' +
+						plan +
+						'&name=' +
+						name,
+					success: function (data) {
+			
+						location.reload();
+					}
+				});
+			}
+
+        $.ajax({
+            url: '@Url.Action(nameof(HomeController.HeaderAlert), "Home")',
+            success: function(data) {
+                $('#header-alerts').html(data);
+            }
+        });
+
+        var re743 = {
+            id: "re743",
+            steps: [
+                {
+                    title: "Returning a Device",
+                    content:
+                        "Choosing to return a device will cancel your subscription and you will lose any promotions or discounts that you currently have. Click this button to start the return process.",
+                    target: 'tour-re743-1',
+                    placement: "top"
+                }
+            ]
+        };
+
+        if (getParameterByName('t') == 're743') {
+            hopscotch.startTour(re743);
+		}
+
+
+
+
+		$("#btn_UpdateIMEI").on('click',
+			function () {
+				var imei = $("#txt_IMEI").val();
+				var UserdeviceId = "@Model.CurrentUserPlan.UserDevice.Id";
+				if (imei !== "" && $("#imeierror").html() == "") {
+					$.ajax({
+						url: '@Url.Action(nameof(PlanController.UpdateIMEI), PlanController.Name)?userDeviceId=' +
+							UserdeviceId +
+							'&imei=' +
+							imei,
+						success: function (data) {
+							location.reload();
+						}
+					});
+				} else {
+					$("#imeierror").show();
+					$("#imeierror").html("Please enter above field");
+				}
+			});
+
+			function validateImei() {
+				$("#imeierror").hide();
+				var imei = $("#txt_IMEI").val();
+				$.ajax({
+					url: `/api/wireless/ValidateIMEI/${imei}/?userDeviceId=`,
+					success: function (response) {
+						if (response.success && !response.error) {
+							$("#imeierror").html("");
+							$("#imeierror").hide();
+						} else {
+							$("#imeierror").show();
+							$("#imeierror").html(response.error);
+						}
+					},
+					error: function (error) {
+						console.log(error);
+					}
+				});
+			}
+		</script>
+}

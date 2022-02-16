@@ -1,0 +1,360 @@
+﻿@using Lexvor.API.Objects.Enums
+@using Lexvor.API.Objects.User
+@using Lexvor.Areas.Admin.Controllers
+@using Lexvor.Controllers.API
+@using Lexvor.Data
+@using Lexvor.Helpers
+@using Lexvor.API
+@using Lexvor.Extensions
+@model Lexvor.Models.AdminViewModels.UserDetailsViewModel
+@{
+	ViewData["Title"] = "User Details";
+	Layout = "_AdminLayout";
+	ViewData["PageName"] = "User Details";
+}
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">
+				<a href="@Url.Action(nameof(UsersController.Archive), "Users", new { id = Model.Profile.Id })" class="btn btn-sm btn-danger float-right mr-1">Archive User</a>
+				@if (User.Identity.Name == "cory@westroppstudios.com") {
+					<a href="@Url.Action(nameof(UsersController.Impersonate), UsersController.Name, new {id = Model.Profile.Id})" class="btn btn-sm btn-success float-right mr-1">Impersonate User</a>
+				}
+				<a href="@Url.Action(nameof(UsersController.UpgradePlan), "Users", new { id = Model.Profile.Id })" class="btn btn-sm btn-success float-right mr-1">Upgrade Plan</a>
+			</div>
+			<div class="card-body">
+				<table class="table">
+					<tbody>
+						<tr>
+							<td>Name</td>
+							<td>@Model.Profile.FirstName @Model.Profile.LastName</td>
+							<td>Email</td>
+							<td>@ViewHelpers.PermissionedView(Context, Model.User.Email, Roles.TrustedManager)</td>
+						</tr>
+						<tr>
+						</tr>
+						<tr>
+							<td>
+								Phone
+								@if (!(Model.Profile.PhoneVerified ?? false)) {
+									<a href="@Url.Action(nameof(UsersController.ResendPhoneVerify), "Users", new {id = Model.Profile.Id})" class="badge badge-primary mr-1">Resend Phone Verify</a>
+								}
+							</td>
+							<td>@Model.Profile.Phone</td>
+							<td>Date Joined</td>
+							<td>@Model.Profile.DateJoined.ToString("d")</td>
+						</tr>
+						<tr>
+
+							<td>Billing Address</td>
+							<td colspan="2">
+								@ViewHelpers.PermissionedView(Context, Model.Profile.BillingAddress?.GetAddressBlock(), Roles.TrustedManager)
+								@if (Model.Profile.BillingAddress != null && Model.Profile.BillingAddress.Source == AddressSource.UserInput)
+								{
+									<a href="@Url.Action(nameof(UsersController.VerifyAddress), "Users", new { id = Model.Profile.Id })" class="badge badge-primary mr-1">Verify User's Address</a>
+								}
+							</td>
+							<td colspan="1">
+								<a href="@Url.Action(nameof(UsersController.PastAddresses), "Users", new { id = Model.Profile.Id })" class="badge badge-primary mr-1">Past Addresses</a>
+							</td>
+						</tr>
+						<tr>
+							<td>Locked out</td>
+							<td>
+								@if (Model.User.LockoutEnd != null && Model.User.LockoutEnd > DateTime.UtcNow) {
+									@:Yes (@Html.ActionLink("Unlock", "Unlock", new { email = Model.User.Email }))
+								}
+								else {
+									@:No (@Html.ActionLink("Lock", "Lock", new { email = Model.User.Email }))
+								}
+							</td>
+							<td>Is Provisional</td>
+							<td>
+								@if (Model.Profile.ProfileStatus == ProfileStatus.Provisional) {
+									<a class="text-white badge badge-danger">Yes</a>
+									<a class="btn btn-sm btn-default" href="@Url.Action(nameof(UsersController.TrustUser), UsersController.Name, new { id = Model.Profile.Id })"
+									   data-toggle="tooltip" title="Mark this user as Trusted and enable their account to make purchases, even without a Plaid Link.">Activate</a>
+								}
+								else {
+									<a class="text-white badge badge-success">No</a>
+								}
+							</td>
+						</tr>
+						<tr>
+							<td>Identity Verified</td>
+							<td>
+								@(Model.Profile.IDVerifyStatus.ToString()) (@Html.ActionLink("Request Update", nameof(UsersController.VerifyID), new { id = Model.Profile.Id }))
+							</td>
+							<td>Email Confirmed</td>
+							<td>
+								@(Model.User.EmailConfirmed ? "Yes" : "No") (@Html.ActionLink("Resend Confirm", "ResendConfirmEmail", new { email = Model.User.Email }))
+							</td>
+						</tr>
+						<tr>
+							<td>Wireless User Id</td>
+							<td>
+								@ViewHelpers.PermissionedView(Context, Model.Profile.ExternalWirelessCustomerId, Roles.TrustedManager)
+								@if (ViewHelpers.IsPermissioned(Context, Roles.Admin) && Model.Profile.ExternalWirelessCustomerId.IsNull()) {
+									<a class="btn badge badge-primary" href="@Url.Action(nameof(UsersController.UpdateExternalWirelessId), UsersController.Name, new { id = Model.Profile.Id})">Assign Wireless Id</a>
+								}
+							</td>
+							<td>Port Out Account Number</td>
+							<td>
+								@ViewHelpers.PermissionedView(Context, Model.Profile.ExternalWirelessCustomerId, Roles.TrustedManager)
+							</td>
+						</tr>
+						@if (User.IsInRole("admin")) {
+					<tr>
+						<td>Identity Documents</td>
+						<td>
+							<a href="@Url.Action(nameof(UsersController.VerifyID), "Users", new {id = Model.Profile.Id})">View Documents</a>
+						</td>
+						<td>Port Out PIN</td>
+						<td>44857</td>
+					</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<h4 class="float-left">Payment Details</h4>
+				<a class="btn btn-default btn-sm float-right mr-1" href="@Url.Action(nameof(UsersController.Charges), "Users", new { id = Model.Profile.Id })">View Charges</a>
+				<a class="btn btn-secondary btn-sm float-right mr-1" href="@Url.Action(nameof(UsersController.UserDetails), UsersController.Name, new { id = Model.Profile.Id, showArchived = true })">Show Archived Accounts</a>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					@if (ViewHelpers.IsPermissioned(Context, Roles.TrustedManager)) {
+						foreach (var payAccount in Model.PayAccounts) {
+							<div class="col-md-6">
+								<div class="card">
+									<div class="card-body">
+										<table class="table">
+											<tbody>
+												<tr>
+													<td>Account Number: @payAccount.MaskedAccountNumber</td>
+													<td>Bank: @payAccount.Bank</td>
+												</tr>
+												<tr>
+													<td>Confirmed: @payAccount.Confirmed</td>
+													<td>Active: @payAccount.Active</td>
+												</tr>
+												<tr>
+													@if (payAccount.LastBalanceCheck != DateTime.MinValue) {
+														<td colspan="2">Last Balance: $@payAccount.LastBalance (checked @payAccount.LastBalanceCheck.ToString("d"))</td>
+													}
+													else {
+														<td colspan="2">No last balance check</td>
+													}
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="card-footer">
+										@if (!payAccount.Confirmed) {
+										<a class="btn btn-primary btn-sm" href="@Url.Action(nameof(UsersController.ConfirmBankAccount), UsersController.Name, new {id = payAccount.Id})">Confirm</a>
+										@*<a class="btn btn-secondary" href="@Url.Action(nameof(BankController.GetBankBalance), BankController.Name, new {id = payAccount.Id, returnUrl = Url.Action(nameof(UsersController.UserDetails), UsersController.Name, new {id = payAccount.ProfileId})})">Check Balance</a>*@
+										}
+										else {
+										@*<a class="btn btn-secondary" href="@Url.Action(nameof(BankController.GetBankBalance), BankController.Name, new {id = payAccount.Id, returnUrl = Url.Action(nameof(UsersController.UserDetails), UsersController.Name, new {id = payAccount.ProfileId})})">Check Balance</a>*@
+										<a class="btn btn-secondary btn-sm" href="@Url.Action(nameof(UsersController.ConfirmBankAccount), UsersController.Name, new {id = payAccount.Id})">Unconfirm</a>
+										}
+										<a class="btn btn-secondary btn-sm" href="@Url.Action(nameof(UsersController.ChargePayAccount), UsersController.Name, new { profileId = Model.Profile.Id, payAccountId = payAccount.Id })">Charge</a>
+										<a class="btn btn-danger btn-sm" href="@Url.Action(nameof(UsersController.ArchiveBankAccount), UsersController.Name, new { id = payAccount.Id })">Archive</a>
+									</div>
+								</div>
+							</div>
+						}
+					}
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<h4 class="float-left">User Plans for @Model.Profile.FullName</h4>
+				<a class="btn btn-secondary btn-sm float-right mr-1" href="@Url.Action(nameof(UsersController.UserDetails), UsersController.Name, new { id = Model.Profile.Id, showCancelledPlans = true })">Show Cancelled Plans</a>
+			</div>
+			<div class="card-body">
+
+				@if (!Model.Plans.Any()) {
+					<p>User has no plans</p>
+				}
+				else {
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Plan (Throttle)</th>
+								<th>Device</th>
+								<th>MDN</th>
+								<th>Status</th>
+								<th>Revenue</th>
+								<th>Details</th>
+								<th>Comms</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model.Plans.OrderBy(x => x.Status)) {
+								<tr>
+									<td>
+										@item.PlanType.Name
+										<span>(@item.ThrottleLevel)</span>
+									</td>
+									<td>
+										<span data-toggle="tooltip" data-placement="bottom" title="">@item.Device?.Name</span> | 
+										@if (item.UserDevice?.Options?.Count > 0) {
+											@string.Join(" | ", item.UserDevice.Options.Select(x => x.OptionValue));
+										}
+									</td>
+									<td>@StaticUtils.FormatPhone(item.MDN ?? "")</td>
+									<td>@item.Status.ToString() @(item.Status == PlanStatus.Paid ? "Needs Sub" : "")</td>
+									<td>
+										$@(item.Monthly / 100)
+										@ViewHelpers.PermissionedView(Context, Html.Raw($"(${Math.Round(item.MDNCostToDate, 2)})"), Roles.Admin)
+									</td>
+									<td>
+										<a href="@Url.Action(nameof(UserPlansController.Index), "UserPlans", new {userPlanId = item.Id})">Details</a>
+									</td>
+									<td>
+										<a href="@Url.Action(nameof(UserPlansController.Communications), "UserPlans", new {id = item.ProfileId})">Comms</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<h4>Trade Ins for @Model.Profile.FullName</h4>
+			</div>
+			<div class="card-body">
+				@if (ViewHelpers.IsPermissioned(Context, Roles.TrustedManager)) {
+					@if (!Model.TradeIns.Any()) {
+						<p>User has no trade ins</p>
+					}
+					else {
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Requested</th>
+									<th>Make</th>
+									<th>Model</th>
+									<th>IMEI</th>
+									<th>Front Image</th>
+									<th>Back Image</th>
+									<th>On Image</th>
+									<th>Details</th>
+									<th>Mark Approved</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var item in Model.TradeIns) {
+									<tr>
+										<td>@item.Requested.ToString("d")</td>
+										<td>@item.Make</td>
+										<td>@item.Model</td>
+										<td>@item.IMEI</td>
+										<td>@(!string.IsNullOrEmpty(item.FrontImageUrl) ? Html.Raw($"<a href='https://lexvorassets.blob.core.windows.net/website-assets/{item.FrontImageUrl}' target='_blank'>Front</a>") : null)</td>
+										<td>@(!string.IsNullOrEmpty(item.BackImageUrl) ? Html.Raw($"<a href='https://lexvorassets.blob.core.windows.net/website-assets/{item.BackImageUrl}' target='_blank'>Back</a>") : null)</td>
+										<td>@(!string.IsNullOrEmpty(item.OnImageUrl) ? Html.Raw($"<a href='https://lexvorassets.blob.core.windows.net/website-assets/{item.OnImageUrl}' target='_blank'>Device On</a>") : null)</td>
+										<td>
+											<a class="clickable" data-toggle="modal" data-target="#@item.Id-edit">Details</a>
+
+											<div class="modal fade" id="@item.Id-edit" tabindex="-1" role="dialog">
+												<div class="modal-dialog" role="document">
+													<div class="modal-content">
+														<div class="modal-header">
+															Trade In Details
+														</div>
+														<div class="modal-body">
+															<p>Original Owner: @item.OriginalOwner</p>
+															<p>Device Charges: @item.Charges</p>
+															<p>Remaining Balance: @item.Balance</p>
+															<p>Device was Repaired: @item.Repaired</p>
+														</div>
+														<div class="modal-footer">
+															<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</td>
+										<td>
+											@if (!item.Approved.HasValue) {
+												<a href="@Url.Action(nameof(UserDevicesController.ApproveTradeIn), UserDevicesController.Name, new {Id = item.Id})">Approve</a>
+											}
+											else {
+												@:Approved
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					}
+				}
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-header">
+				<h4>Upgrade Requests for @Model.Profile.FullName</h4>
+			</div>
+			<div class="card-body">
+				@if (!Model.Plans.Any()) {
+					<p>User has no plans</p>
+				}
+				else {
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Plan</th>
+								<th>Device</th>
+								<th>IMEI</th>
+								<th>Assign Device</th>
+								<th>Change Bill Date</th>
+								<th>Upgrade</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model.Plans) {
+								<tr>
+									<td>@item.PlanType.Name</td>
+									<td><span data-toggle="tooltip" data-placement="bottom" title="">@item.Device?.Name</span></td>
+									<td>@ViewHelpers.PermissionedView(Context, (item.UserDevice != null ? item.UserDevice.IMEI : ""), Roles.TrustedManager)</td>
+									<td><a href="@Url.Action(nameof(UsersController.AssignDevice), "Users", new {id = item.Id})">Assign</a></td>
+									<td><a href="@Url.Action(nameof(UsersController.ChangeBillDate), "Users", new {id=item.Id})">Change</a></td>
+									<td><a href="@Url.Action(nameof(UsersController.Upgrade), "Users", new {id = item.Id})">Upgrade</a></td>
+								</tr>
+								<tr>
+									<td colspan="6">
+										<span>User Given Name: @item.UserGivenName</span> |
+										<span>Device Requested: @item.UserDevice?.Requested?.ToString("d")</span> |
+										<span>
+											Shipped:
+											@if (item.UserDevice != null) {
+												if (item.UserDevice.Shipped.HasValue) {
+													@item.UserDevice.Shipped.Value.ToString("d")
+												}
+												else {
+													<a href="@Url.Action(nameof(UsersController.MarkShipped), "Users", new {id = item.UserDevice.Id})">Mark Shipped</a>
+												}
+											}
+										</span>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section scripts {
+}

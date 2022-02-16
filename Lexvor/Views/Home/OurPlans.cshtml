@@ -1,0 +1,55 @@
+﻿@using Lexvor.Controllers
+@model List<Lexvor.API.Objects.PlanType>
+@{
+    ViewData["Title"] = "Our Current Plans";
+    Layout = "_LayoutFull";
+}
+
+<div class="col-sm-offset-2 col-sm-8">
+    <div class="row">
+        <div class="col-md-12 ma-centered">
+            <div class="card">
+                <div class="card-body">
+                    <p>We strive to accommodate all financial situations by providing the devices you want at affordable rates.</p>
+
+                    <p>
+                        <b>Choose the subscription that works best for you. You can save on your initiation with a qualifying trade in today!</b>
+                    </p>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                @foreach (var plan in Model) {
+                                    <div class="col-sm-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h4 class="text-warning">@plan.Name</h4>
+                                                <h6>$<span>@(plan.InitiationFee / 100)</span> Initiation fee then $<span>@(plan.MonthlyCost / 100)</span> per month</h6>
+                                                @if (plan.PlanDetails.Contains("<")) {
+                                                    @Html.Raw(plan.PlanDetails)
+                                                } else {
+                                                    <ul class="no-list-style">
+                                                        <li>@plan.PlanDetails</li>
+                                                        <li>Switch phones every 6 months</li>
+                                                        <li>Protection against damage and theft</li>
+                                                    </ul>
+                                                }
+
+                                                <a href="@Url.Action(nameof(HomeController.OurDevices), "Home", new {id = plan.Id})" class="btn btn-info btn-sm">Devices for This Plan</a>
+                                                <a href="@Url.Action(nameof(AccountController.Register), "Account")" class="btn btn-success btn-sm">Sign up Now</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer px-md-5">
+                    <a href="@Url.Action(nameof(AccountController.Login), "Account")" class="small font-weight-bold">Back to Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

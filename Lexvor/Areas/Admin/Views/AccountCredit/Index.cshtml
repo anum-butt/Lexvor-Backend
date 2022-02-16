@@ -1,0 +1,79 @@
+﻿@model Lexvor.Models.AdminViewModels.AccountCreditListModel
+
+@{
+    ViewData["Title"] = "Account Credits";
+}
+
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <div>
+                <h5>Account Credits for @(string.IsNullOrEmpty(Model.Profile.FullName) ? Model.Profile.Account.Email: Model.Profile.FullName)</h5>
+                <p>
+                    <a href="@Url.Action("Create", new { id = Model.Profile.Id})">Create New</a>
+                </p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Amount
+                            </th>
+                            <th>
+                                Applicable Initiation
+                            </th>
+                            <th>
+                                Applicable Monthly
+                            </th>
+                            <th>
+                                Created
+                            </th>
+                            <th>
+                                Applied Amount
+                            </th>
+                            <th>
+                                Apply to User Plan
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Credits.Any()) {
+                        foreach (var item in Model.Credits) {
+                        <tr>
+                            <td>
+                                $@Html.DisplayFor(modelItem => item.Amount)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ApplicableToInitiation)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ApplicableToMonthlyFee)
+                            </td>
+                            <td>
+                                @item.Created.ToString("d")
+                            </td>
+                            <td>
+                                $@Html.DisplayFor(modelItem => item.AppliedAmount)
+                            </td>
+                            <td>
+                                @if (item.ApplicableToMonthlyFee) {
+                                    <a asp-action="ApplytoPlan" asp-route-id="@item.Id">Choose Plan</a>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                        }
+                    }
+                    else {
+                        <tr><td colspan="4">No Account Credits</td></tr>
+                    }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </li>
+</ul>

@@ -1,0 +1,36 @@
+﻿@using Lexvor.Controllers
+@model Lexvor.Models.HomeViewModels.LoggedInPageViewModel
+@{
+    ViewData["Title"] = "Number Port Status";
+    Layout = "_Layout";
+}
+
+<div class="container pt-4">
+    <div class="row">
+        <div class="col-md-3 hidden-sm-down">
+            @{ await Html.RenderPartialAsync("_ProfileCardPartial", Model.Profile); }
+
+            <div class="card visible-md-block visible-lg-block mb-4 card-link-list">
+                @{ await Html.RenderPartialAsync("_FooterPartial"); }
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="alert alert-info">
+                Number Port Status
+            </div>
+            <div id="header-alerts"></div>
+
+            <div class="list-group media-list media-list-stream mb-4 pagination">
+                <div class="media list-group-item p-4">
+                    <div class="row full-width">
+                        <div class="col-md-12">
+                            <div class="text-center">
+                                <p>WHERE'S MY NUMBER?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

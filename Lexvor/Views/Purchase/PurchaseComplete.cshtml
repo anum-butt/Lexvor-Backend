@@ -1,0 +1,66 @@
+﻿@using Lexvor.Controllers
+@model UserPaymentContextViewModel
+@{
+     ViewData["Title"] = "You're Almost There";
+     Layout = "_LayoutFull";
+}
+
+<form role="form" method="post" class="form-horizontal">
+    <input type="hidden" asp-for="UserPlan.Id">
+    <input type="hidden" asp-for="PayAccount.Id">
+    <div class="col-xl-offset-2 col-xl-8 col-sm-12 half-width">
+        <p>Confirm your plan choice below.</p>
+
+        <div class="row">
+            <div class="col-sm-8 ma-centered">
+                <div class="row">
+                    <div class="col-sm-12 col-xl-9 ma-centered">
+                        <div class="card">
+                            <div class="card-block">
+                                @Html.AntiForgeryToken()
+                                <h4 class="text-warning">
+                                    @Model.UserPlan.PlanType.Name
+                                </h4>
+                                <h6>
+                                    Initiation: $
+                                    <span id="initiation">
+                                        @(Model.UserPlan.Initiation / 100)
+                                    </span>
+                                </h6>
+                                <h6>
+                                    Monthly: $
+                                    <span id="monthly">
+                                        @(Model.UserPlan.Monthly / 100)
+                                    </span>
+                                </h6>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.UserPlan.PromoApplied)) {
+                                    <p>Promotion Applied: @Model.UserPlan.PromoApplied</p>
+                                }
+                                <hr/>
+                                <p>
+                                    Total Due Today: $<span id="total">@(Model.UserPlan.Initiation / 100)</span>
+                                </p>
+
+                                <hr/>
+
+                                <p>Payment Account: @Model.PayAccount.MaskedAccountNumber</p>
+
+                                <div id="stripeError" class="alert alert-warning hidden"></div>
+                                <a class="btn btn-default" href="javascript:window.history.back();">Go Back</a>
+                                <button type="submit" class="btn btn-info clickable">Send Me My Phone!</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4" style="margin: 0 auto;">
+                <div>By purchasing a plan you are re-affirming your agreement to our <a href="https://lexvor.com/agreement" target="_blank">User</a> and <a href="https://lexvor.com/lease" target="_blank">Lease Agreements</a> that you agreed to when signing up.</div>
+            </div>
+        </div>
+    </div>
+
+</form>

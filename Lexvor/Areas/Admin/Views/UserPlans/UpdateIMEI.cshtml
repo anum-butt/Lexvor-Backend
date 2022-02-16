@@ -1,0 +1,31 @@
+﻿@model Lexvor.API.Objects.User.UserDevice
+@{
+    ViewData["Title"] = "UpdateIMEI";
+    Layout = "_AdminLayout";
+}
+<ul class="list-group media-list media-list-stream mb-4">
+    <li class="media list-group-item p-4">
+        <div class="media-body">
+            <div class="row">
+                <form asp-action="UpdateIMEI">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <input type="hidden" asp-for="Id" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="IMEI" class="control-label"></label>
+	                    <input asp-for="IMEI" class="form-control" value="@Model.IMEI" />
+	                    <span asp-validation-for="IMEI" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Update IMEI" class="btn btn-success clickable" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </li>
+</ul>
+@section scripts {
+    <script>
+    </script>
+}

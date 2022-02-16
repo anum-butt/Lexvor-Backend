@@ -1,0 +1,127 @@
+﻿@using Lexvor.Controllers
+@model ACHAuthorizationModel
+@{
+	Layout = "_LayoutFull";
+	ViewData["PageName"] = "ACH Charge Authorization";
+	ViewData["PageSubtitle"] = "Please authorize the ACH charge to your bank account.";
+}
+
+<form role="form" class="" asp-route-returnurl="@ViewData["ReturnUrl"]">
+	<div class="row">
+		<div class="col-xl-12 col-md-12">
+			<div id="header-alerts"></div>
+			<div class="row">
+				<div class="col-xl-12 col-md-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="progress-wrapper">
+								<div class="progress mb-2" style="height: 30px;">
+									<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"></div>
+									<div class="progress-bar bg-dark" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+									<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+									<div class="progress-bar bg-dark" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 20%">Step 4 of 5</div>
+									<div class="progress-bar bg-dark progress-bar-striped" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%"></div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2 text-center">Pick your Plan</div>
+								<div class="col-md-3 text-center">Choose device</div>
+								<div class="col-md-2 text-center">Complete Billing Info</div>
+								<div class="col-md-3 text-center">Authorize Payment</div>
+								<div class="col-md-2 text-center">Connect Bank</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xl-12 col-md-12">
+					<div class="card">
+						<div class="card-body">
+							<h2 class="text-center">Please read and agree to the billing authorization below.</h2>
+							<hr />
+							<h4 class="text-center">I authorize Lexvor, Inc. to electronically debit my account on file for recurring bills and one-time charges and, if necessary, electronically credit my account on file to correct erroneous debits.</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header"><h5>Authorization Details</h5></div>
+						<div class="card-body">
+							<p>Primary Phone: @Model.Profile.Phone</p>
+							<p>Email: @Model.User.Email</p>
+							<p>First Name: <input type="text" value="@Model.Profile.FirstName" asp-for="FirstName" /></p>
+							<p>Last Name: <input type="text" value="@Model.Profile.LastName" asp-for="LastName" /></p>
+							<p><strong>Please use your name as it appears on your ID, or your account may be flagged for futher review</strong></p>
+							<p>Date: @DateTime.Now.ToString("g")</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header"><h5>Plan Details</h5></div>
+						<div class="card-body">
+							@if (Model.UserPlans.Any(x => x.AgreementSigned)) {
+								<h6>Currently Authorized Plans</h6>
+								@foreach (var item in Model.UserPlans.Where(x => x.AgreementSigned)) {
+									<p>@(string.IsNullOrWhiteSpace(item.UserGivenName) ? item.PlanType.Name : item.UserGivenName): <span class="badge badge-secondary">$@(item.Monthly / 100)</span></p>
+								}
+							}
+							<h6>New Plans Being Authorized</h6>
+							@foreach (var item in Model.UserPlans.Where(x => !x.AgreementSigned)) {
+								<p>@item.PlanType.Name @(!string.IsNullOrEmpty(item.MDN) ? $"({item.MDN})" : "(New Number Assignment)")</p>
+							}
+							@if (!Model.UsingAffirm) {
+								<h6>Total Initiation Charges (Due on Approval)</h6>
+								<p><span class="badge badge-info">$@(Model.TotalInitiation / 100)</span></p>
+							} else {
+								<h6>Devices purchased using Affirm (Subtotal)</h6>
+								<p><span class="badge badge-info">$@(Model.TotalDeviceCost / 100)</span></p>
+							}
+
+							<h6>Total Monthly Charges (Due Monthly)</h6>
+							<p>This includes any currently active plans.</p>
+							<p><span class="badge badge-info">$@(Model.TotalMonthly / 100)</span></p>
+
+							<h6>Total Charges Due Today</h6>
+							<p>This authentication charge is to confirm your bank account and validate your identity. It will be applied to your initiation.</p>
+							<p><span class="badge badge-info">$10</span></p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xl-12 col-md-12">
+					<div class="card">
+						<div class="card-body">
+							<p class="muted-text">Discounts and other account changes will reflect in your monthly invoices but not this authorization.</p>
+							<p>Period: Monthly</p>
+							<p>Billing Period: Continuous</p>
+							@if (Model.UsingAffirm) {
+								<p class="mb-0">Maximum Charge: $500*</p>
+								<p class="text-sm">* for past due bills.</p>
+							} else {
+								<p class="mb-0">Maximum Charge: $1500*</p>
+								<p class="text-sm">* for each stolen device.</p>
+							}
+
+							<p>If you wish to cancel this authorization you may either contact support at <a href="mailto:customerservice@lexvor.com">customerservice@lexvor.com</a> or cancel your plan from the dashboard.</p>
+
+							<hr />
+							<h3 class="text-center">Please print this page for your records.</h3>
+							
+							<p>If you have already attached a bank account in the past, clicking this will confirm your order.</p>
+							<p>WARNING: Only click this button once. You will be charged multiple times if you double click.</p>
+							<button type="submit" class='btn btn-primary clickable text-center'>I Agree to this Authorization</button>
+						</div>
+						<div class="card-footer">
+							<a href="@Url.Action(nameof(PaymentsController.CancelPendingPlan), PaymentsController.Name, new {returnUrl = ViewData["ReturnUrl"]})">Cancel Pending Purchases</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
